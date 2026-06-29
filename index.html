@@ -25,8 +25,8 @@
   --font: 'Inter', system-ui, sans-serif;
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
-body {
+html { scroll-behavior: smooth; max-width: 100%; overflow-x: hidden; }
+body { max-width: 100%; overflow-x: hidden;
   background: var(--bg);
   color: var(--text);
   font-family: var(--font);
@@ -153,8 +153,8 @@ nav {
   font-size: .7rem; font-weight: 600; color: var(--blue);
   text-transform: uppercase; letter-spacing: .05em; margin-bottom: 8px;
 }
-.ticker-scroll { overflow: hidden; white-space: nowrap; }
-.ticker-inner { display: inline-block; animation: tickscroll 40s linear infinite; }
+.ticker-scroll { overflow: hidden; white-space: nowrap; width: 100%; max-width: 100%; }
+.ticker-inner { display: inline-block; animation: tickscroll 40s linear infinite; will-change: transform; }
 .ti { font-size: .75rem; color: var(--text-2); margin-right: 40px; display: inline; }
 .ti .tn { color: var(--text); font-weight: 500; }
 .ti .tl { color: var(--blue); font-weight: 600; }
