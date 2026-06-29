@@ -9,22 +9,20 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg:       #06080F;
-  --surface:  #0D1221;
-  --card:     #131929;
-  --border:   #1E2A3A;
-  --text:     #FFFFFF;
-  --text-2:   #8A9BB5;
-  --text-3:   #3A4E66;
-  --blue:     #1496FF;
-  --blue-hi:  #40AAFF;
-  --teal:     #00B4E6;
-  --green:    #00C170;
-  --green-dk: #00A060;
-  --red:      #FF4060;
-  --gold:     #00B4E6;
-  --r:        8px;
-  --font:     'Inter', system-ui, sans-serif;
+  --bg:      #06080F;
+  --surface: #0D1221;
+  --card:    #131929;
+  --border:  #1E2A3A;
+  --text:    #FFFFFF;
+  --text-2:  #8A9BB5;
+  --text-3:  #3A4E66;
+  --blue:    #1496FF;
+  --blue-hi: #40AAFF;
+  --teal:    #00B4E6;
+  --green:   #00C170;
+  --red:     #FF4060;
+  --r: 8px;
+  --font: 'Inter', system-ui, sans-serif;
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
@@ -38,24 +36,18 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* ── Nav ──────────────────────────────────── */
+/* ── Nav ─────────────────────────────────────────────── */
 nav {
   position: sticky; top: 0; z-index: 200;
-  background: rgba(6,8,15,.92);
+  background: rgba(6,8,15,.95);
   backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border);
   display: flex; align-items: center; justify-content: space-between;
-  padding: 0 32px; height: 64px;
+  padding: 0 40px; height: 64px;
 }
-.logo {
-  font-size: 1rem; font-weight: 700; color: var(--text);
-  letter-spacing: -.01em; user-select: none; line-height: 1;
-}
+.logo { font-size: 1rem; font-weight: 700; color: #fff; user-select: none; }
 .logo-dot { color: var(--blue); }
-.logo-sub {
-  font-size: .7rem; font-weight: 400; color: var(--text-2);
-  margin-top: 1px;
-}
+.logo-sub { font-size: .7rem; font-weight: 400; color: var(--text-2); margin-top: 1px; }
 .tabs { display: flex; }
 .tab {
   background: none; border: none; border-bottom: 2px solid transparent;
@@ -63,13 +55,10 @@ nav {
   font-weight: 500; padding: 0 16px; height: 64px;
   cursor: pointer; transition: color .15s, border-color .15s;
 }
-.tab:hover { color: var(--text); }
+.tab:hover { color: #fff; }
 .tab.on { color: var(--blue); border-bottom-color: var(--blue); }
 
-/* ── Main ────────────────────────────────── */
-main {
-  max-width: 1140px; margin: 0 auto; padding: 40px 32px 80px;
-}
+/* ── Views ───────────────────────────────────────────── */
 .view { display: none; animation: fadeUp .25s ease; }
 .view.on { display: block; }
 @keyframes fadeUp {
@@ -77,71 +66,84 @@ main {
   to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ── Hero ────────────────────────────────── */
-.hero {
-  padding: 48px 0 40px;
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 40px;
+/* ── Sections (alternating backgrounds) ──────────────── */
+.s-white {
+  background: #fff;
+  color: #0B0F1A;
+  padding: 64px 40px 60px;
 }
+.s-dark {
+  background: var(--bg);
+  color: var(--text);
+  padding: 52px 40px 72px;
+}
+.s-dark-alt {
+  background: var(--surface);
+  color: var(--text);
+  padding: 52px 40px 72px;
+}
+.container { max-width: 1100px; margin: 0 auto; }
+
+/* ── Hero (white section) ────────────────────────────── */
 .hero-label {
   font-size: .75rem; font-weight: 600; color: var(--blue);
-  letter-spacing: .06em; text-transform: uppercase; margin-bottom: 16px;
+  letter-spacing: .06em; text-transform: uppercase; margin-bottom: 20px;
 }
 .hero-title {
-  font-size: clamp(2.4rem, 5vw, 3.8rem);
+  font-size: clamp(2.6rem, 5vw, 4rem);
   font-weight: 800; line-height: 1.05;
-  letter-spacing: -.03em; color: var(--text);
-  margin-bottom: 14px;
+  letter-spacing: -.03em; color: #0B0F1A;
+  margin-bottom: 20px;
 }
 .hero-title span { color: var(--blue); }
 .hero-desc {
-  font-size: 1rem; color: var(--text-2);
-  max-width: 560px; line-height: 1.65; margin-bottom: 36px;
+  font-size: 1.05rem; color: #4A5568;
+  max-width: 580px; line-height: 1.7;
 }
-.hero-stats {
-  display: flex; gap: 0;
-  border-top: 1px solid var(--border);
-  padding-top: 32px;
+
+/* ── Two-column layout (dark section) ───────────────── */
+.two-col {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 40px;
+  align-items: start;
 }
-.hstat {
-  padding-right: 40px; margin-right: 40px;
-  border-right: 1px solid var(--border);
+
+/* ── Stat panel (left col) ───────────────────────────── */
+.stat-panel { display: flex; flex-direction: column; gap: 2px; }
+.stat-panel-title {
+  font-size: .7rem; font-weight: 600; color: var(--text-2);
+  text-transform: uppercase; letter-spacing: .06em;
+  margin-bottom: 16px;
 }
-.hstat:last-child { border-right: none; margin-right: 0; padding-right: 0; }
-.hstat-val {
-  font-size: 2rem; font-weight: 800;
-  color: var(--text); line-height: 1; letter-spacing: -.03em;
+.stat-item {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 20px 22px;
+  margin-bottom: 8px;
 }
-.hstat-val span { color: var(--blue); }
-.hstat-lbl {
-  font-size: .75rem; color: var(--text-2);
+.stat-item:last-child { margin-bottom: 0; }
+.stat-val {
+  font-size: 2.2rem; font-weight: 800;
+  color: var(--blue); line-height: 1; letter-spacing: -.03em;
+}
+.stat-lbl {
+  font-size: .8rem; color: var(--text-2);
   margin-top: 4px; font-weight: 400;
 }
 
-/* ── Section header ──────────────────────── */
-.sh {
-  display: flex; align-items: baseline;
-  gap: 12px; margin-bottom: 20px;
-}
-.sh-title {
-  font-size: 1.1rem; font-weight: 700; color: var(--text);
-  letter-spacing: -.01em;
-}
-.sh-sub { font-size: .8rem; color: var(--text-2); }
-
-/* ── Live activity ticker ─────────────────── */
+/* ── Ticker ──────────────────────────────────────────── */
 .ticker {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: var(--r); padding: 10px 16px;
-  margin-bottom: 28px; overflow: hidden; display: none;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 14px 16px;
+  margin-top: 8px; overflow: hidden; display: none;
 }
 .ticker-lbl {
   font-size: .7rem; font-weight: 600; color: var(--blue);
-  text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px;
+  text-transform: uppercase; letter-spacing: .05em; margin-bottom: 8px;
 }
 .ticker-scroll { overflow: hidden; white-space: nowrap; }
 .ticker-inner { display: inline-block; animation: tickscroll 40s linear infinite; }
-.ti { font-size: .8rem; color: var(--text-2); margin-right: 48px; display: inline; }
+.ti { font-size: .75rem; color: var(--text-2); margin-right: 40px; display: inline; }
 .ti .tn { color: var(--text); font-weight: 500; }
 .ti .tl { color: var(--blue); font-weight: 600; }
 .ti .tp { color: var(--green); font-weight: 600; }
@@ -150,7 +152,14 @@ main {
   to   { transform: translateX(-50%); }
 }
 
-/* ── Table ───────────────────────────────── */
+/* ── Leaderboard (right col) ─────────────────────────── */
+.lb-header {
+  display: flex; align-items: baseline;
+  gap: 12px; margin-bottom: 16px;
+}
+.lb-title { font-size: 1.1rem; font-weight: 700; color: var(--text); }
+.lb-sub   { font-size: .8rem; color: var(--text-2); }
+
 .lb-wrap {
   background: var(--surface); border: 1px solid var(--border);
   border-radius: var(--r); overflow: hidden; overflow-x: auto;
@@ -159,117 +168,66 @@ table { width: 100%; border-collapse: collapse; }
 thead th {
   font-size: .7rem; font-weight: 600; color: var(--text-2);
   text-transform: uppercase; letter-spacing: .06em;
-  padding: 12px 20px; text-align: left;
+  padding: 12px 18px; text-align: left;
   border-bottom: 1px solid var(--border);
-  white-space: nowrap; background: var(--surface);
+  white-space: nowrap;
 }
 tbody td {
-  padding: 16px 20px; border-bottom: 1px solid var(--border);
+  padding: 15px 18px; border-bottom: 1px solid var(--border);
   vertical-align: middle; white-space: nowrap;
 }
 tbody tr:last-child td { border-bottom: none; }
-tbody tr:hover { background: rgba(255,255,255,.025); }
+tbody tr:hover { background: rgba(255,255,255,.02); }
 
-.rank {
-  font-size: 1rem; font-weight: 700; width: 40px;
-  color: var(--text-2);
-}
+.rank { font-size: .95rem; font-weight: 700; color: var(--text-2); width: 36px; }
 .rank.r1 { color: var(--teal); }
 .rank.r2 { color: #9B9BB5; }
 .rank.r3 { color: #8A6A3A; }
-
-.tname { font-size: .925rem; font-weight: 600; color: var(--text); }
-.ttype { font-size: .75rem; color: var(--text-2); margin-top: 2px; }
+.tname { font-size: .9rem; font-weight: 600; color: var(--text); }
+.ttype { font-size: .72rem; color: var(--text-2); margin-top: 2px; }
 .badge-complete {
-  font-size: .65rem; font-weight: 600; color: var(--teal);
+  font-size: .62rem; font-weight: 600; color: var(--teal);
   background: rgba(0,180,230,.1); border: 1px solid rgba(0,180,230,.3);
-  border-radius: 4px; padding: 1px 7px; margin-left: 8px;
+  border-radius: 4px; padding: 1px 6px; margin-left: 8px;
 }
-.pts { font-size: 1.1rem; font-weight: 800; color: var(--blue); }
-.prog-wrap { min-width: 120px; }
-.prog-bg {
-  background: var(--border); height: 4px;
-  border-radius: 4px; overflow: hidden; margin-bottom: 5px;
-}
-.prog-fill {
-  height: 100%; border-radius: 4px;
-  background: linear-gradient(90deg, var(--blue), var(--teal));
-  transition: width .5s ease;
-}
+.pts { font-size: 1.05rem; font-weight: 800; color: var(--blue); }
+.prog-wrap { min-width: 100px; }
+.prog-bg { background: var(--border); height: 3px; border-radius: 3px; overflow: hidden; margin-bottom: 4px; }
+.prog-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--blue), var(--teal)); transition: width .5s ease; }
 .prog-txt { font-size: .7rem; color: var(--text-2); }
-.ts { font-size: .75rem; color: var(--text-2); }
+.ts { font-size: .73rem; color: var(--text-2); }
 
-/* ── Artifact grid ───────────────────────── */
-.ag {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(62px, 1fr));
-  gap: 6px; margin-top: 20px;
-}
-.ac {
-  aspect-ratio: 1;
-  border: 1px solid var(--border);
-  background: var(--card);
-  border-radius: 6px;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  position: relative; transition: border-color .15s, background .15s;
-  cursor: default;
-}
-.ac:hover { border-color: var(--text-2); }
-.ac.found {
-  border-color: var(--green-dk);
-  background: rgba(0,193,112,.08);
-}
-.ac.rare { border-color: rgba(0,180,230,.4); }
-.ac.rare.found {
-  border-color: var(--teal);
-  background: rgba(0,180,230,.08);
-}
-.al {
-  font-size: 1.35rem; font-weight: 800;
-  line-height: 1; color: var(--text-2);
-  letter-spacing: -.02em;
-}
-.ac.found .al { color: var(--green); }
-.ac.rare .al  { color: var(--teal); }
-.an { font-size: .5rem; color: var(--text-3); margin-top: 2px; font-weight: 500; }
-.rare-dot {
-  position: absolute; top: 4px; right: 4px;
-  width: 5px; height: 5px; border-radius: 50%;
-  background: var(--teal);
-}
-.found-mark {
-  position: absolute; top: 3px; left: 4px;
-  width: 6px; height: 6px; border-radius: 50%;
-  background: var(--green);
-}
-.phrase-label {
-  font-size: .8rem; color: var(--text-2);
-  margin-bottom: 10px; line-height: 2;
-}
+/* ── Section divider ─────────────────────────────────── */
+.s-divider { height: 1px; background: var(--border); }
 
-/* ── Form ────────────────────────────────── */
+/* ── Shared section header ───────────────────────────── */
+.sh { display: flex; align-items: baseline; gap: 12px; margin-bottom: 20px; }
+.sh-title { font-size: 1.1rem; font-weight: 700; }
+.sh-sub   { font-size: .8rem; color: var(--text-2); }
+
+/* ── Single-page form views ──────────────────────────── */
+.view-inner { max-width: 1100px; margin: 0 auto; padding: 48px 40px 80px; }
+
 .form-card {
   background: var(--card); border: 1px solid var(--border);
   border-radius: var(--r); padding: 32px;
-  max-width: 520px; margin: 0 auto;
+  max-width: 520px;
 }
 .fl {
-  font-size: .75rem; font-weight: 600; color: var(--text-2);
+  font-size: .72rem; font-weight: 600; color: var(--text-2);
   text-transform: uppercase; letter-spacing: .06em;
   display: block; margin-bottom: 8px;
 }
 .fi {
-  width: 100%; background: var(--surface);
-  border: 1px solid var(--border); border-radius: 6px;
-  padding: 11px 14px; color: var(--text);
+  width: 100%; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 6px; padding: 11px 14px; color: var(--text);
   font-family: var(--font); font-size: .925rem;
   outline: none; transition: border-color .15s; appearance: none;
 }
 .fi:focus { border-color: var(--blue); }
 .fi::placeholder { color: var(--text-3); }
-.fg { margin-bottom: 24px; }
-.fhint { font-size: .75rem; color: var(--text-2); margin-top: 6px; }
+.fg { margin-bottom: 22px; }
+.fhint { font-size: .73rem; color: var(--text-2); margin-top: 6px; }
 
 .photo-zone {
   border: 1px dashed var(--border); border-radius: 6px;
@@ -277,46 +235,38 @@ tbody tr:hover { background: rgba(255,255,255,.025); }
   transition: all .15s; position: relative; overflow: hidden;
 }
 .photo-zone:hover, .photo-zone.loaded {
-  border-color: var(--blue);
-  background: rgba(20,150,255,.04);
+  border-color: var(--blue); background: rgba(20,150,255,.04);
 }
 .photo-zone input {
-  position: absolute; inset: 0; opacity: 0;
-  cursor: pointer; width: 100%; height: 100%;
+  position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
 }
-.photo-txt { font-size: .825rem; color: var(--text-2); line-height: 1.6; }
-.photo-preview {
-  max-width: 100%; max-height: 180px;
-  border-radius: 6px; display: none; margin: 0 auto;
-}
+.photo-txt { font-size: .82rem; color: var(--text-2); line-height: 1.6; }
+.photo-preview { max-width: 100%; max-height: 180px; border-radius: 6px; display: none; margin: 0 auto; }
 
 .btn {
   display: block; width: 100%; padding: 13px 20px;
   background: var(--blue); color: #fff;
-  font-family: var(--font); font-size: .925rem;
-  font-weight: 600; letter-spacing: .01em;
+  font-family: var(--font); font-size: .9rem; font-weight: 600;
   border: none; border-radius: 6px; cursor: pointer;
   transition: background .15s;
 }
 .btn:hover { background: var(--blue-hi); }
-.btn:active { opacity: .9; }
 .btn:disabled { opacity: .4; cursor: not-allowed; }
 .btn-ghost {
-  background: transparent; border: 1px solid var(--border);
-  color: var(--text-2);
+  background: transparent; border: 1px solid var(--border); color: var(--text-2);
 }
 .btn-ghost:hover { border-color: var(--blue); color: var(--blue); background: transparent; }
 
 .msg {
   padding: 11px 14px; border-radius: 6px;
-  font-size: .8rem; margin-top: 14px; display: none;
-  font-weight: 500;
+  font-size: .8rem; margin-top: 12px;
+  font-weight: 500; display: none;
 }
 .msg.ok  { background: rgba(0,193,112,.1); border: 1px solid rgba(0,193,112,.3); color: var(--green); display: block; }
-.msg.err { background: rgba(255,64,96,.1); border: 1px solid rgba(255,64,96,.3); color: var(--red); display: block; }
-.msg.run { background: rgba(20,150,255,.08); border: 1px solid rgba(20,150,255,.3); color: var(--blue); display: block; }
+.msg.err { background: rgba(255,64,96,.1);  border: 1px solid rgba(255,64,96,.3);  color: var(--red);   display: block; }
+.msg.run { background: rgba(20,150,255,.08); border: 1px solid rgba(20,150,255,.3); color: var(--blue);  display: block; }
 
-/* ── Spinner ─────────────────────────────── */
+/* ── Spinner ─────────────────────────────────────────── */
 .spin {
   display: inline-block; width: 12px; height: 12px;
   border: 2px solid var(--border); border-top-color: var(--blue);
@@ -325,46 +275,71 @@ tbody tr:hover { background: rgba(255,255,255,.025); }
 }
 @keyframes spinning { to { transform: rotate(360deg); } }
 
-/* ── Admin ───────────────────────────────── */
-.admin-grid {
+/* ── Empty state ─────────────────────────────────────── */
+.empty { text-align: center; padding: 56px 20px; }
+.empty-txt { font-size: .82rem; color: var(--text-2); font-weight: 500; }
+
+/* ── Artifact grid ───────────────────────────────────── */
+.ag {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(68px, 1fr));
-  gap: 6px;
+  grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+  gap: 6px; margin-top: 16px;
 }
+.ac {
+  aspect-ratio: 1;
+  border: 1px solid var(--border); background: var(--card);
+  border-radius: 6px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  position: relative; transition: border-color .15s; cursor: default;
+}
+.ac:hover { border-color: var(--text-2); }
+.ac.found { border-color: rgba(0,193,112,.5); background: rgba(0,193,112,.06); }
+.ac.rare  { border-color: rgba(0,180,230,.4); }
+.ac.rare.found { border-color: var(--teal); background: rgba(0,180,230,.07); }
+.al { font-size: 1.3rem; font-weight: 800; line-height: 1; color: var(--text-2); letter-spacing: -.02em; }
+.ac.found .al { color: var(--green); }
+.ac.rare  .al { color: var(--teal); }
+.an { font-size: .48rem; color: var(--text-3); margin-top: 2px; font-weight: 500; }
+.rare-dot  { position: absolute; top: 4px; right: 4px; width: 5px; height: 5px; border-radius: 50%; background: var(--teal); }
+.found-dot { position: absolute; top: 4px; left:  4px; width: 5px; height: 5px; border-radius: 50%; background: var(--green); }
+.phrase-label { font-size: .82rem; color: var(--text-2); margin-bottom: 10px; line-height: 2.2; }
+
+/* ── Admin grid ──────────────────────────────────────── */
+.admin-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(66px, 1fr)); gap: 6px; }
 .aa {
   border: 1px solid var(--border); background: var(--card);
   border-radius: 6px; padding: 8px 4px; text-align: center;
   cursor: pointer; transition: all .15s; user-select: none;
 }
 .aa:hover { border-color: var(--blue); }
-.aa.rare { border-color: var(--teal); background: rgba(0,180,230,.06); }
-.aa-l { font-size: 1.3rem; font-weight: 800; color: var(--text-2); line-height: 1; }
+.aa.rare  { border-color: var(--teal); background: rgba(0,180,230,.06); }
+.aa-l { font-size: 1.2rem; font-weight: 800; color: var(--text-2); line-height: 1; }
 .aa.rare .aa-l { color: var(--teal); }
-.aa-n { font-size: .5rem; color: var(--text-3); margin-top: 2px; font-weight: 500; }
-.aa-p { font-size: .58rem; color: var(--blue); margin-top: 2px; font-weight: 600; }
+.aa-n { font-size: .48rem; color: var(--text-3); margin-top: 2px; font-weight: 500; }
+.aa-p { font-size: .56rem; color: var(--blue); margin-top: 2px; font-weight: 600; }
 .aa.rare .aa-p { color: var(--teal); }
-.admin-toolbar { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+.admin-toolbar { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
 .admin-toolbar .btn { width: auto; }
 
-/* ── Empty ───────────────────────────────── */
-.empty { text-align: center; padding: 56px 20px; color: var(--text-2); }
-.empty-txt { font-size: .8rem; font-weight: 500; }
-
-/* ── Responsive ──────────────────────────── */
+/* ── Responsive ──────────────────────────────────────── */
+@media (max-width: 860px) {
+  .two-col { grid-template-columns: 1fr; }
+  .stat-panel { flex-direction: row; flex-wrap: wrap; gap: 8px; }
+  .stat-item { flex: 1; min-width: 140px; margin-bottom: 0; }
+}
 @media (max-width: 640px) {
   nav { padding: 0 16px; }
   .tab { padding: 0 10px; font-size: .775rem; }
-  main { padding: 24px 16px 80px; }
-  .form-card { padding: 20px 16px; }
+  .s-white, .s-dark, .s-dark-alt { padding: 40px 20px; }
+  .view-inner { padding: 32px 20px 64px; }
   thead th:nth-child(4), tbody td:nth-child(4) { display: none; }
-  .hstat-val { font-size: 1.6rem; }
-  .hero-stats { flex-wrap: wrap; gap: 20px; }
-  .hstat { border-right: none; margin-right: 0; padding-right: 0; }
 }
 </style>
 </head>
 <body>
 
+<!-- NAV -->
 <nav>
   <div>
     <div class="logo">GeoVision<span class="logo-dot">.</span>Hunt</div>
@@ -378,143 +353,189 @@ tbody tr:hover { background: rgba(255,255,255,.025); }
   </div>
 </nav>
 
-<main>
-
-<!-- LEADERBOARD -->
+<!-- ═══ LEADERBOARD ═══════════════════════════════════════════ -->
 <div id="v-lb" class="view on">
-  <div class="hero">
-    <div class="hero-label">R&amp;D Team Event · Gdańsk 2025</div>
-    <div class="hero-title">GeoVision <span>Hunt</span></div>
-    <div class="hero-desc">
-      55 wooden artifacts hidden across Gdańsk. Each carries one letter of our vision.
-      Find them, photograph them, upload your proof — and claim your place on the leaderboard.
-    </div>
-    <div class="hero-stats">
-      <div class="hstat">
-        <div class="hstat-val"><span id="s-found">—</span></div>
-        <div class="hstat-lbl">Artifacts found</div>
-      </div>
-      <div class="hstat">
-        <div class="hstat-val"><span id="s-teams">—</span></div>
-        <div class="hstat-lbl">Active teams</div>
-      </div>
-      <div class="hstat">
-        <div class="hstat-val"><span id="s-subs">—</span></div>
-        <div class="hstat-lbl">Total submissions</div>
+
+  <!-- Section 1: White -->
+  <div class="s-white">
+    <div class="container">
+      <div class="hero-label">R&amp;D Team Event · Gdańsk 2025</div>
+      <div class="hero-title">GeoVision <span>Hunt</span></div>
+      <div class="hero-desc">
+        55 wooden artifacts hidden across Gdańsk. Each carries one letter of our vision.
+        Find them, photograph them, upload your proof — and claim your place on the leaderboard.
       </div>
     </div>
   </div>
 
-  <div class="ticker" id="ticker">
-    <div class="ticker-lbl">Live activity</div>
-    <div class="ticker-scroll">
-      <div class="ticker-inner" id="ticker-inner"></div>
+  <!-- Section 2: Dark — stats left, leaderboard right -->
+  <div class="s-dark">
+    <div class="container">
+      <div class="two-col">
+
+        <!-- Left: stats + ticker -->
+        <div>
+          <div class="stat-panel">
+            <div class="stat-panel-title">Event stats</div>
+            <div class="stat-item">
+              <div class="stat-val" id="s-found">—</div>
+              <div class="stat-lbl">Artifacts found</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-val" id="s-teams">—</div>
+              <div class="stat-lbl">Active teams</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-val" id="s-subs">—</div>
+              <div class="stat-lbl">Total submissions</div>
+            </div>
+          </div>
+
+          <div class="ticker" id="ticker">
+            <div class="ticker-lbl">Live activity</div>
+            <div class="ticker-scroll">
+              <div class="ticker-inner" id="ticker-inner"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: leaderboard -->
+        <div>
+          <div class="lb-header">
+            <span class="lb-title">Leaderboard</span>
+            <span class="lb-sub" id="lb-updated"></span>
+          </div>
+          <div class="lb-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Rank</th>
+                  <th>Team / Name</th>
+                  <th>Points</th>
+                  <th>Progress</th>
+                  <th>Last find</th>
+                </tr>
+              </thead>
+              <tbody id="lb-body">
+                <tr><td colspan="5"><div class="empty"><span class="spin"></span></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
     </div>
   </div>
 
-  <div class="sh">
-    <span class="sh-title">Leaderboard</span>
-    <span class="sh-sub" id="lb-updated"></span>
-  </div>
-  <div class="lb-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th>Rank</th>
-          <th>Team / Name</th>
-          <th>Points</th>
-          <th>Progress</th>
-          <th>Last find</th>
-        </tr>
-      </thead>
-      <tbody id="lb-body">
-        <tr><td colspan="5"><div class="empty"><span class="spin"></span></div></td></tr>
-      </tbody>
-    </table>
-  </div>
 </div>
 
-<!-- SUBMIT -->
+<!-- ═══ SUBMIT ════════════════════════════════════════════════ -->
 <div id="v-sub" class="view">
-  <div class="sh">
-    <span class="sh-title">Submit a find</span>
-    <span class="sh-sub">Photo required · Honor system</span>
+  <div class="s-white">
+    <div class="container">
+      <div class="hero-label">Honor system · Photo required</div>
+      <div class="hero-title" style="font-size:2.2rem">Submit a find</div>
+      <div class="hero-desc">Enter your team name, the artifact number from the board, and upload a photo as proof.</div>
+    </div>
   </div>
-  <div class="form-card">
-    <div class="fg">
-      <label class="fl" for="in-team">Team or individual name</label>
-      <input type="text" id="in-team" class="fi" placeholder="e.g. Observability Heroes" maxlength="60" autocomplete="off">
-      <div class="fhint">Use the same name for every submission. Case-insensitive.</div>
-    </div>
-    <div class="fg">
-      <label class="fl" for="in-num">Artifact number</label>
-      <input type="number" id="in-num" class="fi" placeholder="1 – 55" min="1" max="55" inputmode="numeric">
-      <div class="fhint" id="art-hint">The number printed on the wooden board.</div>
-    </div>
-    <div class="fg">
-      <label class="fl">Photo evidence</label>
-      <div class="photo-zone" id="pzone">
-        <input type="file" id="in-photo" accept="image/*" capture="environment">
-        <img class="photo-preview" id="p-prev" alt="">
-        <div class="photo-txt" id="p-txt">Tap to take a photo or choose from gallery</div>
+  <div class="s-dark">
+    <div class="container">
+      <div class="form-card">
+        <div class="fg">
+          <label class="fl" for="in-team">Team or individual name</label>
+          <input type="text" id="in-team" class="fi" placeholder="e.g. Observability Heroes" maxlength="60" autocomplete="off">
+          <div class="fhint">Use the same name for every submission. Case-insensitive.</div>
+        </div>
+        <div class="fg">
+          <label class="fl" for="in-num">Artifact number</label>
+          <input type="number" id="in-num" class="fi" placeholder="1 – 55" min="1" max="55" inputmode="numeric">
+          <div class="fhint" id="art-hint">The number printed on the wooden board.</div>
+        </div>
+        <div class="fg">
+          <label class="fl">Photo evidence</label>
+          <div class="photo-zone" id="pzone">
+            <input type="file" id="in-photo" accept="image/*" capture="environment">
+            <img class="photo-preview" id="p-prev" alt="">
+            <div class="photo-txt" id="p-txt">Tap to take a photo or choose from gallery</div>
+          </div>
+        </div>
+        <button class="btn" id="sub-btn" onclick="submitFind()">Submit find</button>
+        <div class="msg" id="sub-msg"></div>
       </div>
     </div>
-    <button class="btn" id="sub-btn" onclick="submitFind()">Submit find</button>
-    <div class="msg" id="sub-msg"></div>
   </div>
 </div>
 
-<!-- ARTIFACTS -->
+<!-- ═══ ARTIFACTS ═════════════════════════════════════════════ -->
 <div id="v-art" class="view">
-  <div class="sh">
-    <span class="sh-title">Artifacts</span>
-    <span class="sh-sub" id="art-progress">0 / 55 found</span>
+  <div class="s-white">
+    <div class="container">
+      <div class="hero-label">55 artifacts · <span id="art-progress" style="color:#4A5568;font-weight:400">0 of 55 found</span></div>
+      <div class="hero-title" style="font-size:2.2rem">Artifact map</div>
+      <div class="hero-desc">Each letter of the vision statement is one artifact. Teal dots mark rare artifacts worth more points.</div>
+    </div>
   </div>
-  <div class="phrase-label" id="art-phrase"></div>
-  <div class="ag" id="art-grid"></div>
+  <div class="s-dark">
+    <div class="container">
+      <div class="phrase-label" id="art-phrase"></div>
+      <div class="ag" id="art-grid"></div>
+    </div>
+  </div>
 </div>
 
-<!-- ADMIN -->
+<!-- ═══ ADMIN ══════════════════════════════════════════════════ -->
 <div id="v-adm" class="view">
-  <div class="sh"><span class="sh-title">Admin</span></div>
-  <div id="adm-gate" class="form-card">
-    <div class="fg">
-      <label class="fl">Password</label>
-      <input type="password" id="adm-pass" class="fi" placeholder="Admin password"
-             onkeydown="if(event.key==='Enter')adminLogin()">
+  <div class="s-white">
+    <div class="container">
+      <div class="hero-label">Restricted access</div>
+      <div class="hero-title" style="font-size:2.2rem">Admin panel</div>
+      <div class="hero-desc">Configure rare artifacts, export data, and monitor all submissions.</div>
     </div>
-    <button class="btn" onclick="adminLogin()">Sign in</button>
-    <div class="msg" id="adm-gate-msg"></div>
   </div>
+  <div class="s-dark">
+    <div class="container">
 
-  <div id="adm-panel" style="display:none">
-    <div class="form-card" style="max-width:100%;margin-bottom:28px">
-      <div class="sh" style="margin-bottom:14px">
-        <span class="sh-title">Rare artifacts</span>
-        <span class="sh-sub">Click to toggle · teal = rare (30 pts) · default = standard (10 pts)</span>
+      <div id="adm-gate" style="max-width:420px">
+        <div class="form-card">
+          <div class="fg">
+            <label class="fl">Password</label>
+            <input type="password" id="adm-pass" class="fi" placeholder="Admin password"
+                   onkeydown="if(event.key==='Enter')adminLogin()">
+          </div>
+          <button class="btn" onclick="adminLogin()">Sign in</button>
+          <div class="msg" id="adm-gate-msg"></div>
+        </div>
       </div>
-      <div class="admin-grid" id="adm-grid"></div>
-      <div class="admin-toolbar">
-        <button class="btn btn-ghost" onclick="saveRareConfig()">Download config</button>
-        <button class="btn btn-ghost" onclick="exportCSV()">Export CSV</button>
-        <button class="btn btn-ghost" onclick="reloadScores()">Reload data</button>
-      </div>
-      <div class="msg" id="adm-msg"></div>
-    </div>
 
-    <div class="sh"><span class="sh-title">All submissions</span></div>
-    <div class="lb-wrap">
-      <table>
-        <thead>
-          <tr><th>Time</th><th>Team</th><th>Artifact</th><th>Letter</th><th>Points</th><th>Speed rank</th></tr>
-        </thead>
-        <tbody id="adm-subs"></tbody>
-      </table>
+      <div id="adm-panel" style="display:none">
+        <div class="sh" style="margin-bottom:16px">
+          <span class="sh-title">Rare artifacts</span>
+          <span class="sh-sub">Click to toggle · Teal = rare (30 pts) · Default = standard (10 pts)</span>
+        </div>
+        <div class="admin-grid" id="adm-grid"></div>
+        <div class="admin-toolbar">
+          <button class="btn btn-ghost" onclick="saveRareConfig()">Download config</button>
+          <button class="btn btn-ghost" onclick="exportCSV()">Export CSV</button>
+          <button class="btn btn-ghost" onclick="reloadScores()">Reload data</button>
+        </div>
+        <div class="msg" id="adm-msg"></div>
+
+        <div class="sh" style="margin-top:40px;margin-bottom:16px">
+          <span class="sh-title">All submissions</span>
+        </div>
+        <div class="lb-wrap">
+          <table>
+            <thead>
+              <tr><th>Time</th><th>Team</th><th>Artifact</th><th>Letter</th><th>Points</th><th>Speed rank</th></tr>
+            </thead>
+            <tbody id="adm-subs"></tbody>
+          </table>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
-
-</main>
 
 <script>
 const CFG = {
@@ -538,18 +559,17 @@ const ARTS = (() => {
   return out;
 })();
 
-let SC = { teams: [], artifacts: {}, submissions: [], last_updated: null };
-let adminOpen = false;
-let photoB64 = null;
+let SC = { teams:[], artifacts:{}, submissions:[], last_updated:null };
+let adminOpen = false, photoB64 = null;
 
 function go(id, btn) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('on'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
-  document.getElementById('v-' + id).classList.add('on');
+  document.getElementById('v-'+id).classList.add('on');
   btn.classList.add('on');
-  if (id === 'lb')  renderLB();
-  if (id === 'art') renderArtifacts();
-  if (id === 'adm' && adminOpen) renderAdmSubs();
+  if (id==='lb')  renderLB();
+  if (id==='art') renderArtifacts();
+  if (id==='adm' && adminOpen) renderAdmSubs();
 }
 
 async function loadScores() {
@@ -557,270 +577,217 @@ async function loadScores() {
     const r = await fetch(`https://raw.githubusercontent.com/${CFG.OWNER}/${CFG.REPO}/main/data/scores.json?_=${Date.now()}`);
     if (!r.ok) throw 0;
     SC = await r.json();
-  } catch(_) {
-    SC = { teams: [], artifacts: {}, submissions: [], last_updated: null };
-  }
+  } catch(_) { SC = {teams:[],artifacts:{},submissions:[],last_updated:null}; }
   renderLB(); renderArtifacts(); renderStats(); renderTicker();
   if (adminOpen) renderAdmSubs();
 }
 
 function renderStats() {
-  const found = Object.values(SC.artifacts || {}).filter(a => a.found_count > 0).length;
-  set('s-found', found);
-  set('s-teams', (SC.teams || []).length);
-  set('s-subs',  (SC.submissions || []).length);
-  if (SC.last_updated) set('lb-updated', 'Updated ' + ago(SC.last_updated));
+  const found = Object.values(SC.artifacts||{}).filter(a=>a.found_count>0).length;
+  set('s-found', found||'0');
+  set('s-teams', (SC.teams||[]).length||'0');
+  set('s-subs',  (SC.submissions||[]).length||'0');
+  if (SC.last_updated) set('lb-updated','Updated '+ago(SC.last_updated));
 }
 
 function renderTicker() {
-  const subs = (SC.submissions || []).slice(-20).reverse();
+  const subs = (SC.submissions||[]).slice(-20).reverse();
   if (!subs.length) return;
   document.getElementById('ticker').style.display = 'block';
   const items = subs.map(s => {
-    const a = ARTS.find(x => x.id === s.artifact_id);
-    return `<span class="ti"><span class="tn">${esc(s.team)}</span> found <span class="tl">${a ? a.letter : '?'} #${s.artifact_id}</span> <span class="tp">+${s.points} pts</span> · ${ago(s.timestamp)}</span>`;
+    const a = ARTS.find(x=>x.id===s.artifact_id);
+    return `<span class="ti"><span class="tn">${esc(s.team)}</span> found <span class="tl">${a?a.letter:'?'} #${s.artifact_id}</span> <span class="tp">+${s.points} pts</span> · ${ago(s.timestamp)}</span>`;
   }).join('');
-  set('ticker-inner', items + items);
+  set('ticker-inner', items+items);
 }
 
 function renderLB() {
-  const teams = (SC.teams || []).sort((a, b) => b.total_points - a.total_points);
+  const teams = (SC.teams||[]).sort((a,b)=>b.total_points-a.total_points);
   if (!teams.length) {
-    set('lb-body', `<tr><td colspan="5"><div class="empty"><div class="empty-txt">No submissions yet. The hunt begins.</div></div></td></tr>`);
-    set('s-found', 0); set('s-teams', 0); set('s-subs', 0);
+    set('lb-body','<tr><td colspan="5"><div class="empty"><div class="empty-txt">No submissions yet. The hunt begins.</div></div></td></tr>');
+    set('s-found','0'); set('s-teams','0'); set('s-subs','0');
     return;
   }
-  set('lb-body', teams.map((t, i) => {
-    const r = i + 1;
-    const rc = r === 1 ? 'r1' : r === 2 ? 'r2' : r === 3 ? 'r3' : '';
-    const pct = Math.round((t.artifacts_found.length / 55) * 100);
-    const comp = t.artifacts_found.length === 55 ? '<span class="badge-complete">Complete</span>' : '';
+  set('lb-body', teams.map((t,i)=>{
+    const r=i+1, rc=r===1?'r1':r===2?'r2':r===3?'r3':'';
+    const pct=Math.round((t.artifacts_found.length/55)*100);
+    const comp=t.artifacts_found.length===55?'<span class="badge-complete">Complete</span>':'';
     return `<tr>
       <td><span class="rank ${rc}">${r}</span></td>
-      <td>
-        <div class="tname">${esc(t.name)}${comp}</div>
-        <div class="ttype">${t.type || 'Individual'}</div>
-      </td>
+      <td><div class="tname">${esc(t.name)}${comp}</div><div class="ttype">${t.type||'Individual'}</div></td>
       <td><span class="pts">${t.total_points.toLocaleString()}</span></td>
-      <td>
-        <div class="prog-wrap">
-          <div class="prog-bg"><div class="prog-fill" style="width:${pct}%"></div></div>
-          <div class="prog-txt">${t.artifacts_found.length} of 55</div>
-        </div>
-      </td>
-      <td><span class="ts">${t.last_submission ? ago(t.last_submission) : '—'}</span></td>
+      <td><div class="prog-wrap"><div class="prog-bg"><div class="prog-fill" style="width:${pct}%"></div></div><div class="prog-txt">${t.artifacts_found.length} of 55</div></div></td>
+      <td><span class="ts">${t.last_submission?ago(t.last_submission):'—'}</span></td>
     </tr>`;
   }).join(''));
   renderStats();
 }
 
 function renderArtifacts() {
-  let phraseHtml = '', id = 1;
+  let html='', id=1;
   for (const ch of PHRASE) {
     if (/[a-zA-Z]/.test(ch)) {
-      const a = SC.artifacts?.[id];
-      const found = a && a.found_count > 0;
-      const rare  = CFG.RARE_IDS.has(id);
-      phraseHtml += `<span title="#${id}" style="color:${found ? 'var(--green)' : rare ? 'var(--teal)' : 'var(--text-2)'};cursor:default">${ch}</span>`;
+      const a=SC.artifacts?.[id], found=a&&a.found_count>0, rare=CFG.RARE_IDS.has(id);
+      html+=`<span title="#${id}" style="color:${found?'var(--green)':rare?'var(--teal)':'var(--text-2)'};cursor:default">${ch}</span>`;
       id++;
-    } else {
-      phraseHtml += ch === ' ' ? ' ' : `<span style="color:var(--border)">${ch}</span>`;
-    }
+    } else { html+=ch===' '?' ':`<span style="color:var(--border)">${ch}</span>`; }
   }
-  set('art-phrase', phraseHtml);
-  const found = Object.values(SC.artifacts || {}).filter(a => a.found_count > 0).length;
-  set('art-progress', `${found} of 55 found`);
-  set('art-grid', ARTS.map(art => {
-    const ad = SC.artifacts?.[art.id];
-    const isFound = ad && ad.found_count > 0;
-    const isRare  = CFG.RARE_IDS.has(art.id);
-    const cls = ['ac', isFound ? 'found' : '', isRare ? 'rare' : ''].filter(Boolean).join(' ');
-    const tip = isFound
-      ? `#${art.id} ${art.letter} · First: ${ad.first_finder} · Found ${ad.found_count}×`
-      : `#${art.id} ${art.letter}${isRare ? ' · Rare' : ''}`;
+  set('art-phrase',html);
+  const found=Object.values(SC.artifacts||{}).filter(a=>a.found_count>0).length;
+  set('art-progress',`${found} of 55 found`);
+  set('art-grid', ARTS.map(art=>{
+    const ad=SC.artifacts?.[art.id], isFound=ad&&ad.found_count>0, isRare=CFG.RARE_IDS.has(art.id);
+    const cls=['ac',isFound?'found':'',isRare?'rare':''].filter(Boolean).join(' ');
+    const tip=isFound?`#${art.id} ${art.letter} · First: ${ad.first_finder} · Found ${ad.found_count}×`:`#${art.id} ${art.letter}${isRare?' · Rare':''}`;
     return `<div class="${cls}" title="${esc(tip)}">
-      ${isRare  ? '<div class="rare-dot"></div>' : ''}
-      ${isFound ? '<div class="found-mark"></div>' : ''}
+      ${isRare?'<div class="rare-dot"></div>':''}
+      ${isFound?'<div class="found-dot"></div>':''}
       <div class="al">${art.letter}</div>
       <div class="an">#${String(art.id).padStart(2,'0')}</div>
     </div>`;
   }).join(''));
 }
 
-document.getElementById('in-photo').addEventListener('change', function() {
-  const file = this.files[0]; if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    photoB64 = e.target.result.split(',')[1];
-    const prev = document.getElementById('p-prev');
-    prev.src = e.target.result; prev.style.display = 'block';
-    document.getElementById('p-txt').style.display = 'none';
+document.getElementById('in-photo').addEventListener('change',function(){
+  const file=this.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    photoB64=e.target.result.split(',')[1];
+    const prev=document.getElementById('p-prev');
+    prev.src=e.target.result; prev.style.display='block';
+    document.getElementById('p-txt').style.display='none';
     document.getElementById('pzone').classList.add('loaded');
   };
   reader.readAsDataURL(file);
 });
 
-document.getElementById('in-num').addEventListener('input', function() {
-  const n = parseInt(this.value), hint = document.getElementById('art-hint');
-  if (n >= 1 && n <= 55) {
-    const art = ARTS[n - 1], isRare = CFG.RARE_IDS.has(n);
-    hint.innerHTML = `Letter: <strong style="color:var(--blue)">${art.letter}</strong>${isRare ? ' · <span style="color:var(--teal)">Rare artifact</span>' : ''}`;
-  } else {
-    hint.textContent = 'The number printed on the wooden board.';
-  }
+document.getElementById('in-num').addEventListener('input',function(){
+  const n=parseInt(this.value), hint=document.getElementById('art-hint');
+  if(n>=1&&n<=55){
+    const art=ARTS[n-1], isRare=CFG.RARE_IDS.has(n);
+    hint.innerHTML=`Letter: <strong style="color:var(--blue)">${art.letter}</strong>${isRare?' · <span style="color:var(--teal)">Rare artifact</span>':''}`;
+  } else { hint.textContent='The number printed on the wooden board.'; }
 });
 
 async function submitFind() {
-  const team = document.getElementById('in-team').value.trim();
-  const num  = parseInt(document.getElementById('in-num').value);
-  const msg  = document.getElementById('sub-msg');
-  const btn  = document.getElementById('sub-btn');
-
-  if (!team)                 return showMsg(msg, 'err', 'Team or individual name required.');
-  if (!num || num<1||num>55) return showMsg(msg, 'err', 'Artifact number must be between 1 and 55.');
-  if (!photoB64)             return showMsg(msg, 'err', 'Photo required as evidence.');
-
-  const norm = team.toLowerCase();
-  const dup  = (SC.submissions || []).find(s => s.team.toLowerCase() === norm && s.artifact_id === num);
-  if (dup) return showMsg(msg, 'err', `Your team already submitted artifact #${num}.`);
-
-  btn.disabled = true;
-  const art = ARTS[num - 1];
-
+  const team=document.getElementById('in-team').value.trim();
+  const num=parseInt(document.getElementById('in-num').value);
+  const msg=document.getElementById('sub-msg'), btn=document.getElementById('sub-btn');
+  if(!team)               return showMsg(msg,'err','Team or individual name required.');
+  if(!num||num<1||num>55) return showMsg(msg,'err','Artifact number must be between 1 and 55.');
+  if(!photoB64)           return showMsg(msg,'err','Photo required as evidence.');
+  const norm=team.toLowerCase();
+  const dup=(SC.submissions||[]).find(s=>s.team.toLowerCase()===norm&&s.artifact_id===num);
+  if(dup) return showMsg(msg,'err',`Your team already submitted artifact #${num}.`);
+  btn.disabled=true;
+  const art=ARTS[num-1];
   try {
-    showMsg(msg, 'run', '<span class="spin"></span>Uploading photo...');
-    const ts    = new Date().toISOString();
-    const slug  = team.replace(/[^a-z0-9]/gi, '_').slice(0, 30);
-    const fname = `photos/${ts.replace(/[:.]/g,'-')}_${slug}_${String(num).padStart(2,'0')}.jpg`;
-
-    const upRes = await fetch(`https://api.github.com/repos/${CFG.OWNER}/${CFG.REPO}/contents/${fname}`, {
-      method: 'PUT',
-      headers: { Authorization: `token ${CFG.TOKEN}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: `photo: ${team} #${num}`, content: photoB64, branch: 'main' })
+    showMsg(msg,'run','<span class="spin"></span>Uploading photo...');
+    const ts=new Date().toISOString();
+    const slug=team.replace(/[^a-z0-9]/gi,'_').slice(0,30);
+    const fname=`photos/${ts.replace(/[:.]/g,'-')}_${slug}_${String(num).padStart(2,'0')}.jpg`;
+    const upRes=await fetch(`https://api.github.com/repos/${CFG.OWNER}/${CFG.REPO}/contents/${fname}`,{
+      method:'PUT',headers:{Authorization:`token ${CFG.TOKEN}`,'Content-Type':'application/json'},
+      body:JSON.stringify({message:`photo: ${team} #${num}`,content:photoB64,branch:'main'})
     });
-    if (!upRes.ok) { const e = await upRes.json(); throw new Error(e.message || upRes.status); }
-    const photoUrl = (await upRes.json()).content.html_url;
-
-    showMsg(msg, 'run', '<span class="spin"></span>Registering find...');
-    const isRare = CFG.RARE_IDS.has(num);
-    const issueBody = `## Hunt Submission\n\n| | |\n|---|---|\n| **Team** | ${team} |\n| **Artifact** | #${num} — ${art.letter}${isRare ? ' (Rare)' : ''} |\n| **Timestamp** | ${ts} |\n| **Photo** | [View](${photoUrl}) |\n\n---\n*Submitted via GeoVision Hunt*`;
-
-    const issRes = await fetch(`https://api.github.com/repos/${CFG.OWNER}/${CFG.REPO}/issues`, {
-      method: 'POST',
-      headers: { Authorization: `token ${CFG.TOKEN}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        title:  `[HUNT] #${String(num).padStart(2,'0')} ${art.letter} | ${team}`,
-        body:   issueBody,
-        labels: ['submission']
+    if(!upRes.ok){const e=await upRes.json();throw new Error(e.message||upRes.status);}
+    const photoUrl=(await upRes.json()).content.html_url;
+    showMsg(msg,'run','<span class="spin"></span>Registering find...');
+    const isRare=CFG.RARE_IDS.has(num);
+    const issRes=await fetch(`https://api.github.com/repos/${CFG.OWNER}/${CFG.REPO}/issues`,{
+      method:'POST',headers:{Authorization:`token ${CFG.TOKEN}`,'Content-Type':'application/json'},
+      body:JSON.stringify({
+        title:`[HUNT] #${String(num).padStart(2,'00')} ${art.letter} | ${team}`,
+        body:`## Hunt Submission\n\n| | |\n|---|---|\n| **Team** | ${team} |\n| **Artifact** | #${num} — ${art.letter}${isRare?' (Rare)':''} |\n| **Timestamp** | ${ts} |\n| **Photo** | [View](${photoUrl}) |\n\n---\n*Submitted via GeoVision Hunt*`,
+        labels:['submission']
       })
     });
-    if (!issRes.ok) { const e = await issRes.json(); throw new Error(e.message || issRes.status); }
-
-    localStorage.setItem('ghunt_team', team);
-    showMsg(msg, 'ok', `Artifact #${num} [${art.letter}] submitted. Leaderboard updates within 60 seconds.`);
-
-    photoB64 = null;
-    document.getElementById('p-prev').style.display = 'none';
-    document.getElementById('p-txt').style.display = 'block';
+    if(!issRes.ok){const e=await issRes.json();throw new Error(e.message||issRes.status);}
+    localStorage.setItem('ghunt_team',team);
+    showMsg(msg,'ok',`Artifact #${num} [${art.letter}] submitted. Leaderboard updates within 60 seconds.`);
+    photoB64=null;
+    document.getElementById('p-prev').style.display='none';
+    document.getElementById('p-txt').style.display='block';
     document.getElementById('pzone').classList.remove('loaded');
-    document.getElementById('in-photo').value = '';
-    document.getElementById('in-num').value   = '';
-    document.getElementById('art-hint').textContent = 'The number printed on the wooden board.';
-  } catch(err) {
-    showMsg(msg, 'err', `Something went wrong: ${err.message} — please try again.`);
-  } finally {
-    btn.disabled = false;
-  }
+    document.getElementById('in-photo').value='';
+    document.getElementById('in-num').value='';
+    document.getElementById('art-hint').textContent='The number printed on the wooden board.';
+  } catch(err){showMsg(msg,'err',`Something went wrong: ${err.message} — please try again.`);}
+  finally{btn.disabled=false;}
 }
 
-function adminLogin() {
-  const pw = document.getElementById('adm-pass').value;
-  if (pw === CFG.ADMIN_PW) {
-    adminOpen = true;
-    document.getElementById('adm-gate').style.display = 'none';
-    document.getElementById('adm-panel').style.display = 'block';
+function adminLogin(){
+  const pw=document.getElementById('adm-pass').value;
+  if(pw===CFG.ADMIN_PW){
+    adminOpen=true;
+    document.getElementById('adm-gate').style.display='none';
+    document.getElementById('adm-panel').style.display='block';
     renderAdmGrid(); renderAdmSubs();
-  } else {
-    showMsg(document.getElementById('adm-gate-msg'), 'err', 'Incorrect password.');
-  }
+  } else { showMsg(document.getElementById('adm-gate-msg'),'err','Incorrect password.'); }
 }
 
-function renderAdmGrid() {
-  set('adm-grid', ARTS.map(a => {
-    const rare = CFG.RARE_IDS.has(a.id);
+function renderAdmGrid(){
+  set('adm-grid',ARTS.map(a=>{
+    const rare=CFG.RARE_IDS.has(a.id);
     return `<div class="aa${rare?' rare':''}" onclick="toggleRare(${a.id})">
       <div class="aa-l">${a.letter}</div>
       <div class="aa-n">#${String(a.id).padStart(2,'0')}</div>
-      <div class="aa-p">${rare ? '30 pts' : '10 pts'}</div>
+      <div class="aa-p">${rare?'30 pts':'10 pts'}</div>
     </div>`;
   }).join(''));
 }
 
-function toggleRare(id) {
-  CFG.RARE_IDS.has(id) ? CFG.RARE_IDS.delete(id) : CFG.RARE_IDS.add(id);
-  renderAdmGrid();
-}
+function toggleRare(id){CFG.RARE_IDS.has(id)?CFG.RARE_IDS.delete(id):CFG.RARE_IDS.add(id);renderAdmGrid();}
 
-function saveRareConfig() {
-  const cfg = { rare_artifacts: [...CFG.RARE_IDS].sort((a,b)=>a-b), updated: new Date().toISOString() };
-  dl(JSON.stringify(cfg, null, 2), 'rare-config.json', 'application/json');
-  showMsg(document.getElementById('adm-msg'), 'ok', 'Downloaded. Merge into data/config.json in the repo.');
+function saveRareConfig(){
+  const cfg={rare_artifacts:[...CFG.RARE_IDS].sort((a,b)=>a-b),updated:new Date().toISOString()};
+  dl(JSON.stringify(cfg,null,2),'rare-config.json','application/json');
+  showMsg(document.getElementById('adm-msg'),'ok','Downloaded. Merge into data/config.json.');
 }
-
-function exportCSV() {
-  const subs = SC.submissions || [];
-  if (!subs.length) return showMsg(document.getElementById('adm-msg'), 'err', 'No submissions yet.');
-  const rows = [['Timestamp','Team','Artifact','Letter','Rare','Points','Speed rank']];
-  subs.forEach(s => {
-    const a = ARTS.find(x => x.id === s.artifact_id);
-    rows.push([s.timestamp, s.team, s.artifact_id, a?.letter || '?', s.rare ? 'yes' : 'no', s.points, s.rank_at_time]);
-  });
-  dl(rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n'),
-     `geovision-export-${new Date().toISOString().slice(0,10)}.csv`, 'text/csv');
+function exportCSV(){
+  const subs=SC.submissions||[];
+  if(!subs.length) return showMsg(document.getElementById('adm-msg'),'err','No submissions yet.');
+  const rows=[['Timestamp','Team','Artifact','Letter','Rare','Points','Speed rank']];
+  subs.forEach(s=>{const a=ARTS.find(x=>x.id===s.artifact_id);rows.push([s.timestamp,s.team,s.artifact_id,a?.letter||'?',s.rare?'yes':'no',s.points,s.rank_at_time]);});
+  dl(rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n'),`geovision-export-${new Date().toISOString().slice(0,10)}.csv`,'text/csv');
 }
-
-function renderAdmSubs() {
-  const subs = (SC.submissions || []).sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
-  if (!subs.length) {
-    set('adm-subs', '<tr><td colspan="6"><div class="empty"><div class="empty-txt">No submissions yet.</div></div></td></tr>');
-    return;
-  }
-  set('adm-subs', subs.map(s => {
-    const a = ARTS.find(x => x.id === s.artifact_id);
+function renderAdmSubs(){
+  const subs=(SC.submissions||[]).sort((a,b)=>new Date(b.timestamp)-new Date(a.timestamp));
+  if(!subs.length){set('adm-subs','<tr><td colspan="6"><div class="empty"><div class="empty-txt">No submissions yet.</div></div></td></tr>');return;}
+  set('adm-subs',subs.map(s=>{
+    const a=ARTS.find(x=>x.id===s.artifact_id);
     return `<tr>
       <td class="ts">${new Date(s.timestamp).toLocaleString('pl-PL')}</td>
       <td class="tname">${esc(s.team)}</td>
       <td class="ts">#${String(s.artifact_id).padStart(2,'0')}</td>
-      <td style="font-weight:700;color:${s.rare?'var(--teal)':'var(--text)'}">${a?.letter || '?'}</td>
-      <td class="pts" style="font-size:.925rem">${s.points}</td>
-      <td class="ts">#${s.rank_at_time || '—'}</td>
+      <td style="font-weight:700;color:${s.rare?'var(--teal)':'var(--text)'}">${a?.letter||'?'}</td>
+      <td class="pts" style="font-size:.9rem">${s.points}</td>
+      <td class="ts">#${s.rank_at_time||'—'}</td>
     </tr>`;
   }).join(''));
 }
-
-function reloadScores() { loadScores(); showMsg(document.getElementById('adm-msg'), 'ok', 'Data reloaded.'); }
-function set(id, html) { document.getElementById(id).innerHTML = html; }
-function showMsg(el, type, html) { el.className = `msg ${type}`; el.innerHTML = html; }
-function esc(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-function ago(ts) {
-  const d = (Date.now() - new Date(ts)) / 1000;
-  if (d < 60) return `${Math.round(d)}s ago`;
-  if (d < 3600) return `${Math.round(d/60)}m ago`;
-  if (d < 86400) return `${Math.round(d/3600)}h ago`;
-  return `${Math.round(d/86400)}d ago`;
+function reloadScores(){loadScores();showMsg(document.getElementById('adm-msg'),'ok','Data reloaded.');}
+function set(id,html){document.getElementById(id).innerHTML=html;}
+function showMsg(el,type,html){el.className=`msg ${type}`;el.innerHTML=html;}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function ago(ts){
+  const d=(Date.now()-new Date(ts))/1000;
+  if(d<60)return`${Math.round(d)}s ago`;
+  if(d<3600)return`${Math.round(d/60)}m ago`;
+  if(d<86400)return`${Math.round(d/3600)}h ago`;
+  return`${Math.round(d/86400)}d ago`;
 }
-function dl(content, filename, type) {
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([content], { type }));
-  a.download = filename; a.click();
+function dl(content,filename,type){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([content],{type}));
+  a.download=filename;a.click();
 }
-
-window.addEventListener('load', () => {
-  const saved = localStorage.getItem('ghunt_team');
-  if (saved) document.getElementById('in-team').value = saved;
+window.addEventListener('load',()=>{
+  const saved=localStorage.getItem('ghunt_team');
+  if(saved)document.getElementById('in-team').value=saved;
   renderArtifacts();
   loadScores();
-  setInterval(loadScores, CFG.REFRESH);
+  setInterval(loadScores,CFG.REFRESH);
 });
 </script>
 </body>
