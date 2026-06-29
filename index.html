@@ -124,14 +124,14 @@ nav {
 }
 
 /* ── Stat panel (left col) ───────────────────────────── */
-.stat-panel { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.stat-panel { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; min-width: 0; }
 .stat-panel-title {
   font-size: 1.1rem; font-weight: 700; color: var(--text);
   margin-bottom: 14px;
 }
 .stat-item {
   background: var(--card); border: 1px solid var(--border);
-  border-radius: var(--r); padding: 16px 14px;
+  border-radius: var(--r); padding: 16px 14px; min-width: 0; overflow: hidden;
 }
 .stat-val {
   font-size: 2.2rem; font-weight: 800;
@@ -203,6 +203,7 @@ tbody tr:hover { background: rgba(255,255,255,.02); }
   border-radius: 4px; padding: 1px 6px; margin-left: 8px;
 }
 .pts { font-size: 1.05rem; font-weight: 800; color: var(--blue); }
+.lb-pts-m { display: none; }
 .prog-wrap { min-width: 100px; }
 .prog-bg { background: var(--border); height: 3px; border-radius: 3px; overflow: hidden; margin-bottom: 4px; }
 .prog-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--blue), var(--teal)); transition: width .5s ease; }
@@ -347,15 +348,12 @@ tbody tr:hover { background: rgba(255,255,255,.02); }
   .tab { padding: 0 12px; height: 40px; font-size: .75rem; flex-shrink: 0; }
   .s-white, .s-dark, .s-dark-alt { padding: 32px 16px; }
   .view-inner { padding: 28px 16px 64px; }
-  /* Mobile table — 3 columns, fixed layout */
+  /* Mobile leaderboard: score inside team cell, no col width fighting */
+  .lb-pts-m { display: block; }
+  .lb-pts-d { display: none; }
+  thead th:nth-child(3), tbody td:nth-child(3),
   thead th:nth-child(4), tbody td:nth-child(4),
   thead th:nth-child(5), tbody td:nth-child(5) { display: none; }
-  .lb-wrap table { table-layout: fixed; width: 100%; }
-  .lb-wrap thead th, .lb-wrap tbody td { padding: 10px; }
-  .lb-wrap thead th:nth-child(1), .lb-wrap tbody td:nth-child(1) { width: 40px; }
-  .lb-wrap thead th:nth-child(3), .lb-wrap tbody td:nth-child(3) {
-    width: 70px; text-align: right; color: var(--blue); font-weight: 800;
-  }
   .hero-title { font-size: 1.9rem; }
   .hero-desc  { font-size: .9rem; }
   .stat-panel-title { margin-bottom: 8px; }
@@ -733,8 +731,13 @@ function renderLB() {
     const comp=t.artifacts_found.length===55?'<span class="badge-complete">Complete</span>':'';
     return `<tr>
       <td><span class="rank ${rc}">${r}</span></td>
-      <td><div class="tname">${esc(t.name)}${comp}</div><div class="ttype">${t.type||'Individual'}</div></td>
-      <td><span class="pts">${t.total_points.toLocaleString()}</span></td>
+      <td>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+          <div><div class="tname">${esc(t.name)}${comp}</div><div class="ttype">${t.type||'Individual'}</div></div>
+          <span class="pts lb-pts-m">${t.total_points.toLocaleString()}</span>
+        </div>
+      </td>
+      <td><span class="pts lb-pts-d">${t.total_points.toLocaleString()}</span></td>
       <td><div class="prog-wrap"><div class="prog-bg"><div class="prog-fill" style="width:${pct}%"></div></div><div class="prog-txt">${t.artifacts_found.length} of 55</div></div></td>
       <td><span class="ts">${t.last_submission?ago(t.last_submission):'—'}</span></td>
     </tr>`;
