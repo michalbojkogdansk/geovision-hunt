@@ -365,9 +365,45 @@ tbody tr:hover { background: rgba(255,255,255,.02); }
     <button class="tab"     onclick="go('art',this)">Artifacts</button>
     <button class="tab"     onclick="go('adm',this)">Admin</button>
   </div>
+  <div id="nav-team" style="display:none;align-items:center;gap:10px;padding-right:16px">
+    <span id="nav-team-name" style="font-size:.8rem;font-weight:600;color:var(--text-2)"></span>
+    <button onclick="logout()" style="font-size:.75rem;font-weight:600;color:var(--blue);background:none;border:none;cursor:pointer;font-family:var(--font)">Sign out</button>
+  </div>
 </nav>
 
 <!-- ═══ LEADERBOARD ═══════════════════════════════════════════ -->
+<div id="v-auth" class="view">
+  <div class="s-white">
+    <div class="container">
+      <div class="hero-label">R&amp;D Team Event · Gdańsk 2025</div>
+      <div class="hero-title">GeoVision<span class="logo-dot">.</span>Hunt</div>
+      <div class="hero-desc">Register your team or sign in to submit finds and track your progress.</div>
+    </div>
+  </div>
+  <div class="s-dark">
+    <div class="container" style="max-width:480px">
+      <div style="display:flex;margin-bottom:28px;border-bottom:1px solid var(--border)">
+        <button id="auth-tab-login" onclick="switchAuthTab('login')" style="flex:1;padding:12px;background:none;border:none;border-bottom:2px solid var(--blue);color:var(--blue);font-family:var(--font);font-size:.875rem;font-weight:600;cursor:pointer">Sign in</button>
+        <button id="auth-tab-reg"   onclick="switchAuthTab('register')" style="flex:1;padding:12px;background:none;border:none;border-bottom:2px solid transparent;color:var(--text-2);font-family:var(--font);font-size:.875rem;font-weight:600;cursor:pointer">Register team</button>
+      </div>
+      <div class="form-card" style="max-width:100%">
+        <div class="fg">
+          <label class="fl" for="auth-name">Team name</label>
+          <input type="text" id="auth-name" class="fi" placeholder="e.g. Observability Heroes" maxlength="60" autocomplete="off">
+          <div class="fhint" id="auth-name-hint">This name will appear on the leaderboard.</div>
+        </div>
+        <div class="fg">
+          <label class="fl" for="auth-pass">Password</label>
+          <input type="password" id="auth-pass" class="fi" placeholder="Team password" onkeydown="if(event.key==='Enter')authSubmit()">
+          <div class="fhint" id="auth-pass-hint">Share this with your team members.</div>
+        </div>
+        <button class="btn" id="auth-btn" onclick="authSubmit()">Sign in</button>
+        <div class="msg" id="auth-msg"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div id="v-lb" class="view on">
 
   <!-- Section 1: White -->
@@ -555,6 +591,7 @@ tbody tr:hover { background: rgba(255,255,255,.02); }
 const CFG = {
   OWNER:    'michalbojkogdansk',
   REPO:     'geovision-hunt',
+  WORKER:   'https://geovision-hunt-api.michal-bojko-gdansk.workers.dev',
   ADMIN_PW: 'hunt2025gdansk',
   STD_PTS:  10,
   RARE_PTS: 30,
@@ -574,16 +611,70 @@ const ARTS = (() => {
 
 let SC = { teams:[], artifacts:{}, submissions:[], last_updated:null };
 let adminOpen = false, photoB64 = null;
+let SESSION = { token: null, team: null };
+let authMode = 'login';
 
 function go(id, btn) {
+  if (id === 'sub' && !SESSION.token) { goAuth(); return; }
   document.querySelectorAll('.view').forEach(v => v.classList.remove('on'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
   document.getElementById('v-'+id).classList.add('on');
-  btn.classList.add('on');
+  if (btn) btn.classList.add('on');
   if (id==='lb')  renderLB();
   if (id==='art') renderArtifacts();
   if (id==='adm' && adminOpen) renderAdmSubs();
 }
+function goAuth() {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
+  document.getElementById('v-auth').classList.add('on');
+}
+function switchAuthTab(mode) {
+  authMode = mode;
+  const isLogin = mode === 'login';
+  const bOn='2px solid var(--blue)', bOff='2px solid transparent';
+  document.getElementById('auth-tab-login').style.borderBottom = isLogin?bOn:bOff;
+  document.getElementById('auth-tab-login').style.color = isLogin?'var(--blue)':'var(--text-2)';
+  document.getElementById('auth-tab-reg').style.borderBottom = isLogin?bOff:bOn;
+  document.getElementById('auth-tab-reg').style.color = isLogin?'var(--text-2)':'var(--blue)';
+  document.getElementById('auth-btn').textContent = isLogin?'Sign in':'Register team';
+  document.getElementById('auth-pass-hint').textContent = isLogin?'Enter your team password.':'Share this with your team members.';
+  document.getElementById('auth-name-hint').textContent = isLogin?'Enter your exact team name.':'This name will appear on the leaderboard.';
+  document.getElementById('auth-msg').className='msg';
+}
+async function authSubmit() {
+  const name=document.getElementById('auth-name').value.trim();
+  const pass=document.getElementById('auth-pass').value;
+  const msg=document.getElementById('auth-msg'), btn=document.getElementById('auth-btn');
+  if(!name) return showMsg(msg,'err','Team name required.');
+  if(!pass) return showMsg(msg,'err','Password required.');
+  btn.disabled=true;
+  showMsg(msg,'run','<span class="spin"></span>'+(authMode==='login'?'Signing in...':'Registering...'));
+  try {
+    const res=await fetch(`${CFG.WORKER}/${authMode}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,password:pass})});
+    const data=await res.json();
+    if(!res.ok){showMsg(msg,'err',data.error||'Something went wrong.');return;}
+    SESSION.token=data.token; SESSION.team=data.team;
+    localStorage.setItem('ghunt_token',data.token);
+    localStorage.setItem('ghunt_team',data.team);
+    setNavTeam(data.team);
+    document.getElementById('in-team').value=data.team;
+    go('sub',document.querySelector('.tab:nth-child(2)'));
+  } catch(e){showMsg(msg,'err','Could not reach auth server. Try again.');}
+  finally{btn.disabled=false;}
+}
+async function restoreSession() {
+  const token=localStorage.getItem('ghunt_token');
+  const team=localStorage.getItem('ghunt_team');
+  if(!token||!team) return;
+  try {
+    const res=await fetch(`${CFG.WORKER}/verify?token=${encodeURIComponent(token)}`);
+    if(res.ok){SESSION.token=token;SESSION.team=team;document.getElementById('in-team').value=team;setNavTeam(team);}
+    else{localStorage.removeItem('ghunt_token');localStorage.removeItem('ghunt_team');}
+  } catch(_){}
+}
+function setNavTeam(name){document.getElementById('nav-team-name').textContent=name;document.getElementById('nav-team').style.display='flex';}
+function logout(){SESSION={token:null,team:null};localStorage.removeItem('ghunt_token');localStorage.removeItem('ghunt_team');document.getElementById('nav-team').style.display='none';document.getElementById('in-team').value='';go('lb',document.querySelector('.tab'));}
 
 async function loadScores() {
   try {
@@ -697,16 +788,9 @@ async function submitFind() {
   const art=ARTS[num-1];
   try {
     showMsg(msg,'run','<span class="spin"></span>Uploading and registering find...');
-    const res=await fetch(`${CFG.WORKER}/submit`,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({token:SESSION.token,artifact_id:num,photo_b64:photoB64})
-    });
+    const res=await fetch(`${CFG.WORKER}/submit`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:SESSION.token,artifact_id:num,photo_b64:photoB64})});
     const data=await res.json();
-    if(!res.ok){
-      if(res.status===401){SESSION.token=null;localStorage.removeItem('ghunt_token');}
-      throw new Error(data.error||'Submission failed');
-    }
+    if(!res.ok){if(res.status===401){SESSION.token=null;localStorage.removeItem('ghunt_token');}throw new Error(data.error||'Submission failed');}
     showMsg(msg,'ok',`Artifact #${num} [${art.letter}] submitted. Leaderboard updates within 60 seconds.`);
     photoB64=null;
     document.getElementById('p-prev').style.display='none';
