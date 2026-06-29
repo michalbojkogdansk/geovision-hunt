@@ -172,10 +172,25 @@ nav {
 .lb-title { font-size: 1.1rem; font-weight: 700; color: var(--text); }
 .lb-sub   { font-size: .8rem; color: var(--text-2); }
 
-.lb-wrap {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: var(--r); overflow: hidden; overflow-x: auto;
-  width: 100%; max-width: 100%;
+.lb-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; }
+.lb-head-row, .lb-row {
+  display: grid;
+  grid-template-columns: 48px 1fr 72px 140px 100px;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+}
+.lb-head-row { border-bottom: 1px solid var(--border); }
+.lb-row:last-child { border-bottom: none; }
+.lb-row:hover { background: rgba(255,255,255,.02); }
+.lb-hc {
+  font-size: .7rem; font-weight: 600; color: var(--text-2);
+  text-transform: uppercase; letter-spacing: .06em; padding: 12px 14px;
+}
+.lb-head-row > *, .lb-row > * { padding: 14px 14px; }
+.lb-right { text-align: right; }
+@media (max-width: 860px) {
+  .lb-head-row, .lb-row { grid-template-columns: 40px 1fr 64px; }
+  .lb-hide-sm { display: none; }
 }
 table { width: 100%; border-collapse: collapse; }
 thead th {
@@ -204,7 +219,6 @@ tbody tr:hover { background: rgba(255,255,255,.02); }
   border-radius: 4px; padding: 1px 6px; margin-left: 8px;
 }
 .pts { font-size: 1.05rem; font-weight: 800; color: var(--blue); }
-.lb-pts-m { display: none; }
 .prog-wrap { min-width: 100px; }
 .prog-bg { background: var(--border); height: 3px; border-radius: 3px; overflow: hidden; margin-bottom: 4px; }
 .prog-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--blue), var(--teal)); transition: width .5s ease; }
@@ -349,12 +363,7 @@ tbody tr:hover { background: rgba(255,255,255,.02); }
   .tab { padding: 0 12px; height: 40px; font-size: .75rem; flex-shrink: 0; }
   .s-white, .s-dark, .s-dark-alt { padding: 32px 16px; }
   .view-inner { padding: 28px 16px 64px; }
-  /* Mobile leaderboard: score inside team cell, no col width fighting */
-  .lb-pts-m { display: block; }
-  .lb-pts-d { display: none; }
-  thead th:nth-child(3), tbody td:nth-child(3),
-  thead th:nth-child(4), tbody td:nth-child(4),
-  thead th:nth-child(5), tbody td:nth-child(5) { display: none; }
+
   .hero-title { font-size: 1.9rem; }
   .hero-desc  { font-size: .9rem; }
   .stat-panel-title { margin-bottom: 8px; }
@@ -470,20 +479,14 @@ tbody tr:hover { background: rgba(255,255,255,.02); }
             <span class="lb-sub" id="lb-updated"></span>
           </div>
           <div class="lb-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Team</th>
-                  <th>Pts</th>
-                  <th>Progress</th>
-                  <th>Last find</th>
-                </tr>
-              </thead>
-              <tbody id="lb-body">
-                <tr><td colspan="5"><div class="empty"><span class="spin"></span></div></td></tr>
-              </tbody>
-            </table>
+            <div class="lb-head-row">
+              <div class="lb-hc">#</div>
+              <div class="lb-hc">Team</div>
+              <div class="lb-hc lb-right">Pts</div>
+              <div class="lb-hc lb-hide-sm">Progress</div>
+              <div class="lb-hc lb-hide-sm">Last find</div>
+            </div>
+            <div id="lb-body"><div class="empty"><span class="spin"></span></div></div>
           </div>
         </div>
 
@@ -722,7 +725,7 @@ function renderTicker() {
 function renderLB() {
   const teams = (SC.teams||[]).sort((a,b)=>b.total_points-a.total_points);
   if (!teams.length) {
-    set('lb-body','<tr><td colspan="5"><div class="empty"><div class="empty-txt">No submissions yet. The hunt begins.</div></div></td></tr>');
+    set('lb-body','<div class="empty"><div class="empty-txt">No submissions yet. The hunt begins.</div></div>');
     set('s-found','0'); set('s-teams','0'); set('s-subs','0');
     return;
   }
@@ -730,18 +733,13 @@ function renderLB() {
     const r=i+1, rc=r===1?'r1':r===2?'r2':r===3?'r3':'';
     const pct=Math.round((t.artifacts_found.length/55)*100);
     const comp=t.artifacts_found.length===55?'<span class="badge-complete">Complete</span>':'';
-    return `<tr>
-      <td><span class="rank ${rc}">${r}</span></td>
-      <td>
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
-          <div><div class="tname">${esc(t.name)}${comp}</div><div class="ttype">${t.type||'Individual'}</div></div>
-          <span class="pts lb-pts-m">${t.total_points.toLocaleString()}</span>
-        </div>
-      </td>
-      <td><span class="pts lb-pts-d">${t.total_points.toLocaleString()}</span></td>
-      <td><div class="prog-wrap"><div class="prog-bg"><div class="prog-fill" style="width:${pct}%"></div></div><div class="prog-txt">${t.artifacts_found.length} of 55</div></div></td>
-      <td><span class="ts">${t.last_submission?ago(t.last_submission):'—'}</span></td>
-    </tr>`;
+    return `<div class="lb-row">
+      <div><span class="rank ${rc}">${r}</span></div>
+      <div><div class="tname">${esc(t.name)}${comp}</div><div class="ttype">${t.type||'Individual'}</div></div>
+      <div class="lb-right"><span class="pts">${t.total_points.toLocaleString()}</span></div>
+      <div class="lb-hide-sm"><div class="prog-wrap"><div class="prog-bg"><div class="prog-fill" style="width:${pct}%"></div></div><div class="prog-txt">${t.artifacts_found.length} of 55</div></div></div>
+      <div class="lb-hide-sm"><span class="ts">${t.last_submission?ago(t.last_submission):'—'}</span></div>
+    </div>`;
   }).join(''));
   renderStats();
 }
