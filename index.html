@@ -113,7 +113,7 @@ nav {
 .stat-panel { display: flex; flex-direction: column; gap: 2px; }
 .stat-panel-title {
   font-size: 1.1rem; font-weight: 700; color: var(--text);
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 .stat-item {
   background: var(--card); border: 1px solid var(--border);
@@ -340,7 +340,7 @@ tbody tr:hover { background: rgba(255,255,255,.02); }
   .hero-title { font-size: 1.9rem; }
   .hero-desc  { font-size: .9rem; }
   .stat-panel { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-  .stat-panel-title { grid-column: 1 / -1; margin-bottom: 4px; }
+  .stat-panel-title { margin-bottom: 8px; }
   .stat-item  { padding: 14px 12px; margin-bottom: 0; }
   .stat-val   { font-size: 1.5rem; }
   .stat-lbl   { font-size: .7rem; }
@@ -370,7 +370,7 @@ tbody tr:hover { background: rgba(255,255,255,.02); }
   <div class="s-white">
     <div class="container">
       <div class="hero-label">R&amp;D Team Event · Gdańsk 2025</div>
-      <div class="hero-title">GeoVision <span>Hunt</span></div>
+      <div class="hero-title">GeoVision<span class="logo-dot">.</span>Hunt</div>
       <div class="hero-desc">
         55 wooden artifacts hidden across Gdańsk. Each carries one letter of our vision.
         Find them, photograph them, upload your proof — and claim your place on the leaderboard.
@@ -385,8 +385,8 @@ tbody tr:hover { background: rgba(255,255,255,.02); }
 
         <!-- Left: stats + ticker -->
         <div>
+          <div class="stat-panel-title">Event stats</div>
           <div class="stat-panel">
-            <div class="stat-panel-title">Event stats</div>
             <div class="stat-item">
               <div class="stat-val" id="s-found">—</div>
               <div class="stat-lbl">Artifacts found</div>
