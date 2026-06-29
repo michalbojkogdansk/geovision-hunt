@@ -689,7 +689,7 @@ async function restoreSession() {
   } catch(_){}
 }
 function setNavTeam(name){document.getElementById('nav-team-name').textContent=name;document.getElementById('nav-team').style.display='flex';}
-function logout(){SESSION={token:null,team:null};localStorage.removeItem('ghunt_token');localStorage.removeItem('ghunt_team');document.getElementById('nav-team').style.display='none';document.getElementById('in-team').value='';go('lb',document.querySelector('.tab'));}
+async function logout(){const t=SESSION.token;SESSION={token:null,team:null};localStorage.removeItem('ghunt_token');localStorage.removeItem('ghunt_team');document.getElementById('nav-team').style.display='none';document.getElementById('in-team').value='';go('lb',document.querySelector('.tab'));if(t)fetch(`${CFG.WORKER}/logout`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:t})}).catch(()=>{});}
 
 async function loadScores() {
   try {
