@@ -687,6 +687,7 @@ async function submitFind() {
   const team=document.getElementById('in-team').value.trim();
   const num=parseInt(document.getElementById('in-num').value);
   const msg=document.getElementById('sub-msg'), btn=document.getElementById('sub-btn');
+  if(!SESSION.token)      return showMsg(msg,'err','Please sign in first.');
   if(!team)               return showMsg(msg,'err','Team or individual name required.');
   if(!num||num<1||num>55) return showMsg(msg,'err','Artifact number must be between 1 and 55.');
   if(!photoB64)           return showMsg(msg,'err','Photo required as evidence.');
@@ -796,12 +797,11 @@ function dl(content,filename,type){
   a.href=URL.createObjectURL(new Blob([content],{type}));
   a.download=filename;a.click();
 }
-window.addEventListener('load',()=>{
-  const saved=localStorage.getItem('ghunt_team');
-  if(saved)document.getElementById('in-team').value=saved;
+window.addEventListener('load',async()=>{
   renderArtifacts();
   loadScores();
   setInterval(loadScores,CFG.REFRESH);
+  await restoreSession();
 });
 </script>
 </body>
