@@ -112,8 +112,7 @@ nav {
 /* ── Stat panel (left col) ───────────────────────────── */
 .stat-panel { display: flex; flex-direction: column; gap: 2px; }
 .stat-panel-title {
-  font-size: .7rem; font-weight: 600; color: var(--text-2);
-  text-transform: uppercase; letter-spacing: .06em;
+  font-size: 1.1rem; font-weight: 700; color: var(--text);
   margin-bottom: 16px;
 }
 .stat-item {
@@ -325,15 +324,20 @@ tbody tr:hover { background: rgba(255,255,255,.02); }
 /* ── Responsive ──────────────────────────────────────── */
 @media (max-width: 860px) {
   .two-col { grid-template-columns: 1fr; }
-  .stat-panel { flex-direction: row; flex-wrap: wrap; gap: 8px; }
-  .stat-item { flex: 1; min-width: 140px; margin-bottom: 0; }
+  .stat-panel { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .stat-item { margin-bottom: 0; }
+  .stat-val { font-size: 1.6rem; }
 }
 @media (max-width: 640px) {
   nav { padding: 0 16px; }
-  .tab { padding: 0 10px; font-size: .775rem; }
-  .s-white, .s-dark, .s-dark-alt { padding: 40px 20px; }
-  .view-inner { padding: 32px 20px 64px; }
+  .tab { padding: 0 8px; font-size: .72rem; }
+  .s-white, .s-dark, .s-dark-alt { padding: 36px 20px; }
+  .view-inner { padding: 28px 20px 64px; }
   thead th:nth-child(4), tbody td:nth-child(4) { display: none; }
+  .hero-title { font-size: 2rem; }
+  .hero-desc  { font-size: .92rem; }
+  .stat-panel { grid-template-columns: 1fr; }
+  .stat-val   { font-size: 1.8rem; }
 }
 </style>
 </head>
