@@ -347,10 +347,15 @@ tbody tr:hover { background: rgba(255,255,255,.02); }
   .tab { padding: 0 12px; height: 40px; font-size: .75rem; flex-shrink: 0; }
   .s-white, .s-dark, .s-dark-alt { padding: 32px 16px; }
   .view-inner { padding: 28px 16px 64px; }
-  /* Mobile table — hide cols 4+5, scroll if needed */
+  /* Mobile table — 3 columns, fixed layout */
   thead th:nth-child(4), tbody td:nth-child(4),
   thead th:nth-child(5), tbody td:nth-child(5) { display: none; }
-  .lb-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .lb-wrap table { table-layout: fixed; width: 100%; }
+  .lb-wrap thead th, .lb-wrap tbody td { padding: 10px; }
+  .lb-wrap thead th:nth-child(1), .lb-wrap tbody td:nth-child(1) { width: 40px; }
+  .lb-wrap thead th:nth-child(3), .lb-wrap tbody td:nth-child(3) {
+    width: 70px; text-align: right; color: var(--blue); font-weight: 800;
+  }
   .hero-title { font-size: 1.9rem; }
   .hero-desc  { font-size: .9rem; }
   .stat-panel-title { margin-bottom: 8px; }
