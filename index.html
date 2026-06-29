@@ -555,7 +555,6 @@ tbody tr:hover { background: rgba(255,255,255,.02); }
 const CFG = {
   OWNER:    'michalbojkogdansk',
   REPO:     'geovision-hunt',
-  TOKEN:    'YOUR_FINE_GRAINED_PAT_HERE',
   ADMIN_PW: 'hunt2025gdansk',
   STD_PTS:  10,
   RARE_PTS: 30,
@@ -688,37 +687,26 @@ async function submitFind() {
   const num=parseInt(document.getElementById('in-num').value);
   const msg=document.getElementById('sub-msg'), btn=document.getElementById('sub-btn');
   if(!SESSION.token)      return showMsg(msg,'err','Please sign in first.');
-  if(!team)               return showMsg(msg,'err','Team or individual name required.');
-  if(!num||num<1||num>55) return showMsg(msg,'err','Artifact number must be between 1 and 55.');
-  if(!photoB64)           return showMsg(msg,'err','Photo required as evidence.');
+  if(!team)               return showMsg(msg,'err','Team name required.');
+  if(!num||num<1||num>55) return showMsg(msg,'err','Artifact number must be 1–55.');
+  if(!photoB64)           return showMsg(msg,'err','Photo required.');
   const norm=team.toLowerCase();
   const dup=(SC.submissions||[]).find(s=>s.team.toLowerCase()===norm&&s.artifact_id===num);
   if(dup) return showMsg(msg,'err',`Your team already submitted artifact #${num}.`);
   btn.disabled=true;
   const art=ARTS[num-1];
   try {
-    showMsg(msg,'run','<span class="spin"></span>Uploading photo...');
-    const ts=new Date().toISOString();
-    const slug=team.replace(/[^a-z0-9]/gi,'_').slice(0,30);
-    const fname=`photos/${ts.replace(/[:.]/g,'-')}_${slug}_${String(num).padStart(2,'0')}.jpg`;
-    const upRes=await fetch(`https://api.github.com/repos/${CFG.OWNER}/${CFG.REPO}/contents/${fname}`,{
-      method:'PUT',headers:{Authorization:`token ${CFG.TOKEN}`,'Content-Type':'application/json'},
-      body:JSON.stringify({message:`photo: ${team} #${num}`,content:photoB64,branch:'main'})
+    showMsg(msg,'run','<span class="spin"></span>Uploading and registering find...');
+    const res=await fetch(`${CFG.WORKER}/submit`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({token:SESSION.token,artifact_id:num,photo_b64:photoB64})
     });
-    if(!upRes.ok){const e=await upRes.json();throw new Error(e.message||upRes.status);}
-    const photoUrl=(await upRes.json()).content.html_url;
-    showMsg(msg,'run','<span class="spin"></span>Registering find...');
-    const isRare=CFG.RARE_IDS.has(num);
-    const issRes=await fetch(`https://api.github.com/repos/${CFG.OWNER}/${CFG.REPO}/issues`,{
-      method:'POST',headers:{Authorization:`token ${CFG.TOKEN}`,'Content-Type':'application/json'},
-      body:JSON.stringify({
-        title:`[HUNT] #${String(num).padStart(2,'00')} ${art.letter} | ${team}`,
-        body:`## Hunt Submission\n\n| | |\n|---|---|\n| **Team** | ${team} |\n| **Artifact** | #${num} — ${art.letter}${isRare?' (Rare)':''} |\n| **Timestamp** | ${ts} |\n| **Photo** | [View](${photoUrl}) |\n\n---\n*Submitted via GeoVision Hunt*`,
-        labels:['submission']
-      })
-    });
-    if(!issRes.ok){const e=await issRes.json();throw new Error(e.message||issRes.status);}
-    localStorage.setItem('ghunt_team',team);
+    const data=await res.json();
+    if(!res.ok){
+      if(res.status===401){SESSION.token=null;localStorage.removeItem('ghunt_token');}
+      throw new Error(data.error||'Submission failed');
+    }
     showMsg(msg,'ok',`Artifact #${num} [${art.letter}] submitted. Leaderboard updates within 60 seconds.`);
     photoB64=null;
     document.getElementById('p-prev').style.display='none';
@@ -727,7 +715,7 @@ async function submitFind() {
     document.getElementById('in-photo').value='';
     document.getElementById('in-num').value='';
     document.getElementById('art-hint').textContent='The number printed on the wooden board.';
-  } catch(err){showMsg(msg,'err',`Something went wrong: ${err.message} — please try again.`);}
+  } catch(e){showMsg(msg,'err',`Something went wrong: ${e.message} — please try again.`);}
   finally{btn.disabled=false;}
 }
 
