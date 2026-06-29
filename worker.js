@@ -1,9 +1,10 @@
 /**
- * GeoVision Hunt — Auth + Submission Worker
+ * GeoVision Hunt — Auth + Submission Worker v2
  * POST /register  { name, password }
- * POST /login     { name, password } → { token, team }
- * GET  /verify    ?token=xxx         → { team }
- * POST /submit    { token, artifact_id, photo_b64 } → { ok }
+ * POST /login     { name, password }      → { token, team }
+ * POST /logout    { token }
+ * GET  /verify    ?token=xxx              → { team }
+ * POST /submit    { token, artifact_id, photo_b64 }
  */
 
 const CORS = {
@@ -12,14 +13,14 @@ const CORS = {
   'Access-Control-Allow-Headers': 'Content-Type',
 };
 
-const SESSION_TTL = 60 * 60 * 24 * 7;
-const OWNER = 'michalbojkogdansk';
-const REPO  = 'geovision-hunt';
+const SESSION_TTL    = 60 * 60 * 24 * 7;  // 7 days
+const RATE_WINDOW    = 60 * 60;             // 1 hour
+const RATE_MAX       = 10;                  // max submissions per hour per token
+const OWNER          = 'michalbojkogdansk';
+const REPO           = 'geovision-hunt';
 
 const PHRASE = 'Innovate with Passion, Engage with Purpose, and Win with Integrity';
 const RARE   = new Set([7,13,19,25,31,37,43,49,52,55]);
-
-// Build artifact map once
 const ARTIFACTS = (() => {
   const out = {}; let id = 1;
   for (const ch of PHRASE)
@@ -48,9 +49,38 @@ function normalizeTeam(name) {
   return name.trim().toLowerCase().replace(/\s+/g,' ');
 }
 
+// ── Rate limiting ─────────────────────────────────────────────
+async function checkRateLimit(env, token) {
+  const key = `rate:${token}`;
+  const raw = await env.GEOVISION_TEAMS.get(key);
+  const now = Math.floor(Date.now() / 1000);
+  let record = raw ? JSON.parse(raw) : { count: 0, window_start: now };
+
+  if (now - record.window_start > RATE_WINDOW) {
+    record = { count: 0, window_start: now };
+  }
+  if (record.count >= RATE_MAX) return false;
+
+  record.count++;
+  await env.GEOVISION_TEAMS.put(key, JSON.stringify(record), { expirationTtl: RATE_WINDOW + 60 });
+  return true;
+}
+
+// ── Server-side duplicate check ───────────────────────────────
+async function isDuplicate(env, teamNorm, artifactId) {
+  const key = `find:${teamNorm}:${artifactId}`;
+  const existing = await env.GEOVISION_TEAMS.get(key);
+  return existing !== null;
+}
+
+async function recordFind(env, teamNorm, artifactId, timestamp) {
+  const key = `find:${teamNorm}:${artifactId}`;
+  await env.GEOVISION_TEAMS.put(key, timestamp, { expirationTtl: 60 * 60 * 24 * 30 });
+}
+
 // ── GitHub API ────────────────────────────────────────────────
 async function githubRequest(pat, method, path, body) {
-  const res = await fetch(`https://api.github.com${path}`, {
+  return fetch(`https://api.github.com${path}`, {
     method,
     headers: {
       Authorization: `token ${pat}`,
@@ -60,7 +90,6 @@ async function githubRequest(pat, method, path, body) {
     },
     body: body ? JSON.stringify(body) : undefined,
   });
-  return res;
 }
 
 // ── Responses ─────────────────────────────────────────────────
@@ -111,6 +140,13 @@ async function handleLogin(request, env) {
   return ok({ token, team: team.name });
 }
 
+async function handleLogout(request, env) {
+  const { token } = await request.json();
+  if (!token) return err('Token required.');
+  await env.GEOVISION_TEAMS.delete(`session:${token}`);
+  return ok({ ok: true });
+}
+
 async function handleVerify(request, env) {
   const token = new URL(request.url).searchParams.get('token');
   if (!token) return err('Token required.', 400);
@@ -126,11 +162,21 @@ async function handleSubmit(request, env) {
   const sessRaw = await env.GEOVISION_TEAMS.get(`session:${token}`);
   if (!sessRaw) return err('Invalid or expired session. Please sign in again.', 401);
   const { team } = JSON.parse(sessRaw);
+  const teamNorm = normalizeTeam(team);
 
   // Validate artifact
   const num = parseInt(artifact_id);
   if (!num || num < 1 || num > 55) return err('Invalid artifact number.');
   if (!photo_b64) return err('Photo required.');
+
+  // Rate limit (server-side)
+  const allowed = await checkRateLimit(env, token);
+  if (!allowed) return err(`Too many submissions. Maximum ${RATE_MAX} per hour.`, 429);
+
+  // Duplicate check (server-side — authoritative)
+  if (await isDuplicate(env, teamNorm, num)) {
+    return err(`Your team already submitted artifact #${num}.`, 409);
+  }
 
   const letter = ARTIFACTS[num];
   const isRare = RARE.has(num);
@@ -165,7 +211,7 @@ async function handleSubmit(request, env) {
   ].join('\n');
 
   const issRes = await githubRequest(pat, 'POST', `/repos/${OWNER}/${REPO}/issues`, {
-    title:  `[HUNT] #${String(num).padStart(2,'0')} ${letter} | ${team}`,
+    title:  `[HUNT] #${String(num).padStart(2,'00')} ${letter} | ${team}`,
     body:   issueBody,
     labels: ['submission'],
   });
@@ -173,6 +219,10 @@ async function handleSubmit(request, env) {
     const e = await issRes.json();
     return err(`Submission failed: ${e.message}`, 502);
   }
+
+  // Record find in KV (prevents duplicate on next attempt)
+  await recordFind(env, teamNorm, num, ts);
+
   const issue = await issRes.json();
   return ok({ ok: true, issue_url: issue.html_url, team, artifact_id: num, letter });
 }
@@ -187,6 +237,7 @@ export default {
     try {
       if (path === '/register' && request.method === 'POST') return handleRegister(request, env);
       if (path === '/login'    && request.method === 'POST') return handleLogin(request, env);
+      if (path === '/logout'   && request.method === 'POST') return handleLogout(request, env);
       if (path === '/verify'   && request.method === 'GET')  return handleVerify(request, env);
       if (path === '/submit'   && request.method === 'POST') return handleSubmit(request, env);
       return err('Not found.', 404);
