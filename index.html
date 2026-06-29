@@ -72,6 +72,18 @@ nav {
   color: #0B0F1A;
   padding: 64px 40px 60px;
   width: 100%;
+  position: relative;
+  overflow: hidden;
+}
+.s-white::after {
+  content: '';
+  position: absolute;
+  right: 0; bottom: 0;
+  width: 420px; height: 100%;
+  background: url('https://michalbojkogdansk.github.io/geovision-hunt/assets/townhall.png')
+    no-repeat right bottom / contain;
+  opacity: .18;
+  pointer-events: none;
 }
 .s-dark {
   background: var(--bg);
@@ -84,7 +96,7 @@ nav {
   color: var(--text);
   padding: 52px 40px 72px;
 }
-.container { max-width: 1100px; margin: 0 auto; width: 100%; }
+.container { max-width: 1100px; margin: 0 auto; width: 100%; position: relative; z-index: 1; }
 
 /* ── Hero (white section) ────────────────────────────── */
 .hero-label {
