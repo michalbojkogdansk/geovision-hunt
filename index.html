@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#111610">
+<title>GeoVision Hunt · Gdańsk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Chakra+Petch:ital,wght@0,300;0,400;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:         #0E1309;
+  --surface:    #161C0F;
+  --card:       #1D2516;
+  --border:     #2D3A1E;
+  --border-dim: #1F2A14;
+  --text:       #D6D1B8;
+  --text-dim:   #697A4E;
+  --text-muted: #3D4D2A;
+  --amber:      #C8960C;
+  --amber-hi:   #F0B828;
+  --gold:       #E8C930;
+  --green:      #4E8530;
+  --green-hi:   #76C44A;
+  --red:        #B84040;
+  --red-hi:     #E05050;
+  --font-d:     'Bebas Neue', sans-serif;
+  --font-b:     'Chakra Petch', sans-serif;
+  --font-m:     'IBM Plex Mono', monospace;
+  --r:          4px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-b);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Topo texture ─────────────────────────────────────── */
+body::before {
+  content: '';
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background-image:
+    repeating-linear-gradient(
+      0deg, transparent, transparent 39px,
+      var(--border-dim) 39px, var(--border-dim) 40px
+    ),
+    repeating-linear-gradient(
+      90deg, transparent, transparent 39px,
+      var(--border-dim) 39px, var(--border-dim) 40px
+    );
+  opacity: .35;
+}
+
+/* ── Nav ──────────────────────────────────────────────── */
+nav {
+  position: sticky; top: 0; z-index: 200;
+  background: rgba(14,19,9,.96);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 20px; height: 56px;
+}
+.logo {
+  font-family: var(--font-d);
+  font-size: 1.6rem; letter-spacing: 3px; color: var(--amber);
+  line-height: 1; user-select: none;
+}
+.logo small {
+  display: block; font-family: var(--font-m);
+  font-size: .55rem; letter-spacing: 4px; color: var(--text-dim); margin-top: -2px;
+}
+.tabs { display: flex; gap: 2px; }
+.tab {
+  background: none; border: 1px solid transparent;
+  color: var(--text-dim); font-family: var(--font-b); font-size: .7rem;
+  letter-spacing: 2px; text-transform: uppercase; padding: 6px 12px;
+  cursor: pointer; border-radius: var(--r); transition: all .15s;
+}
+.tab:hover { color: var(--text); border-color: var(--border); }
+.tab.on  { color: var(--amber); border-color: var(--amber); background: rgba(200,150,12,.08); }
+
+/* ── Layout ───────────────────────────────────────────── */
+main {
+  position: relative; z-index: 1;
+  max-width: 1100px; margin: 0 auto; padding: 28px 20px 80px;
+}
+.view { display: none; animation: fadeUp .3s ease; }
+.view.on { display: block; }
+
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(12px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+/* ── Section headers ──────────────────────────────────── */
+.sh { display: flex; align-items: baseline; gap: 14px; margin-bottom: 18px; }
+.sh-title { font-family: var(--font-d); font-size: 1.7rem; letter-spacing: 3px; }
+.sh-sub {
+  font-family: var(--font-m); font-size: .6rem;
+  color: var(--text-dim); letter-spacing: 2px;
+}
+
+/* ── Hero ─────────────────────────────────────────────── */
+.hero {
+  text-align: center; padding: 36px 0 28px;
+  border-bottom: 1px solid var(--border); margin-bottom: 28px;
+}
+.hero-eye {
+  font-family: var(--font-m); font-size: .62rem;
+  letter-spacing: 4px; color: var(--amber); text-transform: uppercase; margin-bottom: 10px;
+}
+.hero-title {
+  font-family: var(--font-d);
+  font-size: clamp(2.4rem, 8vw, 4.8rem);
+  letter-spacing: 6px; line-height: 1; color: var(--text);
+}
+.hero-title span { color: var(--amber); }
+.hero-phrase {
+  font-family: var(--font-m); font-size: .65rem; color: var(--text-dim);
+  letter-spacing: 1px; margin-top: 12px; padding: 0 16px;
+  line-height: 1.7;
+}
+.hero-stats {
+  display: flex; justify-content: center; gap: 0;
+  margin-top: 22px; padding-top: 22px; border-top: 1px solid var(--border);
+}
+.hstat {
+  flex: 1; max-width: 140px; text-align: center;
+  padding: 0 12px; border-right: 1px solid var(--border);
+}
+.hstat:last-child { border-right: none; }
+.hstat-val {
+  font-family: var(--font-d); font-size: 2.2rem; color: var(--amber); line-height: 1;
+}
+.hstat-lbl {
+  font-family: var(--font-m); font-size: .58rem;
+  color: var(--text-dim); letter-spacing: 2px; text-transform: uppercase; margin-top: 3px;
+}
+
+/* ── Ticker ───────────────────────────────────────────── */
+.ticker {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 10px 14px; margin-bottom: 24px;
+  overflow: hidden; display: none;
+}
+.ticker-lbl {
+  font-family: var(--font-m); font-size: .58rem;
+  letter-spacing: 2px; color: var(--amber); margin-bottom: 5px;
+}
+.ticker-scroll {
+  overflow: hidden; white-space: nowrap;
+}
+.ticker-inner {
+  display: inline-block;
+  animation: tickscroll 40s linear infinite;
+}
+.ti { 
+  font-family: var(--font-m); font-size: .68rem; color: var(--text-dim);
+  margin-right: 40px; display: inline;
+}
+.ti .tn { color: var(--text); }
+.ti .tl { color: var(--amber); font-weight: 600; }
+.ti .tp { color: var(--green-hi); }
+@keyframes tickscroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* ── Leaderboard table ────────────────────────────────── */
+.lb-wrap {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--r);
+  overflow: hidden; overflow-x: auto;
+}
+table { width: 100%; border-collapse: collapse; }
+thead th {
+  font-family: var(--font-m); font-size: .58rem; letter-spacing: 3px;
+  color: var(--text-dim); text-transform: uppercase;
+  padding: 10px 14px; text-align: left;
+  border-bottom: 1px solid var(--border); white-space: nowrap;
+}
+tbody td {
+  padding: 14px 14px; border-bottom: 1px solid var(--border-dim);
+  vertical-align: middle; white-space: nowrap;
+}
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: rgba(255,255,255,.02); }
+
+.rank { font-family: var(--font-d); font-size: 1.5rem; width: 44px; }
+.r1 { color: var(--gold); }
+.r2 { color: #B0B0B0; }
+.r3 { color: #A0622A; }
+.rn { color: var(--text-muted); font-size: 1.1rem; }
+
+.tname { font-weight: 600; font-size: .9rem; color: var(--text); }
+.ttype { font-family: var(--font-m); font-size: .58rem; color: var(--text-dim); margin-top: 1px; }
+.badge-complete {
+  font-family: var(--font-m); font-size: .55rem; color: var(--gold);
+  border: 1px solid var(--gold); border-radius: 2px;
+  padding: 1px 5px; margin-left: 6px; letter-spacing: 1px;
+}
+.pts { font-family: var(--font-d); font-size: 1.7rem; color: var(--amber); }
+.prog-wrap { min-width: 100px; }
+.prog-bg { background: var(--border); height: 3px; border-radius: 2px; overflow: hidden; margin-bottom: 4px; }
+.prog-fill { height: 100%; background: linear-gradient(90deg, var(--green), var(--green-hi)); border-radius: 2px; transition: width .6s ease; }
+.prog-txt { font-family: var(--font-m); font-size: .6rem; color: var(--text-dim); }
+.ts { font-family: var(--font-m); font-size: .62rem; color: var(--text-dim); }
+
+/* ── Artifact grid ────────────────────────────────────── */
+.ag {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+  gap: 6px; margin-top: 16px;
+}
+.ac {
+  aspect-ratio: 1;
+  border: 1px solid var(--border);
+  background: var(--card);
+  border-radius: var(--r);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  position: relative; transition: border-color .2s, background .2s;
+  cursor: default;
+}
+.ac:hover { border-color: var(--text-dim); }
+.ac.found { border-color: var(--green); background: rgba(78,133,48,.1); }
+.ac.rare  { border-color: rgba(232,201,48,.5); }
+.ac.rare.found { border-color: var(--gold); background: rgba(232,201,48,.08); }
+.al { font-family: var(--font-d); font-size: 1.5rem; line-height: 1; color: var(--text); }
+.ac.found .al { color: var(--green-hi); }
+.ac.rare .al { color: var(--gold); }
+.an { font-family: var(--font-m); font-size: .48rem; color: var(--text-dim); }
+.rare-dot {
+  position: absolute; top: 3px; right: 3px;
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--gold); box-shadow: 0 0 4px var(--gold);
+}
+.found-check {
+  position: absolute; top: 2px; left: 3px;
+  font-size: .5rem; color: var(--green-hi);
+}
+.phrase-label {
+  font-family: var(--font-m); font-size: .6rem; color: var(--text-dim);
+  margin-bottom: 8px; letter-spacing: 1px; line-height: 1.8;
+}
+
+/* ── Submit form ──────────────────────────────────────── */
+.form-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 28px; max-width: 500px; margin: 0 auto;
+}
+.fl { font-family: var(--font-m); font-size: .6rem; letter-spacing: 3px; color: var(--text-dim); text-transform: uppercase; display: block; margin-bottom: 7px; }
+.fi {
+  width: 100%; background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 11px 14px; color: var(--text);
+  font-family: var(--font-b); font-size: .95rem; outline: none;
+  transition: border-color .15s; appearance: none;
+}
+.fi:focus { border-color: var(--amber); }
+.fi::placeholder { color: var(--text-muted); }
+.fg { margin-bottom: 22px; }
+.fhint { font-family: var(--font-m); font-size: .58rem; color: var(--text-dim); margin-top: 5px; }
+
+.photo-zone {
+  border: 2px dashed var(--border); border-radius: var(--r);
+  padding: 36px 16px; text-align: center; cursor: pointer;
+  transition: all .2s; position: relative; overflow: hidden;
+}
+.photo-zone:hover, .photo-zone.loaded { border-color: var(--amber); background: rgba(200,150,12,.04); }
+.photo-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+.photo-icon { font-size: 2rem; display: block; margin-bottom: 8px; }
+.photo-txt { font-family: var(--font-m); font-size: .7rem; color: var(--text-dim); }
+.photo-preview {
+  max-width: 100%; max-height: 180px; border-radius: var(--r);
+  display: none; margin: 0 auto;
+}
+
+.btn {
+  display: block; width: 100%; padding: 15px 20px;
+  background: var(--amber); color: #0E1309;
+  font-family: var(--font-d); font-size: 1.2rem; letter-spacing: 3px;
+  border: none; border-radius: var(--r); cursor: pointer;
+  transition: background .15s, transform .1s;
+}
+.btn:hover { background: var(--amber-hi); }
+.btn:active { transform: scale(.99); }
+.btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+.btn-ghost {
+  background: transparent; border: 1px solid var(--border); color: var(--text-dim);
+}
+.btn-ghost:hover { border-color: var(--amber); color: var(--amber); background: transparent; }
+
+.msg { padding: 11px 14px; border-radius: var(--r); font-family: var(--font-m); font-size: .72rem; margin-top: 14px; display: none; }
+.msg.ok  { background: rgba(78,133,48,.15); border: 1px solid var(--green); color: var(--green-hi); display: block; }
+.msg.err { background: rgba(184,64,64,.15); border: 1px solid var(--red); color: var(--red-hi); display: block; }
+.msg.run { background: rgba(200,150,12,.1); border: 1px solid var(--amber); color: var(--amber); display: block; }
+
+/* ── Admin ────────────────────────────────────────────── */
+.admin-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 6px;
+}
+.aa {
+  border: 1px solid var(--border); background: var(--card);
+  border-radius: var(--r); padding: 8px 4px; text-align: center;
+  cursor: pointer; transition: all .15s; user-select: none;
+}
+.aa:hover { border-color: var(--amber); }
+.aa.rare { border-color: var(--gold); background: rgba(232,201,48,.07); }
+.aa-l { font-family: var(--font-d); font-size: 1.4rem; line-height: 1; }
+.aa-n { font-family: var(--font-m); font-size: .5rem; color: var(--text-dim); }
+.aa-p { font-family: var(--font-m); font-size: .56rem; color: var(--amber); margin-top: 2px; }
+.aa.rare .aa-l { color: var(--gold); }
+.aa.rare .aa-p { color: var(--gold); }
+
+.admin-toolbar { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+.admin-toolbar .btn { width: auto; font-size: .9rem; padding: 9px 18px; letter-spacing: 2px; }
+
+/* ── Empty state ──────────────────────────────────────── */
+.empty {
+  text-align: center; padding: 52px 20px; color: var(--text-dim);
+}
+.empty-icon { font-size: 2.4rem; margin-bottom: 12px; display: block; opacity: .6; }
+.empty-txt { font-family: var(--font-m); font-size: .72rem; letter-spacing: 2px; }
+
+/* ── Spinner ──────────────────────────────────────────── */
+.spin {
+  display: inline-block; width: 13px; height: 13px;
+  border: 2px solid var(--border); border-top-color: var(--amber);
+  border-radius: 50%; animation: spinning .6s linear infinite;
+  vertical-align: middle; margin-right: 6px;
+}
+@keyframes spinning { to { transform: rotate(360deg); } }
+
+/* ── Responsive ───────────────────────────────────────── */
+@media (max-width: 640px) {
+  nav { padding: 0 14px; }
+  .tab { padding: 5px 8px; font-size: .62rem; letter-spacing: 1px; }
+  main { padding: 20px 14px 80px; }
+  .form-card { padding: 20px 14px; }
+  thead th:nth-child(4), tbody td:nth-child(4) { display: none; }
+  .hstat-val { font-size: 1.8rem; }
+}
+
+/* ── Misc ─────────────────────────────────────────────── */
+.sep { height: 1px; background: var(--border); margin: 24px 0; }
+.row { display: flex; gap: 8px; align-items: center; }
+.grow { flex: 1; }
+</style>
+</head>
+<body>
+
+<!-- ═══ NAV ═══════════════════════════════════════════════════════════ -->
+<nav>
+  <div class="logo">GEOVISION<small>HUNT · GDAŃSK 2025</small></div>
+  <div class="tabs">
+    <button class="tab on"  onclick="go('lb',this)">Ranking</button>
+    <button class="tab"     onclick="go('sub',this)">Submit Find</button>
+    <button class="tab"     onclick="go('art',this)">Artifacts</button>
+    <button class="tab"     onclick="go('adm',this)">Admin</button>
+  </div>
+</nav>
+
+<!-- ═══ MAIN ══════════════════════════════════════════════════════════ -->
+<main>
+
+<!-- ─── LEADERBOARD ─────────────────────────────────────────────────── -->
+<div id="v-lb" class="view on">
+
+  <div class="hero">
+    <div class="hero-eye">R&amp;D Team Event · Gdańsk 2025</div>
+    <div class="hero-title">GEO<span>VISION</span> HUNT</div>
+    <div class="hero-phrase">
+      "Innovate with Passion · Engage with Purpose · Win with Integrity"
+    </div>
+    <div class="hero-stats">
+      <div class="hstat"><div class="hstat-val" id="s-found">—</div><div class="hstat-lbl">Found</div></div>
+      <div class="hstat"><div class="hstat-val" id="s-teams">—</div><div class="hstat-lbl">Teams</div></div>
+      <div class="hstat"><div class="hstat-val" id="s-subs">—</div><div class="hstat-lbl">Total Finds</div></div>
+    </div>
+  </div>
+
+  <div class="ticker" id="ticker">
+    <div class="ticker-lbl">◉ LIVE FINDS</div>
+    <div class="ticker-scroll"><div class="ticker-inner" id="ticker-inner"></div></div>
+  </div>
+
+  <div class="sh">
+    <span class="sh-title">LEADERBOARD</span>
+    <span class="sh-sub" id="lb-updated">loading...</span>
+  </div>
+
+  <div class="lb-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Team / Name</th>
+          <th>Points</th>
+          <th>Progress</th>
+          <th>Last Find</th>
+        </tr>
+      </thead>
+      <tbody id="lb-body">
+        <tr><td colspan="5"><div class="empty"><span class="spin"></span></div></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ─── SUBMIT ───────────────────────────────────────────────────────── -->
+<div id="v-sub" class="view">
+  <div class="sh"><span class="sh-title">SUBMIT FIND</span><span class="sh-sub">honor system · photo required</span></div>
+
+  <div class="form-card">
+    <div class="fg">
+      <label class="fl" for="in-team">Team or Individual Name</label>
+      <input type="text" id="in-team" class="fi" placeholder="e.g. Observability Heroes" maxlength="60" autocomplete="off">
+      <div class="fhint">Use the same name for all your submissions. Case-insensitive.</div>
+    </div>
+
+    <div class="fg">
+      <label class="fl" for="in-num">Artifact Number</label>
+      <input type="number" id="in-num" class="fi" placeholder="1 – 55" min="1" max="55" inputmode="numeric">
+      <div class="fhint" id="art-hint">Number printed on the wooden board.</div>
+    </div>
+
+    <div class="fg">
+      <label class="fl">Photo Evidence</label>
+      <div class="photo-zone" id="pzone">
+        <input type="file" id="in-photo" accept="image/*" capture="environment">
+        <span class="photo-icon" id="p-icon">📷</span>
+        <img class="photo-preview" id="p-prev" alt="">
+        <div class="photo-txt" id="p-txt">Tap to take photo or choose from gallery</div>
+      </div>
+    </div>
+
+    <button class="btn" id="sub-btn" onclick="submitFind()">SUBMIT FIND</button>
+    <div class="msg" id="sub-msg"></div>
+  </div>
+</div>
+
+<!-- ─── ARTIFACTS ────────────────────────────────────────────────────── -->
+<div id="v-art" class="view">
+  <div class="sh"><span class="sh-title">ARTIFACT MAP</span><span class="sh-sub" id="art-progress">0 / 55 found</span></div>
+  <div class="phrase-label" id="art-phrase"></div>
+  <div class="ag" id="art-grid"></div>
+</div>
+
+<!-- ─── ADMIN ────────────────────────────────────────────────────────── -->
+<div id="v-adm" class="view">
+  <div class="sh"><span class="sh-title">ADMIN</span><span class="sh-sub">configure · export</span></div>
+
+  <div id="adm-gate" class="form-card">
+    <div class="fg">
+      <label class="fl">Admin Password</label>
+      <input type="password" id="adm-pass" class="fi" placeholder="••••••••"
+             onkeydown="if(event.key==='Enter')adminLogin()">
+    </div>
+    <button class="btn" onclick="adminLogin()">UNLOCK</button>
+    <div class="msg" id="adm-gate-msg"></div>
+  </div>
+
+  <div id="adm-panel" style="display:none">
+    <div class="form-card" style="max-width:100%;margin-bottom:24px">
+      <div class="sh" style="margin-bottom:12px">
+        <span class="sh-title" style="font-size:1.1rem">RARE ARTIFACTS</span>
+        <span class="sh-sub">click to toggle · gold = rare (+50pts) · grey = standard (+10pts)</span>
+      </div>
+      <div class="admin-grid" id="adm-grid"></div>
+      <div class="admin-toolbar">
+        <button class="btn btn-ghost" onclick="saveRareConfig()">SAVE CONFIG ↓</button>
+        <button class="btn btn-ghost" onclick="exportCSV()">EXPORT CSV ↓</button>
+        <button class="btn btn-ghost" onclick="reloadScores()">RELOAD DATA</button>
+      </div>
+      <div class="msg" id="adm-msg"></div>
+    </div>
+
+    <div class="sh"><span class="sh-title">ALL SUBMISSIONS</span></div>
+    <div class="lb-wrap">
+      <table>
+        <thead>
+          <tr><th>Time</th><th>Team</th><th>Art #</th><th>Letter</th><th>Pts</th><th>Rank</th></tr>
+        </thead>
+        <tbody id="adm-subs"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<!-- ═══ SCRIPT ════════════════════════════════════════════════════════ -->
+<script>
+// ┌─────────────────────────────────────────────────────┐
+// │  CONFIG — edit before deploying                     │
+// └─────────────────────────────────────────────────────┘
+const CFG = {
+  OWNER:    'michalbojkogdansk',
+  REPO:     'geovision-hunt',
+  TOKEN:    'YOUR_FINE_GRAINED_PAT_HERE',   // issues:write + contents:write, this repo only
+  ADMIN_PW: 'hunt2025gdansk',
+  STD_PTS:  10,
+  RARE_PTS: 30,
+  COMPLETE: 1500,
+  SPEED:    { 1:3.0, 2:2.0, 3:1.5, 4:1.5, 5:1.5 },
+  RARE_IDS: new Set([7, 13, 19, 25, 31, 37, 43, 49, 52, 55]),
+  REFRESH:  60000,   // ms between auto-refreshes
+};
+
+// ┌─────────────────────────────────────────────────────┐
+// │  ARTIFACT DEFINITIONS                               │
+// └─────────────────────────────────────────────────────┘
+const PHRASE = "Innovate with Passion, Engage with Purpose, and Win with Integrity";
+const ARTS = (() => {
+  let id = 1, out = [];
+  for (const ch of PHRASE) {
+    if (/[a-zA-Z]/.test(ch)) {
+      out.push({ id: id++, letter: ch.toUpperCase(), src: ch });
+    }
+  }
+  return out;
+})();
+
+// ┌─────────────────────────────────────────────────────┐
+// │  STATE                                              │
+// └─────────────────────────────────────────────────────┘
+let SC = { teams: [], artifacts: {}, submissions: [], last_updated: null };
+let adminOpen = false;
+let photoB64 = null;
+
+// ┌─────────────────────────────────────────────────────┐
+// │  NAV                                                │
+// └─────────────────────────────────────────────────────┘
+function go(id, btn) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
+  document.getElementById('v-' + id).classList.add('on');
+  btn.classList.add('on');
+  if (id === 'lb')  renderLB();
+  if (id === 'art') renderArtifacts();
+  if (id === 'adm' && adminOpen) renderAdmSubs();
+}
+
+// ┌─────────────────────────────────────────────────────┐
+// │  DATA                                               │
+// └─────────────────────────────────────────────────────┘
+async function loadScores() {
+  try {
+    const url = `https://raw.githubusercontent.com/${CFG.OWNER}/${CFG.REPO}/main/data/scores.json?_=${Date.now()}`;
+    const r = await fetch(url);
+    if (!r.ok) throw 0;
+    SC = await r.json();
+  } catch(_) {
+    SC = { teams: [], artifacts: {}, submissions: [], last_updated: null };
+  }
+  renderLB();
+  renderArtifacts();
+  renderStats();
+  renderTicker();
+  if (adminOpen) renderAdmSubs();
+}
+
+// ┌─────────────────────────────────────────────────────┐
+// │  STATS BAR                                          │
+// └─────────────────────────────────────────────────────┘
+function renderStats() {
+  const found = Object.values(SC.artifacts || {}).filter(a => a.found_count > 0).length;
+  set('s-found', found);
+  set('s-teams', (SC.teams || []).length);
+  set('s-subs',  (SC.submissions || []).length);
+  if (SC.last_updated) {
+    set('lb-updated', 'updated ' + ago(SC.last_updated));
+  }
+}
+
+// ┌─────────────────────────────────────────────────────┐
+// │  TICKER                                             │
+// └─────────────────────────────────────────────────────┘
+function renderTicker() {
+  const subs = (SC.submissions || []).slice(-20).reverse();
+  if (!subs.length) return;
+  document.getElementById('ticker').style.display = 'block';
+  const items = subs.map(s => {
+    const a = ARTS.find(x => x.id === s.artifact_id);
+    return `<span class="ti">
+      <span class="tn">${esc(s.team)}</span> found 
+      <span class="tl">[${a ? a.letter : '?'}]#${s.artifact_id}</span> 
+      <span class="tp">+${s.points}pts</span> · ${ago(s.timestamp)}
+    </span>`;
+  }).join('');
+  set('ticker-inner', items + items);  // doubled for seamless loop
+}
+
+// ┌─────────────────────────────────────────────────────┐
+// │  LEADERBOARD                                        │
+// └─────────────────────────────────────────────────────┘
+function renderLB() {
+  const teams = (SC.teams || []).sort((a, b) => b.total_points - a.total_points);
+  if (!teams.length) {
+    set('lb-body', `<tr><td colspan="5"><div class="empty">
+      <span class="empty-icon">🧭</span>
+      <div class="empty-txt">No submissions yet · the hunt begins</div>
+    </div></td></tr>`);
+    set('s-found', 0); set('s-teams', 0); set('s-subs', 0);
+    return;
+  }
+  set('lb-body', teams.map((t, i) => {
+    const r = i + 1;
+    const rc = r === 1 ? 'r1' : r === 2 ? 'r2' : r === 3 ? 'r3' : 'rn';
+    const pct = Math.round((t.artifacts_found.length / 55) * 100);
+    const comp = t.artifacts_found.length === 55
+      ? '<span class="badge-complete">★ COMPLETE</span>' : '';
+    return `<tr>
+      <td><span class="rank ${rc}">${r}</span></td>
+      <td>
+        <div class="tname">${esc(t.name)}${comp}</div>
+        <div class="ttype">${t.type || 'individual'}</div>
+      </td>
+      <td><span class="pts">${t.total_points}</span></td>
+      <td>
+        <div class="prog-wrap">
+          <div class="prog-bg"><div class="prog-fill" style="width:${pct}%"></div></div>
+          <div class="prog-txt">${t.artifacts_found.length} / 55</div>
+        </div>
+      </td>
+      <td><span class="ts">${t.last_submission ? ago(t.last_submission) : '—'}</span></td>
+    </tr>`;
+  }).join(''));
+  renderStats();
+}
+
+// ┌─────────────────────────────────────────────────────┐
+// │  ARTIFACTS GRID                                     │
+// └─────────────────────────────────────────────────────┘
+function renderArtifacts() {
+  // Build phrase display with word breaks
+  let phraseHtml = '';
+  let id = 1;
+  for (const ch of PHRASE) {
+    if (/[a-zA-Z]/.test(ch)) {
+      const a = SC.artifacts?.[id];
+      const found = a && a.found_count > 0;
+      const rare = CFG.RARE_IDS.has(id);
+      phraseHtml += `<span title="#${id}" style="
+        color:${found ? 'var(--green-hi)' : rare ? 'var(--gold)' : 'var(--text-dim)'};
+        cursor:default;
+      ">${ch}</span>`;
+      id++;
+    } else {
+      phraseHtml += ch === ' ' ? ' ' : `<span style="color:var(--border)">${ch}</span>`;
+    }
+  }
+  set('art-phrase', phraseHtml);
+
+  // Progress count
+  const found = Object.values(SC.artifacts || {}).filter(a => a.found_count > 0).length;
+  set('art-progress', `${found} / 55 found`);
+
+  // Render grid
+  set('art-grid', ARTS.map(art => {
+    const ad = SC.artifacts?.[art.id];
+    const isFound = ad && ad.found_count > 0;
+    const isRare  = CFG.RARE_IDS.has(art.id);
+    const cls = ['ac', isFound ? 'found' : '', isRare ? 'rare' : ''].filter(Boolean).join(' ');
+    const tip  = isFound
+      ? `#${art.id} ${art.letter} · First: ${ad.first_finder} · Found ${ad.found_count}×`
+      : `#${art.id} ${art.letter}${isRare ? ' · RARE' : ''}`;
+    return `<div class="${cls}" title="${esc(tip)}">
+      ${isRare  ? '<div class="rare-dot"></div>' : ''}
+      ${isFound ? '<div class="found-check">✓</div>' : ''}
+      <div class="al">${art.letter}</div>
+      <div class="an">#${String(art.id).padStart(2,'0')}</div>
+    </div>`;
+  }).join(''));
+}
+
+// ┌─────────────────────────────────────────────────────┐
+// │  PHOTO                                              │
+// └─────────────────────────────────────────────────────┘
+document.getElementById('in-photo').addEventListener('change', function() {
+  const file = this.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const [, data] = e.target.result.split(',');
+    photoB64 = data;
+    const prev = document.getElementById('p-prev');
+    prev.src = e.target.result;
+    prev.style.display = 'block';
+    document.getElementById('p-icon').style.display = 'none';
+    document.getElementById('p-txt').style.display = 'none';
+    document.getElementById('pzone').classList.add('loaded');
+  };
+  reader.readAsDataURL(file);
+});
+
+// Artifact # → show letter hint
+document.getElementById('in-num').addEventListener('input', function() {
+  const n = parseInt(this.value);
+  const hint = document.getElementById('art-hint');
+  if (n >= 1 && n <= 55) {
+    const art = ARTS[n - 1];
+    const isRare = CFG.RARE_IDS.has(n);
+    hint.innerHTML = `Letter: <strong style="color:var(--amber)">${art.letter}</strong>${isRare ? ' · <span style="color:var(--gold)">★ RARE ARTIFACT</span>' : ''}`;
+  } else {
+    hint.textContent = 'Number printed on the wooden board.';
+  }
+});
+
+// ┌─────────────────────────────────────────────────────┐
+// │  SUBMIT                                             │
+// └─────────────────────────────────────────────────────┘
+async function submitFind() {
+  const team = document.getElementById('in-team').value.trim();
+  const num  = parseInt(document.getElementById('in-num').value);
+  const msg  = document.getElementById('sub-msg');
+  const btn  = document.getElementById('sub-btn');
+
+  if (!team)               return showMsg(msg, 'err', 'Team / individual name required.');
+  if (!num || num<1||num>55) return showMsg(msg, 'err', 'Artifact number must be 1–55.');
+  if (!photoB64)           return showMsg(msg, 'err', 'Photo required as evidence.');
+
+  // Client-side duplicate check (not authoritative — server enforces)
+  const norm = team.trim().toLowerCase();
+  const dup = (SC.submissions || []).find(
+    s => s.team.toLowerCase() === norm && s.artifact_id === num
+  );
+  if (dup) return showMsg(msg, 'err', `Your team already submitted artifact #${num}.`);
+
+  btn.disabled = true;
+  const art = ARTS[num - 1];
+
+  try {
+    showMsg(msg, 'run', '<span class="spin"></span>Uploading photo to repository...');
+    const ts   = new Date().toISOString();
+    const slug = team.replace(/[^a-z0-9]/gi, '_').slice(0, 30);
+    const fname = `photos/${ts.replace(/[:.]/g,'-')}_${slug}_#${String(num).padStart(2,'0')}.jpg`;
+
+    const upRes = await fetch(
+      `https://api.github.com/repos/${CFG.OWNER}/${CFG.REPO}/contents/${fname}`,
+      {
+        method: 'PUT',
+        headers: { Authorization: `token ${CFG.TOKEN}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: `photo: ${team} #${num}`,
+          content: photoB64,
+          branch:  'main'
+        })
+      }
+    );
+    if (!upRes.ok) {
+      const e = await upRes.json();
+      throw new Error(`Photo upload: ${e.message || upRes.status}`);
+    }
+    const upData = await upRes.json();
+    const photoUrl = upData.content.html_url;
+
+    showMsg(msg, 'run', '<span class="spin"></span>Registering find...');
+
+    const isRare = CFG.RARE_IDS.has(num);
+    const issueBody = [
+      `## Hunt Submission`,
+      ``,
+      `| | |`,
+      `|---|---|`,
+      `| **Team** | ${team} |`,
+      `| **Artifact** | #${num} — ${art.letter}${isRare ? ' ★ RARE' : ''} |`,
+      `| **Timestamp** | ${ts} |`,
+      `| **Photo** | [View](${photoUrl}) |`,
+      ``,
+      `---`,
+      `*Submitted via GeoVision Hunt app*`
+    ].join('\n');
+
+    const issRes = await fetch(
+      `https://api.github.com/repos/${CFG.OWNER}/${CFG.REPO}/issues`,
+      {
+        method: 'POST',
+        headers: { Authorization: `token ${CFG.TOKEN}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title:  `[HUNT] #${String(num).padStart(2,'0')} ${art.letter} | ${team}`,
+          body:   issueBody,
+          labels: ['submission']
+        })
+      }
+    );
+    if (!issRes.ok) {
+      const e = await issRes.json();
+      throw new Error(`Issue: ${e.message || issRes.status}`);
+    }
+
+    localStorage.setItem('ghunt_team', team);
+    showMsg(msg, 'ok', `✓ Artifact #${num} [${art.letter}] submitted! Leaderboard updates in ~60s.`);
+
+    // Reset form
+    photoB64 = null;
+    document.getElementById('p-prev').style.display = 'none';
+    document.getElementById('p-icon').style.display = 'block';
+    document.getElementById('p-txt').style.display = 'block';
+    document.getElementById('pzone').classList.remove('loaded');
+    document.getElementById('in-photo').value = '';
+    document.getElementById('in-num').value   = '';
+    document.getElementById('art-hint').textContent = 'Number printed on the wooden board.';
+
+  } catch(err) {
+    showMsg(msg, 'err', `Error: ${err.message} — try again.`);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// ┌─────────────────────────────────────────────────────┐
+// │  ADMIN                                              │
+// └─────────────────────────────────────────────────────┘
+function adminLogin() {
+  const pw = document.getElementById('adm-pass').value;
+  if (pw === CFG.ADMIN_PW) {
+    adminOpen = true;
+    document.getElementById('adm-gate').style.display = 'none';
+    document.getElementById('adm-panel').style.display = 'block';
+    renderAdmGrid();
+    renderAdmSubs();
+  } else {
+    showMsg(document.getElementById('adm-gate-msg'), 'err', 'Incorrect password.');
+  }
+}
+
+function renderAdmGrid() {
+  set('adm-grid', ARTS.map(a => {
+    const rare = CFG.RARE_IDS.has(a.id);
+    return `<div class="aa${rare?' rare':''}" id="aa-${a.id}" onclick="toggleRare(${a.id})">
+      <div class="aa-l">${a.letter}</div>
+      <div class="aa-n">#${String(a.id).padStart(2,'0')}</div>
+      <div class="aa-p">${rare?'50pts':'10pts'}</div>
+    </div>`;
+  }).join(''));
+}
+
+function toggleRare(id) {
+  if (CFG.RARE_IDS.has(id)) CFG.RARE_IDS.delete(id);
+  else CFG.RARE_IDS.add(id);
+  renderAdmGrid();
+}
+
+function saveRareConfig() {
+  const cfg = { rare_artifacts: [...CFG.RARE_IDS].sort((a,b)=>a-b), updated: new Date().toISOString() };
+  dl(JSON.stringify(cfg, null, 2), 'rare-config.json', 'application/json');
+  showMsg(document.getElementById('adm-msg'), 'ok', 'Downloaded. Merge into data/config.json in the repo.');
+}
+
+function exportCSV() {
+  const subs = SC.submissions || [];
+  if (!subs.length) return showMsg(document.getElementById('adm-msg'), 'err', 'No submissions yet.');
+  const rows = [['Timestamp','Team','Artifact ID','Letter','Rare','Points','Speed Rank']];
+  subs.forEach(s => {
+    const a = ARTS.find(x => x.id === s.artifact_id);
+    rows.push([s.timestamp, s.team, s.artifact_id, a ? a.letter : '?', s.rare ? 'yes' : 'no', s.points, s.rank_at_time]);
+  });
+  dl(rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n'),
+     `geovision-export-${new Date().toISOString().slice(0,10)}.csv`, 'text/csv');
+}
+
+function renderAdmSubs() {
+  const subs = (SC.submissions || []).sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+  if (!subs.length) {
+    set('adm-subs', '<tr><td colspan="6"><div class="empty empty-txt" style="padding:20px">No submissions yet</div></td></tr>');
+    return;
+  }
+  set('adm-subs', subs.map(s => {
+    const a = ARTS.find(x => x.id === s.artifact_id);
+    const rare = s.rare;
+    return `<tr>
+      <td class="ts">${new Date(s.timestamp).toLocaleString('pl-PL')}</td>
+      <td class="tname">${esc(s.team)}</td>
+      <td class="ts">#${String(s.artifact_id).padStart(2,'0')}</td>
+      <td><span style="font-family:var(--font-d);font-size:1.2rem;color:${rare?'var(--gold)':'var(--text)'}">${a?a.letter:'?'}</span>${rare?' ★':''}</td>
+      <td><span style="font-family:var(--font-d);color:var(--amber)">${s.points}</span></td>
+      <td class="ts">#${s.rank_at_time||'—'}</td>
+    </tr>`;
+  }).join(''));
+}
+
+function reloadScores() {
+  loadScores();
+  showMsg(document.getElementById('adm-msg'), 'ok', 'Reloaded.');
+}
+
+// ┌─────────────────────────────────────────────────────┐
+// │  UTILS                                              │
+// └─────────────────────────────────────────────────────┘
+function set(id, html) { document.getElementById(id).innerHTML = html; }
+
+function showMsg(el, type, html) {
+  el.className = `msg ${type}`;
+  el.innerHTML = html;
+}
+
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, c =>
+    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function ago(ts) {
+  const d = (Date.now() - new Date(ts)) / 1000;
+  if (d < 60)    return `${Math.round(d)}s ago`;
+  if (d < 3600)  return `${Math.round(d/60)}m ago`;
+  if (d < 86400) return `${Math.round(d/3600)}h ago`;
+  return `${Math.round(d/86400)}d ago`;
+}
+
+function dl(content, filename, type) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([content], { type }));
+  a.download = filename;
+  a.click();
+}
+
+// ┌─────────────────────────────────────────────────────┐
+// │  BOOT                                               │
+// └─────────────────────────────────────────────────────┘
+window.addEventListener('load', () => {
+  const saved = localStorage.getItem('ghunt_team');
+  if (saved) document.getElementById('in-team').value = saved;
+  renderArtifacts();
+  loadScores();
+  setInterval(loadScores, CFG.REFRESH);
+});
+</script>
+</body>
+</html>
