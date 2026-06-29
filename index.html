@@ -25,8 +25,8 @@
   --font: 'Inter', system-ui, sans-serif;
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
-body {
+html { scroll-behavior: smooth; overflow-x: hidden; }
+body { overflow-x: hidden;
   background: var(--bg);
   color: var(--text);
   font-family: var(--font);
@@ -329,15 +329,21 @@ tbody tr:hover { background: rgba(255,255,255,.02); }
   .stat-val { font-size: 1.6rem; }
 }
 @media (max-width: 640px) {
-  nav { padding: 0 16px; }
-  .tab { padding: 0 8px; font-size: .72rem; }
-  .s-white, .s-dark, .s-dark-alt { padding: 36px 20px; }
-  .view-inner { padding: 28px 20px 64px; }
+  nav { padding: 0 12px; height: auto; min-height: 56px; flex-wrap: wrap; gap: 0; }
+  .logo { font-size: .9rem; }
+  .logo-sub { display: none; }
+  .tabs { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; border-top: 1px solid var(--border); }
+  .tab { padding: 0 12px; height: 40px; font-size: .75rem; flex-shrink: 0; }
+  .s-white, .s-dark, .s-dark-alt { padding: 32px 16px; }
+  .view-inner { padding: 28px 16px 64px; }
   thead th:nth-child(4), tbody td:nth-child(4) { display: none; }
-  .hero-title { font-size: 2rem; }
-  .hero-desc  { font-size: .92rem; }
-  .stat-panel { grid-template-columns: 1fr; }
-  .stat-val   { font-size: 1.8rem; }
+  .hero-title { font-size: 1.9rem; }
+  .hero-desc  { font-size: .9rem; }
+  .stat-panel { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .stat-item  { padding: 14px 12px; margin-bottom: 0; }
+  .stat-val   { font-size: 1.5rem; }
+  .stat-lbl   { font-size: .7rem; }
+  .stat-panel-title { margin-bottom: 12px; }
 }
 </style>
 </head>
