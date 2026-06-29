@@ -1,6 +1,44 @@
 {
-  "teams": [],
-  "artifacts": {},
-  "submissions": [],
-  "last_updated": null
+  "teams": [
+    {
+      "name": "bojkoteam",
+      "type": "team",
+      "total_points": 30,
+      "artifacts_found": [
+        1
+      ],
+      "last_submission": "2026-06-29T14:43:51Z",
+      "completion_bonus_awarded": false
+    }
+  ],
+  "artifacts": {
+    "1": {
+      "id": 1,
+      "letter": "I",
+      "rare": false,
+      "found_count": 1,
+      "first_finder": "bojkoteam",
+      "finders": [
+        {
+          "team": "bojkoteam",
+          "timestamp": "2026-06-29T14:43:51Z",
+          "rank": 1
+        }
+      ]
+    }
+  },
+  "submissions": [
+    {
+      "team": "bojkoteam",
+      "artifact_id": 1,
+      "letter": "I",
+      "rare": false,
+      "timestamp": "2026-06-29T14:43:51Z",
+      "base_points": 10,
+      "multiplier": 3.0,
+      "points": 30,
+      "rank_at_time": 1
+    }
+  ],
+  "last_updated": "2026-06-29T14:43:59.579944+00:00"
 }
