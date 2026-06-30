@@ -350,6 +350,32 @@ tbody tr:hover { background: rgba(255,255,255,.02); }
 .admin-toolbar { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
 .admin-toolbar .btn { width: auto; }
 
+/* ── Rules page ──────────────────────────────── */
+.rules-section { margin-bottom: 44px; }
+.rules-heading { font-size: 1.05rem; font-weight: 700; color: var(--text); margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+.rules-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; }
+.rules-grid-3 { grid-template-columns: repeat(3,1fr); }
+.rules-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); padding: 18px 16px; }
+.rules-step { font-size: 2rem; font-weight: 800; color: var(--border); line-height: 1; margin-bottom: 8px; }
+.rules-card-title { font-size: .88rem; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.rules-card-body  { font-size: .8rem; color: var(--text-2); line-height: 1.7; }
+.rules-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.rules-sub { font-size: .68rem; font-weight: 600; color: var(--text-2); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px; }
+.rules-table { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; }
+.rules-row { display: grid; grid-template-columns: 1fr auto auto; gap: 8px; padding: 9px 12px; border-bottom: 1px solid var(--border); font-size: .78rem; color: var(--text-2); align-items: center; }
+.rules-row:last-child { border-bottom: none; }
+.rules-row-head { font-size: .65rem; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; background: var(--surface); }
+.pts-val { font-weight: 700; color: var(--blue); text-align: right; white-space: nowrap; }
+.rare-val { color: var(--teal); }
+.rules-bonus { background: rgba(0,180,230,.06); border: 1px solid rgba(0,180,230,.25); border-radius: var(--r); padding: 14px; margin-top: 10px; text-align: center; }
+.rules-bonus-label { font-size: .65rem; font-weight: 600; color: var(--teal); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
+.rules-bonus-val   { font-size: 1.5rem; font-weight: 800; color: var(--teal); line-height: 1; }
+.rules-bonus-desc  { font-size: .7rem; color: var(--text-2); margin-top: 4px; }
+.rules-qa { display: flex; flex-direction: column; }
+.rules-q { font-size: .86rem; font-weight: 600; color: var(--text); padding: 13px 0 5px; border-top: 1px solid var(--border); }
+.rules-q:first-child { border-top: none; padding-top: 0; }
+.rules-a { font-size: .8rem; color: var(--text-2); line-height: 1.7; padding-bottom: 8px; }
+
 /* ── Responsive ──────────────────────────────────────── */
 @media (max-width: 860px) {
   .two-col { grid-template-columns: 1fr; }
@@ -362,6 +388,7 @@ tbody tr:hover { background: rgba(255,255,255,.02); }
   .tabs { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; border-top: 1px solid var(--border); }
   .tab { padding: 0 12px; height: 40px; font-size: .75rem; flex-shrink: 0; }
   .s-white, .s-dark, .s-dark-alt { padding: 32px 16px; }
+  .rules-grid, .rules-grid-3, .rules-two-col { grid-template-columns: 1fr; }
   .view-inner { padding: 28px 16px 64px; }
 
   .hero-title { font-size: 1.9rem; }
