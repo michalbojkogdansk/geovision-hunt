@@ -356,8 +356,8 @@ tbody tr:hover { background: rgba(255,255,255,.02); }
 .rules-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; }
 .rules-grid-3 { grid-template-columns: repeat(3,1fr); }
 .rules-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); padding: 18px 16px; }
-.rules-step { font-size: 2rem; font-weight: 800; color: var(--border); line-height: 1; margin-bottom: 8px; }
-.rules-card-title { font-size: .88rem; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.rules-step-num { font-size: 1rem; font-weight: 800; color: var(--blue); margin-right: 6px; }
+.rules-card-title { font-size: .92rem; font-weight: 700; color: var(--text); margin-bottom: 8px; }
 .rules-card-body  { font-size: .8rem; color: var(--text-2); line-height: 1.7; }
 .rules-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 .rules-sub { font-size: .68rem; font-weight: 600; color: var(--text-2); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px; }
@@ -436,10 +436,10 @@ tbody tr:hover { background: rgba(255,255,255,.02); }
       <div class="rules-section">
         <div class="rules-heading">How it works</div>
         <div class="rules-grid">
-          <div class="rules-card"><div class="rules-step">01</div><div class="rules-card-title">Register your team</div><div class="rules-card-body">Click Submit Find and create a team name and password. Share the password with your teammates — up to 8 people. You can also play solo.</div></div>
-          <div class="rules-card"><div class="rules-step">02</div><div class="rules-card-title">Find the artifacts</div><div class="rules-card-body">55 wooden boards are hidden across Gdańsk. Each shows a letter and a number. Rare artifacts (teal dot on the Artifacts map) are worth more points.</div></div>
-          <div class="rules-card"><div class="rules-step">03</div><div class="rules-card-title">Submit your find</div><div class="rules-card-body">Enter the artifact number, take a photo as proof and hit Submit. The honour system applies. Your find is processed within 60 seconds.</div></div>
-          <div class="rules-card"><div class="rules-step">04</div><div class="rules-card-title">Climb the leaderboard</div><div class="rules-card-body">First finder earns 3× the base points. Find all 55 and claim the 1,500 pt completion bonus. The leaderboard updates live.</div></div>
+          <div class="rules-card"><div class="rules-card-title"><span class="rules-step-num">01</span> Register your team</div><div class="rules-card-body">Click Submit Find and create a team name and password. Share the password with your teammates — up to 8 people. You can also play solo.</div></div>
+          <div class="rules-card"><div class="rules-card-title"><span class="rules-step-num">02</span> Find the artifacts</div><div class="rules-card-body">55 wooden boards are hidden across Gdańsk. Each shows a letter and a number. Rare artifacts (teal dot on the Artifacts map) are worth more points.</div></div>
+          <div class="rules-card"><div class="rules-card-title"><span class="rules-step-num">03</span> Submit your find</div><div class="rules-card-body">Enter the artifact number, take a photo as proof and hit Submit. The honour system applies. Your find is processed within 60 seconds.</div></div>
+          <div class="rules-card"><div class="rules-card-title"><span class="rules-step-num">04</span> Climb the leaderboard</div><div class="rules-card-body">First finder earns 3× the base points. Find all 55 and claim the 1,500 pt completion bonus. The leaderboard updates live.</div></div>
         </div>
       </div>
       <div class="rules-section">
@@ -485,10 +485,10 @@ tbody tr:hover { background: rgba(255,255,255,.02); }
         <div class="rules-qa">
           <div class="rules-q">Can I play alone?</div>
           <div class="rules-a">Yes. Register any team name and keep the password to yourself. You appear on the leaderboard as a solo player.</div>
-          <div class="rules-q">Two teams find the same artifact — do both count?</div>
+          <div class="rules-q">Two teams find the same artifact. Do both count?</div>
           <div class="rules-a">Yes. Every team that finds an artifact earns points. First earns 3×, second earns 2×. Being second still pays.</div>
           <div class="rules-q">What counts as valid proof?</div>
-          <div class="rules-a">A clear photo of the wooden board showing the letter and order number. Photos are compressed on your device before upload.</div>
+          <div class="rules-a">A clear photo of the wooden board showing the letter and order number. The best photo is with you and the artifact 🙂 Photos are compressed on your device before upload.</div>
           <div class="rules-q">Can teammates submit from different phones?</div>
           <div class="rules-a">Yes. Sign in with the same team name and password on any device. All submissions are credited to the team.</div>
           <div class="rules-q">What if an artifact is missing or has been moved?</div>
@@ -496,7 +496,7 @@ tbody tr:hover { background: rgba(255,255,255,.02); }
           <div class="rules-q">How are ties broken?</div>
           <div class="rules-a">The team whose last submission arrived earlier wins.</div>
           <div class="rules-q">Is there a submission rate limit?</div>
-          <div class="rules-a">Each team can submit up to 10 finds per hour — more than enough given the distances between artifacts.</div>
+          <div class="rules-a">Each team can submit up to 10 finds per hour. More than enough given the distances between artifacts.</div>
           <div class="rules-q">Can the same team submit the same artifact twice?</div>
           <div class="rules-a">No. Duplicate submissions are rejected automatically on both device and server.</div>
         </div>
