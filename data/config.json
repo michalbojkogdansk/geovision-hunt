@@ -14,5 +14,7 @@
     "4": 1.5,
     "5": 1.5,
     "default": 1.0
-  }
+  },
+  "rare_artifacts": [],
+  "_note": "rare_artifacts must match KV art-cfg. Update before event."
 }
