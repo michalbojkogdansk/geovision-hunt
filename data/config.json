@@ -1,8 +1,7 @@
 {
   "event_name": "GeoVision Hunt",
   "phrase": "Innovate with Passion, Engage with Purpose, and Win with Integrity",
-  "location": "Gdańsk, Poland",
-  "rare_artifacts": [7, 13, 19, 25, 31, 37, 43, 49, 52, 55],
+  "location": "Gda\u0144sk, Poland",
   "points": {
     "standard": 10,
     "rare": 30,
