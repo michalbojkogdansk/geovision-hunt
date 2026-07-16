@@ -751,7 +751,8 @@ const ARTS = (() => {
 })();
 
 let SC = { teams:[], artifacts:{}, submissions:[], last_updated:null };
-let ARTCFG = { artifacts: {} };
+let ARTCFG = { artifacts: {} }; // public player data (released only)
+let ADMCFG = { artifacts: {} }; // full admin data (all artifacts)
 let EVCFG  = { start_date: null, end_date: null, batches: [], status: 'active' };
 let adminOpen = false, photoB64 = null;
 let SESSION = { token: null, team: null };
@@ -961,7 +962,7 @@ async function adminLogin(){
     _admPwd=pw;
     localStorage.setItem('ghunt_admin_session', JSON.stringify({pwd:pw,expires:Date.now()+600000}));
     const fullCfg=await loadAdminArtifactsConfig(pw);
-    ARTCFG=fullCfg;
+    ADMCFG=fullCfg;
     CFG.RARE_IDS=new Set();
     for(const[id,art] of Object.entries(fullCfg.artifacts||{})){
       if(art.rare) CFG.RARE_IDS.add(parseInt(id));
@@ -987,7 +988,7 @@ async function promptResetPassword(teamName){const newPwd=prompt(`New password f
 function renderAdmGrid(){
   set('adm-grid',ARTS.map(a=>{
     const rare=CFG.RARE_IDS.has(a.id);
-    const cfg=ARTCFG.artifacts?.[a.id]||{};
+    const cfg=ADMCFG.artifacts?.[a.id]||{};
     const bid=cfg.batch_id; const hasBatch=bid!=null&&(EVCFG.batches||[]).some(b=>b.id===bid);
     return `<div class="aa${rare?' rare':''}" onclick="openAdmArtModal(${a.id})" style="${hasBatch?'border-color:rgba(0,200,100,.5)':''}">
       <div class="aa-l">${a.letter}</div>
@@ -1050,7 +1051,7 @@ let _admArtRare = false;
 function openAdmArtModal(id) {
   _admArtId = id;
   const art = ARTS.find(a => a.id === id);
-  const cfg = ARTCFG.artifacts?.[id] || {};
+  const cfg = ADMCFG.artifacts?.[id] || {};
   _admArtRare = CFG.RARE_IDS.has(id);
 
   document.getElementById('adm-art-modal-num').textContent = `Artifact #${String(id).padStart(2,'00')}`;
@@ -1104,7 +1105,7 @@ async function saveAdmArtConfig() {
     const d = await res.json();
     if (!res.ok) throw new Error(d.error || 'Save failed');
     if (!ARTCFG.artifacts) ARTCFG.artifacts = {};
-    ARTCFG.artifacts[_admArtId]={rare:_admArtRare,description:desc,maps_url:maps,batch_id};
+    ADMCFG.artifacts[_admArtId]={rare:_admArtRare,description:desc,maps_url:maps,batch_id};
     if(_admArtRare)CFG.RARE_IDS.add(_admArtId);else CFG.RARE_IDS.delete(_admArtId);
     const bn=batch_id!=null?(EVCFG.batches||[]).find(b=>b.id===batch_id)?.name:null;
     showMsg(msg,'ok',bn?`Saved — assigned to "${bn}".`:'Saved — not assigned to any batch.');
@@ -1243,7 +1244,7 @@ async function restoreAdminSession() {
     localStorage.setItem('ghunt_admin_session', JSON.stringify({pwd,expires:Date.now()+600000}));
     _admPwd = pwd; adminOpen = true;
     const fullCfg = await loadAdminArtifactsConfig(pwd);
-    ARTCFG = fullCfg;
+    ADMCFG = fullCfg;
     CFG.RARE_IDS = new Set();
     for (const [id,art] of Object.entries(fullCfg.artifacts||{})) {
       if (art.rare) CFG.RARE_IDS.add(parseInt(id));
