@@ -32,7 +32,7 @@ with open(CONFIG_FILE) as f:
 STANDARD_PTS   = cfg["points"]["standard"]
 RARE_PTS       = cfg["points"]["rare"]
 COMPLETION_BONUS = cfg["points"]["completion_bonus"]
-RARE_IDS       = set(cfg["rare_artifacts"])
+RARE_IDS       = set(cfg.get("rare_artifacts", []))  # also set in Cloudflare KV art-cfg
 SPEED_MULTS    = cfg["speed_multipliers"]
 
 
