@@ -737,6 +737,7 @@ const ARTS = (() => {
 })();
 
 let SC = { teams:[], artifacts:{}, submissions:[], last_updated:null };
+let ARTCFG = { artifacts: {} }; // artifact descriptions/hints/maps
 let adminOpen = false, photoB64 = null;
 let SESSION = { token: null, team: null };
 let authMode = 'login';
@@ -942,15 +943,17 @@ function adminLogin(){
 function renderAdmGrid(){
   set('adm-grid',ARTS.map(a=>{
     const rare=CFG.RARE_IDS.has(a.id);
-    return `<div class="aa${rare?' rare':''}" onclick="toggleRare(${a.id})">
+    const cfg=ARTCFG.artifacts?.[a.id]||{};
+    const hasDesc=cfg.description||cfg.maps_url;
+    return `<div class="aa${rare?' rare':''}" onclick="openAdmArtModal(${a.id})">
       <div class="aa-l">${a.letter}</div>
       <div class="aa-n">#${String(a.id).padStart(2,'0')}</div>
-      <div class="aa-p">${rare?'30 pts':'10 pts'}</div>
+      <div class="aa-p">${rare?'Rare':'Std'}${hasDesc?' ·':''}</div>
     </div>`;
   }).join(''));
 }
 
-function toggleRare(id){CFG.RARE_IDS.has(id)?CFG.RARE_IDS.delete(id):CFG.RARE_IDS.add(id);renderAdmGrid();}
+function toggleRare(id){CFG.RARE_IDS.has(id)?CFG.RARE_IDS.delete(id):CFG.RARE_IDS.add(id);}
 
 function saveRareConfig(){
   const cfg={rare_artifacts:[...CFG.RARE_IDS].sort((a,b)=>a-b),updated:new Date().toISOString()};
@@ -996,6 +999,79 @@ function dl(content,filename,type){
   a.download=filename;a.click();
 }
 
+
+let _admArtId = null;
+let _admArtRare = false;
+
+function openAdmArtModal(id) {
+  _admArtId = id;
+  const art = ARTS.find(a => a.id === id);
+  const cfg = ARTCFG.artifacts?.[id] || {};
+  _admArtRare = CFG.RARE_IDS.has(id);
+
+  document.getElementById('adm-art-modal-num').textContent = `Artifact #${String(id).padStart(2,'00')}`;
+  document.getElementById('adm-art-modal-letter').textContent = art.letter;
+  document.getElementById('adm-art-desc').value = cfg.description || '';
+  document.getElementById('adm-art-maps').value = cfg.maps_url || '';
+  document.getElementById('adm-art-msg').className = 'msg';
+  setAdmArtRare(_admArtRare);
+
+  document.getElementById('adm-art-overlay').style.display = 'block';
+  document.getElementById('adm-art-modal').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeAdmArtModal() {
+  document.getElementById('adm-art-overlay').style.display = 'none';
+  document.getElementById('adm-art-modal').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+function setAdmArtRare(isRare) {
+  _admArtRare = isRare;
+  const std  = document.getElementById('adm-btn-std');
+  const rare = document.getElementById('adm-btn-rare');
+  std.style.background  = isRare ? 'var(--surface)' : 'var(--blue)';
+  std.style.color       = isRare ? 'var(--text-2)' : '#fff';
+  std.style.borderColor = isRare ? 'var(--border)' : 'var(--blue)';
+  rare.style.background  = isRare ? 'var(--teal)' : 'var(--surface)';
+  rare.style.color       = isRare ? '#fff' : 'var(--text-2)';
+  rare.style.borderColor = isRare ? 'var(--teal)' : 'var(--border)';
+}
+
+async function saveAdmArtConfig() {
+  const msg  = document.getElementById('adm-art-msg');
+  const desc = document.getElementById('adm-art-desc').value.trim();
+  const maps = document.getElementById('adm-art-maps').value.trim();
+  const btn  = document.querySelector('#adm-art-modal .btn');
+  btn.disabled = true;
+  showMsg(msg, 'run', '<span class="spin"></span>Saving...');
+
+  // Update rare state
+  if (_admArtRare) CFG.RARE_IDS.add(_admArtId);
+  else CFG.RARE_IDS.delete(_admArtId);
+
+  // Update local config
+  if (!ARTCFG.artifacts) ARTCFG.artifacts = {};
+  ARTCFG.artifacts[_admArtId] = { rare: _admArtRare, description: desc, maps_url: maps };
+
+  try {
+    const res = await fetch(`${CFG.WORKER}/save-artifacts-config`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ config: ARTCFG })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Save failed');
+    showMsg(msg, 'ok', 'Saved. Reload the page to see updates.');
+    renderAdmGrid();
+  } catch(e) {
+    showMsg(msg, 'err', e.message);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
 function openArtModal(id) {
   const art    = ARTS.find(a => a.id === id);
   const ad     = SC.artifacts?.[id];
@@ -1034,6 +1110,24 @@ function openArtModal(id) {
     </div>`;
   }
 
+  // Description / hint
+  const bodyEl = document.getElementById('art-modal-body');
+  const artCfg = ARTCFG.artifacts?.[id] || {};
+  let extraHtml = '';
+  if (artCfg.description) {
+    extraHtml += `<div style="margin-bottom:12px;padding:12px 14px;background:var(--surface);border-radius:6px;border:1px solid var(--border)">
+      <div style="font-size:.65rem;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px">Hint</div>
+      <div style="font-size:.82rem;color:var(--text);line-height:1.6">${esc(artCfg.description)}</div>
+    </div>`;
+  }
+  if (artCfg.maps_url) {
+    extraHtml += `<a href="${artCfg.maps_url}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:8px;padding:10px 14px;background:rgba(20,150,255,.08);border:1px solid rgba(20,150,255,.25);border-radius:6px;text-decoration:none;margin-bottom:12px">
+      <span style="font-size:.82rem;font-weight:600;color:var(--blue)">Open in Google Maps</span>
+      <span style="font-size:.75rem;color:var(--text-2);margin-left:auto">↗</span>
+    </a>`;
+  }
+  document.getElementById('art-modal-status').insertAdjacentHTML('afterend', extraHtml ? `<div id="art-modal-extra">${extraHtml}</div>` : '');
+
   // Finders list
   const findersEl = document.getElementById('art-modal-finders');
   if (isFound && ad.finders && ad.finders.length) {
@@ -1052,6 +1146,7 @@ function openArtModal(id) {
     findersEl.innerHTML = `<div style="font-size:.8rem;color:var(--text-2);font-style:italic">Be the first to find this artifact.</div>`;
   }
 
+  document.getElementById('art-modal-extra')?.remove();
   document.getElementById('art-modal-overlay').style.display = 'block';
   document.getElementById('art-modal').style.display = 'block';
   document.body.style.overflow = 'hidden';
@@ -1067,11 +1162,19 @@ function closeArtModal() {
 document.addEventListener('keydown', e => { if(e.key==='Escape') closeArtModal(); });
 
 window.addEventListener('load',async()=>{
+  await loadArtifactsConfig();
   renderArtifacts();
   loadScores();
   setInterval(loadScores,CFG.REFRESH);
   await restoreSession();
 });
+
+async function loadArtifactsConfig() {
+  try {
+    const r = await fetch(`https://raw.githubusercontent.com/${CFG.OWNER}/${CFG.REPO}/main/data/artifacts-config.json?_=${Date.now()}`);
+    if (r.ok) ARTCFG = await r.json();
+  } catch(_) {}
+}
 </script>
 
 <!-- ARTIFACT MODAL -->
@@ -1093,6 +1196,39 @@ window.addEventListener('load',async()=>{
     <div id="art-modal-body" style="padding:16px 20px 20px">
       <div id="art-modal-status" style="margin-bottom:12px"></div>
       <div id="art-modal-finders"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN ARTIFACT CONFIG MODAL -->
+<div id="adm-art-overlay" onclick="closeAdmArtModal()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;backdrop-filter:blur(4px)"></div>
+<div id="adm-art-modal" style="display:none;position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:501;width:min(480px,94vw)">
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden">
+    <div style="padding:18px 20px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div id="adm-art-modal-num" style="font-size:.68rem;font-weight:600;color:var(--text-2);letter-spacing:.06em;text-transform:uppercase;margin-bottom:2px"></div>
+        <div id="adm-art-modal-letter" style="font-size:2rem;font-weight:800;color:var(--text);line-height:1"></div>
+      </div>
+      <button onclick="closeAdmArtModal()" style="background:none;border:none;color:var(--text-2);font-size:1.4rem;cursor:pointer">&times;</button>
+    </div>
+    <div style="padding:18px 20px 20px;display:flex;flex-direction:column;gap:16px">
+      <div>
+        <div style="font-size:.68rem;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Artifact type</div>
+        <div style="display:flex;gap:8px">
+          <button id="adm-btn-std"  onclick="setAdmArtRare(false)" style="flex:1;padding:9px;border-radius:6px;font-family:var(--font);font-size:.82rem;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text-2)">Standard — 10 pts</button>
+          <button id="adm-btn-rare" onclick="setAdmArtRare(true)"  style="flex:1;padding:9px;border-radius:6px;font-family:var(--font);font-size:.82rem;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text-2)">Rare — 30 pts</button>
+        </div>
+      </div>
+      <div>
+        <label style="font-size:.68rem;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px">Hint / Description</label>
+        <textarea id="adm-art-desc" rows="3" class="fi" placeholder="e.g. Near the Długi Targ fountain, look behind the bench facing the water." style="resize:vertical;line-height:1.5"></textarea>
+      </div>
+      <div>
+        <label style="font-size:.68rem;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px">Google Maps URL</label>
+        <input type="url" id="adm-art-maps" class="fi" placeholder="https://maps.google.com/?q=...">
+      </div>
+      <button class="btn" onclick="saveAdmArtConfig()">Save artifact</button>
+      <div class="msg" id="adm-art-msg"></div>
     </div>
   </div>
 </div>
