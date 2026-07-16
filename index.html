@@ -1159,22 +1159,38 @@ function openArtModal(id) {
     </div>`;
   }
 
-  // Description / hint
-  const bodyEl = document.getElementById('art-modal-body');
+  // Description / hint — or "available soon" if batch date is in the future
   const artCfg = ARTCFG.artifacts?.[id] || {};
   let extraHtml = '';
+
   if (artCfg.description) {
+    // Batch date has passed — show hint
     extraHtml += `<div style="margin-bottom:12px;padding:12px 14px;background:var(--surface);border-radius:6px;border:1px solid var(--border)">
       <div style="font-size:.65rem;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px">Hint</div>
       <div style="font-size:.82rem;color:var(--text);line-height:1.6">${esc(artCfg.description)}</div>
     </div>`;
+  } else if (artCfg.batch_id != null) {
+    // Has a batch but not yet released — show "available soon"
+    const batch = (EVCFG.batches||[]).find(b => b.id === artCfg.batch_id);
+    const dateStr = batch?.start_date
+      ? new Date(batch.start_date).toLocaleDateString('en-GB', { day:'numeric', month:'long', hour:'2-digit', minute:'2-digit' })
+      : 'soon';
+    extraHtml += `<div style="margin-bottom:12px;padding:12px 14px;background:rgba(255,200,0,.06);border-radius:6px;border:1px solid rgba(255,200,0,.2);display:flex;align-items:center;gap:10px">
+      <span style="font-size:1.1rem">🔒</span>
+      <div>
+        <div style="font-size:.8rem;font-weight:600;color:rgba(255,200,0,.9)">Hint available from ${dateStr}</div>
+        <div style="font-size:.72rem;color:var(--text-2);margin-top:2px">Check back when the batch is released.</div>
+      </div>
+    </div>`;
   }
+
   if (artCfg.maps_url) {
     extraHtml += `<a href="${artCfg.maps_url}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:8px;padding:10px 14px;background:rgba(20,150,255,.08);border:1px solid rgba(20,150,255,.25);border-radius:6px;text-decoration:none;margin-bottom:12px">
       <span style="font-size:.82rem;font-weight:600;color:var(--blue)">Open in Google Maps</span>
       <span style="font-size:.75rem;color:var(--text-2);margin-left:auto">↗</span>
     </a>`;
   }
+
   document.getElementById('art-modal-status').insertAdjacentHTML('afterend', extraHtml ? `<div id="art-modal-extra">${extraHtml}</div>` : '');
 
   // Finders list
