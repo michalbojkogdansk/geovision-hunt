@@ -227,6 +227,24 @@ async function handleSubmit(request, env) {
   return ok({ ok: true, issue_url: issue.html_url, team, artifact_id: num, letter });
 }
 
+// ── Save artifact config ─────────────────────────────────────
+async function handleSaveArtifactsConfig(request, env) {
+  const { config } = await request.json();
+  if (!config) return err('Config required.');
+  const getRes = await githubRequest(env.GITHUB_PAT, 'GET',
+    `/repos/${OWNER}/${REPO}/contents/data/artifacts-config.json`, null);
+  const current = getRes.ok ? await getRes.json() : null;
+  const json = JSON.stringify(config, null, 2);
+  const bytes = new TextEncoder().encode(json);
+  const b64 = btoa(String.fromCharCode(...bytes));
+  const body = { message: 'config: update artifact descriptions', content: b64, branch: 'main' };
+  if (current?.sha) body.sha = current.sha;
+  const saveRes = await githubRequest(env.GITHUB_PAT, 'PUT',
+    `/repos/${OWNER}/${REPO}/contents/data/artifacts-config.json`, body);
+  if (!saveRes.ok) { const e = await saveRes.json(); return err(`Save failed: ${e.message}`, 502); }
+  return ok({ saved: true });
+}
+
 // ── Router ────────────────────────────────────────────────────
 export default {
   async fetch(request, env) {
@@ -240,6 +258,7 @@ export default {
       if (path === '/logout'   && request.method === 'POST') return handleLogout(request, env);
       if (path === '/verify'   && request.method === 'GET')  return handleVerify(request, env);
       if (path === '/submit'   && request.method === 'POST') return handleSubmit(request, env);
+      if (path === '/save-artifacts-config' && request.method === 'POST') return handleSaveArtifactsConfig(request, env);
       return err('Not found.', 404);
     } catch(e) {
       return err(`Server error: ${e.message}`, 500);
