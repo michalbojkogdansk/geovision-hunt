@@ -685,6 +685,7 @@ tbody tr:hover { background: rgba(255,255,255,.02); }
       </div>
 
       <div id="adm-panel" style="display:none">
+          <div style="display:flex;justify-content:flex-end;margin-bottom:16px"><button onclick="adminSignOut()" style="font-size:.75rem;font-weight:600;padding:6px 14px;background:none;border:1px solid var(--border);border-radius:6px;color:var(--text-2);cursor:pointer;font-family:var(--font)">Sign out</button></div>
         <div class="sh" style="margin-bottom:16px">
           <span class="sh-title">Rare artifacts</span>
           <span class="sh-sub">Click to toggle · Teal = rare (30 pts) · Default = standard (10 pts)</span>
@@ -762,6 +763,7 @@ let authMode = 'login';
 
 function go(id, btn) {
   if (id === 'sub' && !SESSION.token) { goAuth(); return; }
+  sessionStorage.setItem('ghunt_tab', id);
   document.querySelectorAll('.view').forEach(v => v.classList.remove('on'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
   document.getElementById('v-'+id).classList.add('on');
@@ -961,6 +963,8 @@ async function adminLogin(){
     const r=await fetch(`${CFG.WORKER}/admin/verify`,{headers:{'X-Admin-Password':pw}});
     if(!r.ok){showMsg(msg,'err','Incorrect password.');return;}
     _admPwd=pw;
+    sessionStorage.setItem('ghunt_admin_pwd', pw);
+    sessionStorage.setItem('ghunt_admin_ts', Date.now());
     const fullCfg=await loadAdminArtifactsConfig(pw);
     ARTCFG=fullCfg;
     CFG.RARE_IDS=new Set();
@@ -1205,19 +1209,84 @@ function closeArtModal() {
 // Close on Escape key
 document.addEventListener('keydown', e => { if(e.key==='Escape') closeArtModal(); });
 
+
+function adminSignOut() {
+  _admPwd = ''; adminOpen = false;
+  sessionStorage.removeItem('ghunt_admin_pwd');
+  sessionStorage.removeItem('ghunt_admin_ts');
+  document.getElementById('adm-gate').style.display = '';
+  document.getElementById('adm-panel').style.display = 'none';
+  document.getElementById('adm-pass').value = '';
+  document.getElementById('adm-gate-msg').className = 'msg';
+}
+
+async function restoreAdminSession() {
+  const pwd = sessionStorage.getItem('ghunt_admin_pwd');
+  const ts  = parseInt(sessionStorage.getItem('ghunt_admin_ts') || '0');
+  if (!pwd || Date.now() - ts > 10 * 60 * 1000) {
+    sessionStorage.removeItem('ghunt_admin_pwd');
+    sessionStorage.removeItem('ghunt_admin_ts');
+    return;
+  }
+  try {
+    const r = await fetch(`${CFG.WORKER}/admin/verify`, { headers: {'X-Admin-Password': pwd} });
+    if (!r.ok) { sessionStorage.removeItem('ghunt_admin_pwd'); return; }
+    _admPwd = pwd; adminOpen = true;
+    const fullCfg = await loadAdminArtifactsConfig(pwd);
+    ARTCFG = fullCfg;
+    CFG.RARE_IDS = new Set();
+    for (const [id, art] of Object.entries(fullCfg.artifacts || {})) {
+      if (art.rare) CFG.RARE_IDS.add(parseInt(id));
+    }
+    try {
+      const ecr = await fetch(`${CFG.WORKER}/admin/event-config`, { headers: {'X-Admin-Password': pwd} });
+      if (ecr.ok) { const ec = await ecr.json(); renderEventConfig(ec); }
+    } catch(_) {}
+  } catch(_) {}
+}
+
+function restoreTab() {
+  const tab = sessionStorage.getItem('ghunt_tab');
+  if (!tab) return;
+  const btn = [...document.querySelectorAll('.tab')].find(t => {
+    const map = { lb:'Leaderboard', sub:'Submit Find', art:'Artifacts', rules:'Rules', adm:'Admin' };
+    return t.textContent === map[tab];
+  });
+  if (btn) go(tab, btn);
+}
+
 window.addEventListener('load',async()=>{
   await Promise.all([loadEventConfig(),loadArtifactsConfig()]);
   renderArtifacts();
   loadScores();
   setInterval(loadScores,CFG.REFRESH);
   await restoreSession();
+  await restoreAdminSession();
+  // If admin tab was active and session restored, show panel
+  if (adminOpen) {
+    document.getElementById('adm-gate').style.display  = 'none';
+    document.getElementById('adm-panel').style.display = 'block';
+    renderAdmGrid(); renderAdmSubs();
+  }
+  restoreTab();
 });
 
 async function loadEventConfig() {
   try { const r=await fetch(`${CFG.WORKER}/public/event-config`); if(r.ok) EVCFG=await r.json(); } catch(_){}
 }
 async function loadArtifactsConfig() {
-  try { const r=await fetch(`${CFG.WORKER}/public/artifacts`); if(r.ok) ARTCFG=await r.json(); } catch(_){}
+  try {
+    const r = await fetch(`${CFG.WORKER}/public/artifacts`);
+    if (r.ok) {
+      ARTCFG = await r.json();
+      // Sync rare IDs from KV — overrides hardcoded defaults
+      const newRare = new Set();
+      for (const [id, art] of Object.entries(ARTCFG.artifacts || {})) {
+        if (art.rare) newRare.add(parseInt(id));
+      }
+      if (newRare.size > 0) CFG.RARE_IDS = newRare;
+    }
+  } catch(_) {}
 }
 
 async function loadAdminArtifactsConfig(pwd) {
