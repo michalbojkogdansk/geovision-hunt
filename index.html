@@ -1183,9 +1183,15 @@ window.addEventListener('load',async()=>{
 
 async function loadArtifactsConfig() {
   try {
-    const r = await fetch(`https://raw.githubusercontent.com/${CFG.OWNER}/${CFG.REPO}/main/data/artifacts-config.json?_=${Date.now()}`);
+    const r = await fetch(`${CFG.WORKER}/public/artifacts`);
     if (r.ok) ARTCFG = await r.json();
   } catch(_) {}
+}
+
+async function loadAdminArtifactsConfig(pwd) {
+  const r = await fetch(`${CFG.WORKER}/admin/artifacts`, { headers: {'X-Admin-Password': pwd} });
+  if (!r.ok) throw new Error('Unauthorized');
+  return r.json();
 }
 </script>
 
