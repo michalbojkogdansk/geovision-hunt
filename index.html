@@ -930,15 +930,7 @@ async function submitFind() {
   finally{btn.disabled=false;}
 }
 
-function adminLogin(){
-  const pw=document.getElementById('adm-pass').value;
-  if(pw===CFG.ADMIN_PW){
-    adminOpen=true;
-    document.getElementById('adm-gate').style.display='none';
-    document.getElementById('adm-panel').style.display='block';
-    renderAdmGrid(); renderAdmSubs();
-  } else { showMsg(document.getElementById('adm-gate-msg'),'err','Incorrect password.'); }
-}
+
 
 function renderAdmGrid(){
   set('adm-grid',ARTS.map(a=>{
