@@ -77,7 +77,8 @@ function isArtifactVisible(artEntry, eventCfg) {
   const now = Date.now();
   if (artEntry.batch_id != null) {
     const batch = (eventCfg.batches || []).find(b => b.id === artEntry.batch_id);
-    if (!batch || !batch.start_date) return false;
+    // Batch not found in event-cfg (not saved yet) — show hints so admin can verify
+    if (!batch || !batch.start_date) return true;
     return now >= new Date(batch.start_date).getTime();
   }
   return artEntry.released === true;
