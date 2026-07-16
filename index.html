@@ -932,6 +932,30 @@ async function submitFind() {
 
 
 
+async function adminLogin(){
+  const pw=document.getElementById('adm-pass').value;
+  const msg=document.getElementById('adm-gate-msg');
+  const btn=document.querySelector('#adm-gate .btn');
+  if(!pw){return showMsg(msg,'err','Password required.');}
+  if(btn) btn.disabled=true;
+  showMsg(msg,'run','<span class="spin"></span>Verifying...');
+  try {
+    const r=await fetch(`${CFG.WORKER}/admin/verify`,{headers:{'X-Admin-Password':pw}});
+    if(!r.ok){showMsg(msg,'err','Incorrect password.');return;}
+    _admPwd=pw;
+    const fullCfg=await loadAdminArtifactsConfig(pw);
+    ARTCFG=fullCfg;
+    CFG.RARE_IDS=new Set();
+    for(const[id,art] of Object.entries(fullCfg.artifacts||{})){
+      if(art.rare) CFG.RARE_IDS.add(parseInt(id));
+    }
+    adminOpen=true;
+    document.getElementById('adm-gate').style.display='none';
+    document.getElementById('adm-panel').style.display='block';
+    renderAdmGrid(); renderAdmSubs();
+  } catch(e){showMsg(msg,'err','Could not connect: '+e.message);}
+  finally{if(btn) btn.disabled=false;}
+}
 function renderAdmGrid(){
   set('adm-grid',ARTS.map(a=>{
     const rare=CFG.RARE_IDS.has(a.id);
