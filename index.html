@@ -690,6 +690,23 @@ tbody tr:hover { background: rgba(255,255,255,.02); }
           <span class="sh-sub">Click to toggle · Teal = rare (30 pts) · Default = standard (10 pts)</span>
         </div>
         <div class="admin-grid" id="adm-grid"></div>
+          <div style="margin-top:40px">
+            <div class="rules-heading">Event dates</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">
+              <div class="fg"><label class="fl">Event start</label><input type="datetime-local" id="ev-start" class="fi"><div class="fhint">Registration and submissions open from this time.</div></div>
+              <div class="fg"><label class="fl">Event end</label><input type="datetime-local" id="ev-end" class="fi"><div class="fhint">No new teams or submissions after this.</div></div>
+            </div>
+            <div class="rules-heading">Batches</div>
+            <div id="batches-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px"></div>
+            <button onclick="addBatch()" style="font-size:.8rem;font-weight:600;padding:8px 16px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);cursor:pointer;font-family:var(--font)">+ Add batch</button>
+            <div style="margin-top:16px"><button class="btn" onclick="saveEventConfig()" style="max-width:220px">Save event config</button></div>
+            <div class="msg" id="ev-msg"></div>
+          </div>
+          <div style="margin-top:40px">
+            <div class="rules-heading">Registered teams</div>
+            <button onclick="loadAdmTeams()" style="font-size:.8rem;font-weight:600;padding:8px 16px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);cursor:pointer;font-family:var(--font);margin-bottom:12px">Load teams</button>
+            <div id="adm-teams"></div>
+          </div>
         <div class="admin-toolbar">
           <button class="btn btn-ghost" onclick="saveRareConfig()">Download config</button>
           <button class="btn btn-ghost" onclick="exportCSV()">Export CSV</button>
@@ -737,7 +754,8 @@ const ARTS = (() => {
 })();
 
 let SC = { teams:[], artifacts:{}, submissions:[], last_updated:null };
-let ARTCFG = { artifacts: {} }; // artifact descriptions/hints/maps
+let ARTCFG = { artifacts: {} };
+let EVCFG  = { start_date: null, end_date: null, batches: [], status: 'active' };
 let adminOpen = false, photoB64 = null;
 let SESSION = { token: null, team: null };
 let authMode = 'login';
@@ -952,19 +970,30 @@ async function adminLogin(){
     adminOpen=true;
     document.getElementById('adm-gate').style.display='none';
     document.getElementById('adm-panel').style.display='block';
+    try{const ecr=await fetch(`${CFG.WORKER}/admin/event-config`,{headers:{'X-Admin-Password':pw}});if(ecr.ok){const ec=await ecr.json();renderEventConfig(ec);}}catch(_){}
     renderAdmGrid(); renderAdmSubs();
   } catch(e){showMsg(msg,'err','Could not connect: '+e.message);}
   finally{if(btn) btn.disabled=false;}
 }
+
+function renderEventConfig(cfg){EVCFG={...EVCFG,...cfg};if(cfg.start_date)document.getElementById('ev-start').value=cfg.start_date.slice(0,16);if(cfg.end_date)document.getElementById('ev-end').value=cfg.end_date.slice(0,16);renderBatches();}
+function renderBatches(){const el=document.getElementById('batches-list');if(!el)return;if(!(EVCFG.batches||[]).length){el.innerHTML='<div style="font-size:.8rem;color:var(--text-2)">No batches yet.</div>';return;}el.innerHTML=(EVCFG.batches||[]).map(b=>`<div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:center"><input type="text" class="fi" value="${esc(b.name||'')}" oninput="updateBatch(${b.id},'name',this.value)" placeholder="Batch name" style="margin-bottom:0"><input type="datetime-local" class="fi" value="${b.start_date?b.start_date.slice(0,16):''}" oninput="updateBatch(${b.id},'start_date',this.value?(this.value+'Z'):null)" style="margin-bottom:0"><button onclick="removeBatch(${b.id})" style="background:none;border:1px solid var(--border);color:var(--text-2);border-radius:6px;padding:8px 12px;cursor:pointer">✕</button></div>`).join('');}
+function addBatch(){if(!EVCFG.batches)EVCFG.batches=[];EVCFG.batches.push({id:Date.now(),name:'Batch '+(EVCFG.batches.length+1),start_date:null});renderBatches();}
+function removeBatch(id){EVCFG.batches=(EVCFG.batches||[]).filter(b=>b.id!==id);renderBatches();}
+function updateBatch(id,field,value){const b=(EVCFG.batches||[]).find(b=>b.id===id);if(b)b[field]=value;}
+async function saveEventConfig(){const msg=document.getElementById('ev-msg');const start=document.getElementById('ev-start').value;const end=document.getElementById('ev-end').value;if(start&&end&&start>=end)return showMsg(msg,'err','Start must be before end.');showMsg(msg,'run','<span class="spin"></span>Saving...');try{const r=await fetch(`${CFG.WORKER}/admin/save-event-config`,{method:'POST',headers:{'Content-Type':'application/json','X-Admin-Password':_admPwd},body:JSON.stringify({start_date:start?start+'Z':null,end_date:end?end+'Z':null,batches:EVCFG.batches||[]})});const d=await r.json();if(!r.ok)throw new Error(d.error);EVCFG.start_date=start?start+'Z':null;EVCFG.end_date=end?end+'Z':null;showMsg(msg,'ok','Saved.');}catch(e){showMsg(msg,'err',e.message);}}
+async function loadAdmTeams(){const el=document.getElementById('adm-teams');el.innerHTML='<div class="empty"><span class="spin"></span></div>';try{const r=await fetch(`${CFG.WORKER}/admin/teams`,{headers:{'X-Admin-Password':_admPwd}});const d=await r.json();if(!r.ok)throw new Error(d.error);if(!d.teams.length){el.innerHTML='<div style="font-size:.8rem;color:var(--text-2)">No teams registered yet.</div>';return;}el.innerHTML='<div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden">'+d.teams.map(t=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:11px 16px;border-bottom:1px solid var(--border)"><div><div style="font-size:.86rem;font-weight:600;color:var(--text)">${esc(t.name)}</div><div style="font-size:.7rem;color:var(--text-2)">${t.created_at?new Date(t.created_at).toLocaleDateString('en-GB'):''}</div></div><button onclick="promptResetPassword('${esc(t.name)}')" style="font-size:.72rem;font-weight:600;padding:5px 10px;background:var(--surface);border:1px solid var(--border);border-radius:5px;color:var(--text-2);cursor:pointer">Reset password</button></div>`).join('')+'</div>';}catch(e){el.innerHTML=`<div style="color:var(--red);font-size:.82rem">${e.message}</div>`;}}
+async function promptResetPassword(teamName){const newPwd=prompt(`New password for team "${teamName}":`);if(!newPwd||newPwd.length<4){if(newPwd!==null)alert('Password must be at least 4 characters.');return;}try{const r=await fetch(`${CFG.WORKER}/admin/reset-team-password`,{method:'POST',headers:{'Content-Type':'application/json','X-Admin-Password':_admPwd},body:JSON.stringify({team_name:teamName,new_password:newPwd})});const d=await r.json();if(!r.ok)throw new Error(d.error);alert(`Password for "${teamName}" has been reset.`);}catch(e){alert('Error: '+e.message);}}
+
 function renderAdmGrid(){
   set('adm-grid',ARTS.map(a=>{
     const rare=CFG.RARE_IDS.has(a.id);
     const cfg=ARTCFG.artifacts?.[a.id]||{};
-    const hasDesc=cfg.description||cfg.maps_url;
-    return `<div class="aa${rare?' rare':''}" onclick="openAdmArtModal(${a.id})">
+    const bid=cfg.batch_id; const hasBatch=bid!=null&&(EVCFG.batches||[]).some(b=>b.id===bid);
+    return `<div class="aa${rare?' rare':''}" onclick="openAdmArtModal(${a.id})" style="${hasBatch?'border-color:rgba(0,200,100,.5)':''}">
       <div class="aa-l">${a.letter}</div>
       <div class="aa-n">#${String(a.id).padStart(2,'0')}</div>
-      <div class="aa-p">${rare?'Rare':'Std'}${hasDesc?' ·':''}</div>
+      <div class="aa-p">${rare?'R':'S'}${hasBatch?' B'+bid:''}</div>
     </div>`;
   }).join(''));
 }
@@ -1030,6 +1059,9 @@ function openAdmArtModal(id) {
   document.getElementById('adm-art-desc').value = cfg.description || '';
   document.getElementById('adm-art-maps').value = cfg.maps_url || '';
   document.getElementById('adm-art-msg').className = 'msg';
+  const bSel=document.getElementById('adm-art-batch');
+  bSel.innerHTML='<option value="">— Not assigned (hidden) —</option>';
+  (EVCFG.batches||[]).forEach(b=>{const dt=b.start_date?new Date(b.start_date).toLocaleDateString('en-GB',{day:'numeric',month:'short'}):'?';const o=document.createElement('option');o.value=b.id;o.textContent=`${b.name} (${dt})`;if(cfg.batch_id===b.id)o.selected=true;bSel.appendChild(o);});
   setAdmArtRare(_admArtRare);
 
   document.getElementById('adm-art-overlay').style.display = 'block';
@@ -1059,7 +1091,7 @@ async function saveAdmArtConfig() {
   const msg  = document.getElementById('adm-art-msg');
   const desc = document.getElementById('adm-art-desc').value.trim();
   const maps = document.getElementById('adm-art-maps').value.trim();
-  const released = document.getElementById('adm-art-released').checked;
+  const bv=document.getElementById('adm-art-batch').value; const batch_id=bv!==''?parseInt(bv):null;
   const btn  = document.querySelector('#adm-art-modal .btn');
   btn.disabled = true;
   showMsg(msg, 'run', '<span class="spin"></span>Saving...');
@@ -1067,15 +1099,15 @@ async function saveAdmArtConfig() {
     const res = await fetch(`${CFG.WORKER}/admin/save-artifact`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-Admin-Password': _admPwd },
-      body: JSON.stringify({ id: _admArtId, rare: _admArtRare, description: desc, maps_url: maps, released })
+      body: JSON.stringify({ id: _admArtId, rare: _admArtRare, description: desc, maps_url: maps, batch_id })
     });
     const d = await res.json();
     if (!res.ok) throw new Error(d.error || 'Save failed');
     if (!ARTCFG.artifacts) ARTCFG.artifacts = {};
-    ARTCFG.artifacts[_admArtId] = { rare: _admArtRare, description: desc, maps_url: maps, released };
-    if (_admArtRare) CFG.RARE_IDS.add(_admArtId);
-    else CFG.RARE_IDS.delete(_admArtId);
-    showMsg(msg, 'ok', released ? 'Saved and released — players can now see this hint.' : 'Saved — not yet visible to players.');
+    ARTCFG.artifacts[_admArtId]={rare:_admArtRare,description:desc,maps_url:maps,batch_id};
+    if(_admArtRare)CFG.RARE_IDS.add(_admArtId);else CFG.RARE_IDS.delete(_admArtId);
+    const bn=batch_id!=null?(EVCFG.batches||[]).find(b=>b.id===batch_id)?.name:null;
+    showMsg(msg,'ok',bn?`Saved — assigned to "${bn}".`:'Saved — not assigned to any batch.');
     renderAdmGrid();
   } catch(e) {
     showMsg(msg, 'err', e.message);
@@ -1174,18 +1206,18 @@ function closeArtModal() {
 document.addEventListener('keydown', e => { if(e.key==='Escape') closeArtModal(); });
 
 window.addEventListener('load',async()=>{
-  await loadArtifactsConfig();
+  await Promise.all([loadEventConfig(),loadArtifactsConfig()]);
   renderArtifacts();
   loadScores();
   setInterval(loadScores,CFG.REFRESH);
   await restoreSession();
 });
 
+async function loadEventConfig() {
+  try { const r=await fetch(`${CFG.WORKER}/public/event-config`); if(r.ok) EVCFG=await r.json(); } catch(_){}
+}
 async function loadArtifactsConfig() {
-  try {
-    const r = await fetch(`${CFG.WORKER}/public/artifacts`);
-    if (r.ok) ARTCFG = await r.json();
-  } catch(_) {}
+  try { const r=await fetch(`${CFG.WORKER}/public/artifacts`); if(r.ok) ARTCFG=await r.json(); } catch(_){}
 }
 
 async function loadAdminArtifactsConfig(pwd) {
@@ -1245,6 +1277,7 @@ async function loadAdminArtifactsConfig(pwd) {
         <label style="font-size:.68rem;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px">Google Maps URL</label>
         <input type="url" id="adm-art-maps" class="fi" placeholder="https://maps.google.com/?q=...">
       </div>
+      <div><label style="font-size:.68rem;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px">Batch</label><select id="adm-art-batch" class="fi" style="cursor:pointer"><option value="">— Not assigned (hidden) —</option></select><div style="font-size:.7rem;color:var(--text-2);margin-top:4px">Hint visible to players when batch start date is reached.</div></div>
       <button class="btn" onclick="saveAdmArtConfig()">Save artifact</button>
       <div class="msg" id="adm-art-msg"></div>
     </div>
