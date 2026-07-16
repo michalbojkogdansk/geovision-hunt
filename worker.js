@@ -1,13 +1,13 @@
 /**
- * GeoVision Hunt — Worker v3
- * Auth + Submission + Artifact Config (KV-only, never public repo)
- *
+ * GeoVision Hunt — Worker v4
  * KV keys:
  *   team:{name}          → { name, salt, hash, created_at }
  *   session:{token}      → { team, created_at }
  *   rate:{token}         → { count, window_start }
- *   find:{team}:{id}     → timestamp (duplicate guard)
- *   art-cfg              → { artifacts: { "1": { rare, description, maps_url, released }, ... } }
+ *   find:{team}:{id}     → timestamp
+ *   art-cfg              → { artifacts: { "1": { rare, description, maps_url, batch_id } } }
+ *   event-cfg            → { start_date, end_date, batches: [{ id, name, start_date }] }
+ *   admin:password       → { salt, hash, set_at }
  */
 
 const CORS = {
@@ -48,6 +48,41 @@ async function generateToken() {
 
 function normalizeTeam(name) { return name.trim().toLowerCase().replace(/\s+/g,' '); }
 
+// ── Event config ──────────────────────────────────────────────
+async function getEventCfg(env) {
+  const raw = await env.GEOVISION_TEAMS.get('event-cfg');
+  return raw ? JSON.parse(raw) : { start_date: null, end_date: null, batches: [] };
+}
+
+function getEventStatus(eventCfg) {
+  const now = Date.now();
+  const start = eventCfg.start_date ? new Date(eventCfg.start_date).getTime() : null;
+  const end   = eventCfg.end_date   ? new Date(eventCfg.end_date).getTime()   : null;
+  if (start && now < start) return { status: 'before', start: eventCfg.start_date, end: eventCfg.end_date };
+  if (end   && now > end)   return { status: 'ended',  start: eventCfg.start_date, end: eventCfg.end_date };
+  return { status: 'active', start: eventCfg.start_date, end: eventCfg.end_date };
+}
+
+// ── Artifact config ───────────────────────────────────────────
+async function getArtCfg(env) {
+  const raw = await env.GEOVISION_TEAMS.get('art-cfg');
+  return raw ? JSON.parse(raw) : { artifacts: {} };
+}
+
+async function saveArtCfg(env, cfg) {
+  await env.GEOVISION_TEAMS.put('art-cfg', JSON.stringify(cfg));
+}
+
+function isArtifactVisible(artEntry, eventCfg) {
+  const now = Date.now();
+  if (artEntry.batch_id != null) {
+    const batch = (eventCfg.batches || []).find(b => b.id === artEntry.batch_id);
+    if (!batch || !batch.start_date) return false;
+    return now >= new Date(batch.start_date).getTime();
+  }
+  return artEntry.released === true;
+}
+
 // ── Admin auth ────────────────────────────────────────────────
 async function verifyAdmin(request, env) {
   const pwd = request.headers.get('X-Admin-Password');
@@ -56,16 +91,6 @@ async function verifyAdmin(request, env) {
   if (!raw) return false;
   const { salt, hash } = JSON.parse(raw);
   return await hashPassword(pwd, salt) === hash;
-}
-
-// ── Artifact config (KV) ──────────────────────────────────────
-async function getArtCfg(env) {
-  const raw = await env.GEOVISION_TEAMS.get('art-cfg');
-  return raw ? JSON.parse(raw) : { artifacts: {} };
-}
-
-async function saveArtCfg(env, cfg) {
-  await env.GEOVISION_TEAMS.put('art-cfg', JSON.stringify(cfg));
 }
 
 // ── Rate limiting ─────────────────────────────────────────────
@@ -109,6 +134,11 @@ const err = (msg, status=400) => new Response(JSON.stringify({ error: msg }), { 
 
 // ── Auth handlers ─────────────────────────────────────────────
 async function handleRegister(request, env) {
+  const eventCfg = await getEventCfg(env);
+  const { status, start } = getEventStatus(eventCfg);
+  if (status === 'before') return err(`Registration opens on ${new Date(start).toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' })}.`, 403);
+  if (status === 'ended')  return err('The event has ended. No new registrations are accepted.', 403);
+
   const { name, password } = await request.json();
   if (!name || name.trim().length < 2)  return err('Team name must be at least 2 characters.');
   if (!password || password.length < 4) return err('Password must be at least 4 characters.');
@@ -151,6 +181,11 @@ async function handleVerify(request, env) {
 
 // ── Submission ────────────────────────────────────────────────
 async function handleSubmit(request, env) {
+  const eventCfg = await getEventCfg(env);
+  const { status, start, end } = getEventStatus(eventCfg);
+  if (status === 'before') return err(`The event has not started yet. It begins on ${new Date(start).toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' })}.`, 403);
+  if (status === 'ended')  return err('The event has ended. No further submissions are accepted.', 403);
+
   const { token, artifact_id, photo_b64 } = await request.json();
   const sessRaw = await env.GEOVISION_TEAMS.get(`session:${token}`);
   if (!sessRaw) return err('Invalid or expired session. Please sign in again.', 401);
@@ -164,18 +199,15 @@ async function handleSubmit(request, env) {
   if (!await checkRateLimit(env, token)) return err(`Too many submissions. Maximum ${RATE_MAX} per hour.`, 429);
   if (await isDuplicate(env, teamNorm, num)) return err(`Your team already submitted artifact #${num}.`, 409);
 
-  // Read rare status from KV — no hardcoded values
   const artCfg = await getArtCfg(env);
   const artEntry = artCfg.artifacts?.[num] || {};
   const isRare = artEntry.rare === true;
   const letter = ARTIFACTS[num];
-
-  const ts   = new Date().toISOString();
-  const slug = team.replace(/[^a-z0-9]/gi,'_').slice(0,30);
+  const ts    = new Date().toISOString();
+  const slug  = team.replace(/[^a-z0-9]/gi,'_').slice(0,30);
   const fname = `photos/${ts.replace(/[:.]/g,'-')}_${slug}_${String(num).padStart(2,'00')}.jpg`;
-  const pat  = env.GITHUB_PAT;
 
-  const upRes = await githubRequest(pat, 'PUT', `/repos/${OWNER}/${REPO}/contents/${fname}`, {
+  const upRes = await githubRequest(env.GITHUB_PAT, 'PUT', `/repos/${OWNER}/${REPO}/contents/${fname}`, {
     message: `photo: ${team} #${num}`, content: photo_b64, branch: 'main',
   });
   if (!upRes.ok) { const e = await upRes.json(); return err(`Photo upload failed: ${e.message}`, 502); }
@@ -190,40 +222,48 @@ async function handleSubmit(request, env) {
     ``, `*Submitted via GeoVision Hunt*`,
   ].join('\n');
 
-  const issRes = await githubRequest(pat, 'POST', `/repos/${OWNER}/${REPO}/issues`, {
+  const issRes = await githubRequest(env.GITHUB_PAT, 'POST', `/repos/${OWNER}/${REPO}/issues`, {
     title: `[HUNT] #${String(num).padStart(2,'00')} ${letter} | ${team}`,
     body: issueBody, labels: ['submission'],
   });
   if (!issRes.ok) { const e = await issRes.json(); return err(`Submission failed: ${e.message}`, 502); }
-
   await recordFind(env, teamNorm, num, ts);
-  const issue = await issRes.json();
-  return ok({ ok: true, issue_url: issue.html_url, team, artifact_id: num, letter });
+  return ok({ ok: true, issue_url: (await issRes.json()).html_url, team, artifact_id: num, letter });
 }
 
-// ── Public artifacts (released only) ─────────────────────────
+// ── Public: event config ──────────────────────────────────────
+async function handlePublicEventConfig(env) {
+  const cfg = await getEventCfg(env);
+  const { status } = getEventStatus(cfg);
+  return ok({ ...cfg, status });
+}
+
+// ── Public: released artifacts ────────────────────────────────
 async function handlePublicArtifacts(env) {
-  const cfg = await getArtCfg(env);
-  const released = {};
-  for (const [id, art] of Object.entries(cfg.artifacts || {})) {
-    if (art.released) {
-      released[id] = { rare: art.rare, description: art.description, maps_url: art.maps_url };
-    }
+  const [artCfg, eventCfg] = await Promise.all([getArtCfg(env), getEventCfg(env)]);
+  const visible = {};
+  for (const [id, art] of Object.entries(artCfg.artifacts || {})) {
+    // rare is always visible; hints/maps only when batch is live
+    const hintsVisible = isArtifactVisible(art, eventCfg);
+    visible[id] = {
+      rare: art.rare,
+      batch_id: art.batch_id,
+      ...(hintsVisible ? { description: art.description, maps_url: art.maps_url } : {})
+    };
   }
-  return ok({ artifacts: released });
+  return ok({ artifacts: visible });
 }
 
 // ── Admin: get full artifact config ──────────────────────────
 async function handleAdminGetArtifacts(request, env) {
   if (!await verifyAdmin(request, env)) return err('Unauthorized.', 401);
-  const cfg = await getArtCfg(env);
-  return ok(cfg);
+  return ok(await getArtCfg(env));
 }
 
-// ── Admin: save single artifact config ───────────────────────
+// ── Admin: save single artifact ───────────────────────────────
 async function handleAdminSaveArtifact(request, env) {
   if (!await verifyAdmin(request, env)) return err('Unauthorized.', 401);
-  const { id, rare, description, maps_url, released } = await request.json();
+  const { id, rare, description, maps_url, batch_id } = await request.json();
   if (!id || id < 1 || id > 55) return err('Invalid artifact ID.');
   const cfg = await getArtCfg(env);
   if (!cfg.artifacts) cfg.artifacts = {};
@@ -231,25 +271,52 @@ async function handleAdminSaveArtifact(request, env) {
     rare: rare === true,
     description: (description || '').trim(),
     maps_url: (maps_url || '').trim(),
-    released: released === true,
+    batch_id: batch_id != null ? batch_id : null,
   };
   await saveArtCfg(env, cfg);
   return ok({ saved: true, id });
 }
 
-// ── Admin: release a batch of artifacts ──────────────────────
-async function handleAdminRelease(request, env) {
+// ── Admin: get event config ───────────────────────────────────
+async function handleAdminGetEventConfig(request, env) {
   if (!await verifyAdmin(request, env)) return err('Unauthorized.', 401);
-  const { ids, released } = await request.json();
-  if (!Array.isArray(ids)) return err('ids must be an array.');
-  const cfg = await getArtCfg(env);
-  if (!cfg.artifacts) cfg.artifacts = {};
-  for (const id of ids) {
-    if (!cfg.artifacts[id]) cfg.artifacts[id] = { rare: false, description: '', maps_url: '', released: false };
-    cfg.artifacts[id].released = released !== false;
-  }
-  await saveArtCfg(env, cfg);
-  return ok({ released: ids.length });
+  return ok(await getEventCfg(env));
+}
+
+// ── Admin: save event config ──────────────────────────────────
+async function handleAdminSaveEventConfig(request, env) {
+  if (!await verifyAdmin(request, env)) return err('Unauthorized.', 401);
+  const { start_date, end_date, batches } = await request.json();
+  await env.GEOVISION_TEAMS.put('event-cfg', JSON.stringify({ start_date: start_date || null, end_date: end_date || null, batches: batches || [] }));
+  return ok({ saved: true });
+}
+
+// ── Admin: list teams ─────────────────────────────────────────
+async function handleAdminTeams(request, env) {
+  if (!await verifyAdmin(request, env)) return err('Unauthorized.', 401);
+  const list = await env.GEOVISION_TEAMS.list({ prefix: 'team:' });
+  const teams = await Promise.all(list.keys.map(async k => {
+    const raw = await env.GEOVISION_TEAMS.get(k.name);
+    const t = raw ? JSON.parse(raw) : {};
+    return { name: t.name, created_at: t.created_at };
+  }));
+  return ok({ teams });
+}
+
+// ── Admin: reset team password ────────────────────────────────
+async function handleAdminResetPassword(request, env) {
+  if (!await verifyAdmin(request, env)) return err('Unauthorized.', 401);
+  const { team_name, new_password } = await request.json();
+  if (!team_name || !new_password) return err('team_name and new_password required.');
+  if (new_password.length < 4) return err('Password must be at least 4 characters.');
+  const key = `team:${normalizeTeam(team_name)}`;
+  const raw = await env.GEOVISION_TEAMS.get(key);
+  if (!raw) return err('Team not found.', 404);
+  const team = JSON.parse(raw);
+  const salt = await generateToken();
+  const hash = await hashPassword(new_password, salt);
+  await env.GEOVISION_TEAMS.put(key, JSON.stringify({ ...team, salt, hash }));
+  return ok({ ok: true, team: team.name });
 }
 
 // ── Admin: set admin password ─────────────────────────────────
@@ -263,7 +330,6 @@ async function handleAdminSetPassword(request, env) {
   return ok({ ok: true });
 }
 
-// ── Admin: verify admin password ─────────────────────────────
 async function handleAdminVerify(request, env) {
   if (!await verifyAdmin(request, env)) return err('Unauthorized.', 401);
   return ok({ ok: true });
@@ -275,17 +341,21 @@ export default {
     if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS });
     const path = new URL(request.url).pathname;
     try {
-      if (path === '/register'              && request.method === 'POST') return handleRegister(request, env);
-      if (path === '/login'                 && request.method === 'POST') return handleLogin(request, env);
-      if (path === '/logout'                && request.method === 'POST') return handleLogout(request, env);
-      if (path === '/verify'                && request.method === 'GET')  return handleVerify(request, env);
-      if (path === '/submit'                && request.method === 'POST') return handleSubmit(request, env);
-      if (path === '/public/artifacts'      && request.method === 'GET')  return handlePublicArtifacts(env);
-      if (path === '/admin/artifacts'       && request.method === 'GET')  return handleAdminGetArtifacts(request, env);
-      if (path === '/admin/save-artifact'   && request.method === 'POST') return handleAdminSaveArtifact(request, env);
-      if (path === '/admin/release'         && request.method === 'POST') return handleAdminRelease(request, env);
-      if (path === '/admin/set-password'    && request.method === 'POST') return handleAdminSetPassword(request, env);
-      if (path === '/admin/verify'          && request.method === 'GET')  return handleAdminVerify(request, env);
+      if (path === '/register'                 && request.method === 'POST') return handleRegister(request, env);
+      if (path === '/login'                    && request.method === 'POST') return handleLogin(request, env);
+      if (path === '/logout'                   && request.method === 'POST') return handleLogout(request, env);
+      if (path === '/verify'                   && request.method === 'GET')  return handleVerify(request, env);
+      if (path === '/submit'                   && request.method === 'POST') return handleSubmit(request, env);
+      if (path === '/public/artifacts'         && request.method === 'GET')  return handlePublicArtifacts(env);
+      if (path === '/public/event-config'      && request.method === 'GET')  return handlePublicEventConfig(env);
+      if (path === '/admin/verify'             && request.method === 'GET')  return handleAdminVerify(request, env);
+      if (path === '/admin/artifacts'          && request.method === 'GET')  return handleAdminGetArtifacts(request, env);
+      if (path === '/admin/save-artifact'      && request.method === 'POST') return handleAdminSaveArtifact(request, env);
+      if (path === '/admin/event-config'       && request.method === 'GET')  return handleAdminGetEventConfig(request, env);
+      if (path === '/admin/save-event-config'  && request.method === 'POST') return handleAdminSaveEventConfig(request, env);
+      if (path === '/admin/teams'              && request.method === 'GET')  return handleAdminTeams(request, env);
+      if (path === '/admin/reset-team-password'&& request.method === 'POST') return handleAdminResetPassword(request, env);
+      if (path === '/admin/set-password'       && request.method === 'POST') return handleAdminSetPassword(request, env);
       return err('Not found.', 404);
     } catch(e) {
       return err(`Server error: ${e.message}`, 500);
