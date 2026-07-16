@@ -1121,6 +1121,7 @@ async function saveAdmArtConfig() {
 }
 
 function openArtModal(id) {
+  document.getElementById('art-modal-extra')?.remove(); // clear previous
   const art    = ARTS.find(a => a.id === id);
   const ad     = SC.artifacts?.[id];
   const isRare = CFG.RARE_IDS.has(id);
@@ -1194,7 +1195,6 @@ function openArtModal(id) {
     findersEl.innerHTML = `<div style="font-size:.8rem;color:var(--text-2);font-style:italic">Be the first to find this artifact.</div>`;
   }
 
-  document.getElementById('art-modal-extra')?.remove();
   document.getElementById('art-modal-overlay').style.display = 'block';
   document.getElementById('art-modal').style.display = 'block';
   document.body.style.overflow = 'hidden';
