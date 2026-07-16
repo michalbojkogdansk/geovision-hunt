@@ -685,7 +685,7 @@ tbody tr:hover { background: rgba(255,255,255,.02); }
       </div>
 
       <div id="adm-panel" style="display:none">
-          <div style="display:flex;justify-content:flex-end;margin-bottom:16px"><button onclick="adminSignOut()" style="font-size:.75rem;font-weight:600;padding:6px 14px;background:none;border:1px solid var(--border);border-radius:6px;color:var(--text-2);cursor:pointer;font-family:var(--font)">Sign out</button></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border)"><span style="font-size:.88rem;font-weight:700;color:var(--text)">Admin panel</span><button onclick="adminSignOut()" style="font-size:.75rem;font-weight:600;padding:6px 14px;background:none;border:1px solid var(--border);border-radius:6px;color:var(--text-2);cursor:pointer;font-family:var(--font)">Sign out</button></div>
         <div class="sh" style="margin-bottom:16px">
           <span class="sh-title">Rare artifacts</span>
           <span class="sh-sub">Click to toggle · Teal = rare (30 pts) · Default = standard (10 pts)</span>
@@ -963,8 +963,7 @@ async function adminLogin(){
     const r=await fetch(`${CFG.WORKER}/admin/verify`,{headers:{'X-Admin-Password':pw}});
     if(!r.ok){showMsg(msg,'err','Incorrect password.');return;}
     _admPwd=pw;
-    sessionStorage.setItem('ghunt_admin_pwd', pw);
-    sessionStorage.setItem('ghunt_admin_ts', Date.now());
+    localStorage.setItem('ghunt_admin_session', JSON.stringify({pwd:pw,expires:Date.now()+600000}));
     const fullCfg=await loadAdminArtifactsConfig(pw);
     ARTCFG=fullCfg;
     CFG.RARE_IDS=new Set();
@@ -985,7 +984,7 @@ function renderBatches(){const el=document.getElementById('batches-list');if(!el
 function addBatch(){if(!EVCFG.batches)EVCFG.batches=[];EVCFG.batches.push({id:Date.now(),name:'Batch '+(EVCFG.batches.length+1),start_date:null});renderBatches();}
 function removeBatch(id){EVCFG.batches=(EVCFG.batches||[]).filter(b=>b.id!==id);renderBatches();}
 function updateBatch(id,field,value){const b=(EVCFG.batches||[]).find(b=>b.id===id);if(b)b[field]=value;}
-async function saveEventConfig(){const msg=document.getElementById('ev-msg');const start=document.getElementById('ev-start').value;const end=document.getElementById('ev-end').value;if(start&&end&&start>=end)return showMsg(msg,'err','Start must be before end.');showMsg(msg,'run','<span class="spin"></span>Saving...');try{const r=await fetch(`${CFG.WORKER}/admin/save-event-config`,{method:'POST',headers:{'Content-Type':'application/json','X-Admin-Password':_admPwd},body:JSON.stringify({start_date:start?start+'Z':null,end_date:end?end+'Z':null,batches:EVCFG.batches||[]})});const d=await r.json();if(!r.ok)throw new Error(d.error);EVCFG.start_date=start?start+'Z':null;EVCFG.end_date=end?end+'Z':null;showMsg(msg,'ok','Saved.');}catch(e){showMsg(msg,'err',e.message);}}
+async function saveEventConfig(){const msg=document.getElementById('ev-msg');const start=document.getElementById('ev-start').value;const end=document.getElementById('ev-end').value;if(start&&end&&start>=end)return showMsg(msg,'err','Start must be before end.');refreshAdminSession();showMsg(msg,'run','<span class="spin"></span>Saving...');try{const r=await fetch(`${CFG.WORKER}/admin/save-event-config`,{method:'POST',headers:{'Content-Type':'application/json','X-Admin-Password':_admPwd},body:JSON.stringify({start_date:start?start+'Z':null,end_date:end?end+'Z':null,batches:EVCFG.batches||[]})});const d=await r.json();if(!r.ok)throw new Error(d.error);EVCFG.start_date=start?start+'Z':null;EVCFG.end_date=end?end+'Z':null;showMsg(msg,'ok','Saved.');}catch(e){showMsg(msg,'err',e.message);}}
 async function loadAdmTeams(){const el=document.getElementById('adm-teams');el.innerHTML='<div class="empty"><span class="spin"></span></div>';try{const r=await fetch(`${CFG.WORKER}/admin/teams`,{headers:{'X-Admin-Password':_admPwd}});const d=await r.json();if(!r.ok)throw new Error(d.error);if(!d.teams.length){el.innerHTML='<div style="font-size:.8rem;color:var(--text-2)">No teams registered yet.</div>';return;}el.innerHTML='<div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden">'+d.teams.map(t=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:11px 16px;border-bottom:1px solid var(--border)"><div><div style="font-size:.86rem;font-weight:600;color:var(--text)">${esc(t.name)}</div><div style="font-size:.7rem;color:var(--text-2)">${t.created_at?new Date(t.created_at).toLocaleDateString('en-GB'):''}</div></div><button onclick="promptResetPassword('${esc(t.name)}')" style="font-size:.72rem;font-weight:600;padding:5px 10px;background:var(--surface);border:1px solid var(--border);border-radius:5px;color:var(--text-2);cursor:pointer">Reset password</button></div>`).join('')+'</div>';}catch(e){el.innerHTML=`<div style="color:var(--red);font-size:.82rem">${e.message}</div>`;}}
 async function promptResetPassword(teamName){const newPwd=prompt(`New password for team "${teamName}":`);if(!newPwd||newPwd.length<4){if(newPwd!==null)alert('Password must be at least 4 characters.');return;}try{const r=await fetch(`${CFG.WORKER}/admin/reset-team-password`,{method:'POST',headers:{'Content-Type':'application/json','X-Admin-Password':_admPwd},body:JSON.stringify({team_name:teamName,new_password:newPwd})});const d=await r.json();if(!r.ok)throw new Error(d.error);alert(`Password for "${teamName}" has been reset.`);}catch(e){alert('Error: '+e.message);}}
 
@@ -1100,7 +1099,8 @@ async function saveAdmArtConfig() {
   btn.disabled = true;
   showMsg(msg, 'run', '<span class="spin"></span>Saving...');
   try {
-    const res = await fetch(`${CFG.WORKER}/admin/save-artifact`, {
+    refreshAdminSession();
+  const res = await fetch(`${CFG.WORKER}/admin/save-artifact`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-Admin-Password': _admPwd },
       body: JSON.stringify({ id: _admArtId, rare: _admArtRare, description: desc, maps_url: maps, batch_id })
@@ -1212,8 +1212,7 @@ document.addEventListener('keydown', e => { if(e.key==='Escape') closeArtModal()
 
 function adminSignOut() {
   _admPwd = ''; adminOpen = false;
-  sessionStorage.removeItem('ghunt_admin_pwd');
-  sessionStorage.removeItem('ghunt_admin_ts');
+  localStorage.removeItem('ghunt_admin_session');
   document.getElementById('adm-gate').style.display = '';
   document.getElementById('adm-panel').style.display = 'none';
   document.getElementById('adm-pass').value = '';
@@ -1221,28 +1220,31 @@ function adminSignOut() {
 }
 
 async function restoreAdminSession() {
-  const pwd = sessionStorage.getItem('ghunt_admin_pwd');
-  const ts  = parseInt(sessionStorage.getItem('ghunt_admin_ts') || '0');
-  if (!pwd || Date.now() - ts > 10 * 60 * 1000) {
-    sessionStorage.removeItem('ghunt_admin_pwd');
-    sessionStorage.removeItem('ghunt_admin_ts');
-    return;
-  }
+  let session;
+  try { session = JSON.parse(localStorage.getItem('ghunt_admin_session')||'null'); } catch(_) {}
+  if (!session || Date.now() > session.expires) { localStorage.removeItem('ghunt_admin_session'); return; }
+  const pwd = session.pwd;
   try {
-    const r = await fetch(`${CFG.WORKER}/admin/verify`, { headers: {'X-Admin-Password': pwd} });
-    if (!r.ok) { sessionStorage.removeItem('ghunt_admin_pwd'); return; }
+    const r = await fetch(`${CFG.WORKER}/admin/verify`, {headers:{'X-Admin-Password':pwd}});
+    if (!r.ok) { localStorage.removeItem('ghunt_admin_session'); return; }
+    localStorage.setItem('ghunt_admin_session', JSON.stringify({pwd,expires:Date.now()+600000}));
     _admPwd = pwd; adminOpen = true;
     const fullCfg = await loadAdminArtifactsConfig(pwd);
     ARTCFG = fullCfg;
     CFG.RARE_IDS = new Set();
-    for (const [id, art] of Object.entries(fullCfg.artifacts || {})) {
+    for (const [id,art] of Object.entries(fullCfg.artifacts||{})) {
       if (art.rare) CFG.RARE_IDS.add(parseInt(id));
     }
     try {
-      const ecr = await fetch(`${CFG.WORKER}/admin/event-config`, { headers: {'X-Admin-Password': pwd} });
-      if (ecr.ok) { const ec = await ecr.json(); renderEventConfig(ec); }
+      const ecr = await fetch(`${CFG.WORKER}/admin/event-config`,{headers:{'X-Admin-Password':pwd}});
+      if (ecr.ok) { const ec=await ecr.json(); renderEventConfig(ec); }
     } catch(_) {}
-  } catch(_) {}
+  } catch(_) { localStorage.removeItem('ghunt_admin_session'); }
+}
+
+function refreshAdminSession() {
+  if (!_admPwd) return;
+  localStorage.setItem('ghunt_admin_session', JSON.stringify({pwd:_admPwd,expires:Date.now()+600000}));
 }
 
 function restoreTab() {
