@@ -708,15 +708,11 @@ tbody tr:hover { background: rgba(255,255,255,.02); }
             <button onclick="loadAdmTeams()" style="font-size:.8rem;font-weight:600;padding:8px 16px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);cursor:pointer;font-family:var(--font);margin-bottom:12px">Load teams</button>
             <div id="adm-teams"></div>
           </div>
-        <div class="admin-toolbar">
-          <button class="btn btn-ghost" onclick="saveRareConfig()">Download config</button>
-          <button class="btn btn-ghost" onclick="exportCSV()">Export CSV</button>
-          <button class="btn btn-ghost" onclick="reloadScores()">Reload data</button>
-        </div>
         <div class="msg" id="adm-msg"></div>
 
-        <div class="sh" style="margin-top:40px;margin-bottom:16px">
+        <div class="sh" style="margin-top:40px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between">
           <span class="sh-title">All submissions</span>
+          <button class="btn btn-ghost" onclick="exportCSV()" style="font-size:.78rem;padding:7px 14px;width:auto">Export CSV</button>
         </div>
         <div class="lb-wrap">
           <table>
