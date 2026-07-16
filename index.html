@@ -1166,18 +1166,19 @@ function openArtModal(id) {
       <div style="font-size:.82rem;color:var(--text);line-height:1.6">${esc(artCfg.description)}</div>
     </div>`;
   } else if (artCfg.batch_id != null) {
-    // Has a batch but not yet released — show "available soon"
+    // Has a batch — check if it's in the future
     const batch = (EVCFG.batches||[]).find(b => b.id === artCfg.batch_id);
-    const dateStr = batch?.start_date
-      ? new Date(batch.start_date).toLocaleDateString('en-GB', { day:'numeric', month:'long', hour:'2-digit', minute:'2-digit' })
-      : 'soon';
-    extraHtml += `<div style="margin-bottom:12px;padding:12px 14px;background:rgba(255,200,0,.06);border-radius:6px;border:1px solid rgba(255,200,0,.2);display:flex;align-items:center;gap:10px">
-      <span style="font-size:1.1rem">🔒</span>
-      <div>
-        <div style="font-size:.8rem;font-weight:600;color:rgba(255,200,0,.9)">Hint available from ${dateStr}</div>
-        <div style="font-size:.72rem;color:var(--text-2);margin-top:2px">Check back when the batch is released.</div>
-      </div>
-    </div>`;
+    const batchFuture = batch?.start_date && new Date(batch.start_date) > new Date();
+    if (batchFuture) {
+      const dateStr = new Date(batch.start_date).toLocaleDateString('en-GB', { day:'numeric', month:'long', hour:'2-digit', minute:'2-digit' });
+      extraHtml += `<div style="margin-bottom:12px;padding:12px 14px;background:rgba(255,200,0,.06);border-radius:6px;border:1px solid rgba(255,200,0,.2);display:flex;align-items:center;gap:10px">
+        <span style="font-size:1.1rem">🔒</span>
+        <div>
+          <div style="font-size:.8rem;font-weight:600;color:rgba(255,200,0,.9)">Hint available from ${dateStr}</div>
+          <div style="font-size:.72rem;color:var(--text-2);margin-top:2px">Check back when the batch is released.</div>
+        </div>
+      </div>`;
+    }
   }
 
   if (artCfg.maps_url) {
@@ -1290,7 +1291,7 @@ async function loadEventConfig() {
 }
 async function loadArtifactsConfig() {
   try {
-    const r = await fetch(`${CFG.WORKER}/public/artifacts`);
+    const r = await fetch(`${CFG.WORKER}/public/artifacts?_=${Date.now()}`);
     if (r.ok) {
       ARTCFG = await r.json();
       // Sync rare IDs from KV — overrides hardcoded defaults
