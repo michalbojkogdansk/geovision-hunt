@@ -1043,27 +1043,23 @@ async function saveAdmArtConfig() {
   const msg  = document.getElementById('adm-art-msg');
   const desc = document.getElementById('adm-art-desc').value.trim();
   const maps = document.getElementById('adm-art-maps').value.trim();
+  const released = document.getElementById('adm-art-released').checked;
   const btn  = document.querySelector('#adm-art-modal .btn');
   btn.disabled = true;
   showMsg(msg, 'run', '<span class="spin"></span>Saving...');
-
-  // Update rare state
-  if (_admArtRare) CFG.RARE_IDS.add(_admArtId);
-  else CFG.RARE_IDS.delete(_admArtId);
-
-  // Update local config
-  if (!ARTCFG.artifacts) ARTCFG.artifacts = {};
-  ARTCFG.artifacts[_admArtId] = { rare: _admArtRare, description: desc, maps_url: maps };
-
   try {
-    const res = await fetch(`${CFG.WORKER}/save-artifacts-config`, {
+    const res = await fetch(`${CFG.WORKER}/admin/save-artifact`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ config: ARTCFG })
+      headers: { 'Content-Type': 'application/json', 'X-Admin-Password': _admPwd },
+      body: JSON.stringify({ id: _admArtId, rare: _admArtRare, description: desc, maps_url: maps, released })
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Save failed');
-    showMsg(msg, 'ok', 'Saved. Reload the page to see updates.');
+    const d = await res.json();
+    if (!res.ok) throw new Error(d.error || 'Save failed');
+    if (!ARTCFG.artifacts) ARTCFG.artifacts = {};
+    ARTCFG.artifacts[_admArtId] = { rare: _admArtRare, description: desc, maps_url: maps, released };
+    if (_admArtRare) CFG.RARE_IDS.add(_admArtId);
+    else CFG.RARE_IDS.delete(_admArtId);
+    showMsg(msg, 'ok', released ? 'Saved and released — players can now see this hint.' : 'Saved — not yet visible to players.');
     renderAdmGrid();
   } catch(e) {
     showMsg(msg, 'err', e.message);
