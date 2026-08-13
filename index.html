@@ -532,6 +532,7 @@ tbody tr:hover { background: rgba(255,255,255,.02); }
         <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden">
           <textarea id="chan-input" rows="3" oninput="document.getElementById('chan-chars').textContent=this.value.length+' / 500'" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();chanPost();}" placeholder="Type a message... (max 500 characters)" style="width:100%;background:none;border:none;padding:14px 16px;color:var(--text);font-family:var(--font);font-size:.88rem;line-height:1.5;resize:none;outline:none"></textarea>
           <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-top:1px solid var(--border)">
+            <span id="chan-compose-label" style="font-size:.72rem;color:var(--blue);font-weight:600"></span>
             <span id="chan-chars" style="font-size:.72rem;color:var(--text-2)">0 / 500</span>
             <button class="btn" onclick="chanPost()" style="width:auto;padding:8px 20px;font-size:.82rem">Send</button>
           </div>
@@ -1440,8 +1441,10 @@ async function loadChannel() {
       }
     }
     // Show compose or login prompt
-    document.getElementById('chan-compose').style.display = SESSION.token ? 'block' : 'none';
-    document.getElementById('chan-login-prompt').style.display = SESSION.token ? 'none' : 'block';
+    const canPost = !!(SESSION.token || adminOpen);
+    document.getElementById('chan-compose').style.display = canPost ? 'block' : 'none';
+    document.getElementById('chan-login-prompt').style.display = canPost ? 'none' : 'block';
+    document.getElementById('chan-compose-label').textContent = adminOpen && !SESSION.token ? 'Posting as Organizer' : '';
   } catch(_) {}
 }
 
@@ -1455,11 +1458,15 @@ async function chanPost() {
   btn.disabled = true;
   showMsg(msg,'run','<span class="spin"></span>Sending...');
   try {
-    const r = await fetch(`${CFG.WORKER}/channel/post`, {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ token: SESSION.token, text })
-    });
+    const isAdminPost = adminOpen && !SESSION.token;
+    const url = isAdminPost ? `${CFG.WORKER}/admin/channel/post` : `${CFG.WORKER}/channel/post`;
+    const body = isAdminPost
+      ? JSON.stringify({ text })
+      : JSON.stringify({ token: SESSION.token, text });
+    const hdrs = isAdminPost
+      ? {'Content-Type':'application/json','X-Admin-Password':_admPwd}
+      : {'Content-Type':'application/json'};
+    const r = await fetch(url, { method: 'POST', headers: hdrs, body });
     const d = await r.json();
     if (!r.ok) throw new Error(d.error);
     input.value = '';
