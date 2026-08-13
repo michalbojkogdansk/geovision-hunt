@@ -708,6 +708,19 @@ tbody tr:hover { background: rgba(255,255,255,.02); }
             <button onclick="loadAdmTeams()" style="font-size:.8rem;font-weight:600;padding:8px 16px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);cursor:pointer;font-family:var(--font);margin-bottom:12px">Load teams</button>
             <div id="adm-teams"></div>
           </div>
+
+          <div style="margin-top:40px">
+            <div class="rules-heading">Score correction</div>
+            <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px;display:flex;flex-direction:column;gap:12px">
+              <div style="display:grid;grid-template-columns:1fr 130px 1fr;gap:10px;align-items:end">
+                <div class="fg" style="margin-bottom:0"><label class="fl">Team name</label><input type="text" id="corr-team" class="fi" placeholder="Exact team name" autocomplete="off"></div>
+                <div class="fg" style="margin-bottom:0"><label class="fl">Points (±)</label><input type="number" id="corr-delta" class="fi" placeholder="-30 or 50"></div>
+                <div class="fg" style="margin-bottom:0"><label class="fl">Reason</label><input type="text" id="corr-reason" class="fi" placeholder="e.g. duplicate submission"></div>
+              </div>
+              <button class="btn" onclick="applyCorrection()" style="max-width:200px">Apply correction</button>
+              <div class="msg" id="corr-msg"></div>
+            </div>
+          </div>
         <div class="msg" id="adm-msg"></div>
 
         <div class="sh" style="margin-top:40px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between">
@@ -985,6 +998,25 @@ async function saveEventConfig(){const msg=document.getElementById('ev-msg');con
 async function loadAdmTeams(){const el=document.getElementById('adm-teams');el.innerHTML='<div class="empty"><span class="spin"></span></div>';try{const r=await fetch(`${CFG.WORKER}/admin/teams`,{headers:{'X-Admin-Password':_admPwd}});const d=await r.json();if(!r.ok)throw new Error(d.error);if(!d.teams.length){el.innerHTML='<div style="font-size:.8rem;color:var(--text-2)">No teams registered yet.</div>';return;}el.innerHTML='<div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden">'+d.teams.map(t=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:11px 16px;border-bottom:1px solid var(--border)"><div><div style="font-size:.86rem;font-weight:600;color:var(--text)">${esc(t.name)}</div><div style="font-size:.7rem;color:var(--text-2)">${t.created_at?new Date(t.created_at).toLocaleDateString('en-GB'):''}</div></div><button onclick="promptResetPassword('${esc(t.name)}')" style="font-size:.72rem;font-weight:600;padding:5px 10px;background:var(--surface);border:1px solid var(--border);border-radius:5px;color:var(--text-2);cursor:pointer">Reset password</button></div>`).join('')+'</div>';}catch(e){el.innerHTML=`<div style="color:var(--red);font-size:.82rem">${e.message}</div>`;}}
 async function promptResetPassword(teamName){const newPwd=prompt(`New password for team "${teamName}":`);if(!newPwd||newPwd.length<4){if(newPwd!==null)alert('Password must be at least 4 characters.');return;}try{const r=await fetch(`${CFG.WORKER}/admin/reset-team-password`,{method:'POST',headers:{'Content-Type':'application/json','X-Admin-Password':_admPwd},body:JSON.stringify({team_name:teamName,new_password:newPwd})});const d=await r.json();if(!r.ok)throw new Error(d.error);alert(`Password for "${teamName}" has been reset.`);}catch(e){alert('Error: '+e.message);}}
 
+async function applyCorrection() {
+  const msg   = document.getElementById('corr-msg');
+  const team  = document.getElementById('corr-team').value.trim();
+  const delta = parseInt(document.getElementById('corr-delta').value);
+  const reason= document.getElementById('corr-reason').value.trim();
+  if (!team)               return showMsg(msg,'err','Team name required.');
+  if (isNaN(delta)||delta===0) return showMsg(msg,'err','Enter a non-zero point value.');
+  refreshAdminSession();
+  showMsg(msg,'run','<span class="spin"></span>Applying...');
+  try {
+    const r = await fetch(`${CFG.WORKER}/admin/correct-score`,{method:'POST',headers:{'Content-Type':'application/json','X-Admin-Password':_admPwd},body:JSON.stringify({team_name:team,delta,reason})});
+    const d = await r.json();
+    if(!r.ok) throw new Error(d.error);
+    showMsg(msg,'ok',`${d.team}: ${d.before} → ${d.after} pts (${delta>0?'+':''}${delta}). Leaderboard updates within 60 sec.`);
+    document.getElementById('corr-delta').value='';
+    document.getElementById('corr-reason').value='';
+  } catch(e){showMsg(msg,'err',e.message);}
+}
+
 function renderAdmGrid(){
   set('adm-grid',ARTS.map(a=>{
     const rare=CFG.RARE_IDS.has(a.id);
@@ -1047,6 +1079,7 @@ function dl(content,filename,type){
 
 let _admArtId = null;
 let _admArtRare = false;
+let _admArtStatus = 'active';
 
 function openAdmArtModal(id) {
   _admArtId = id;
@@ -1062,6 +1095,8 @@ function openAdmArtModal(id) {
   const bSel=document.getElementById('adm-art-batch');
   bSel.innerHTML='<option value="">— Not assigned (hidden) —</option>';
   (EVCFG.batches||[]).forEach(b=>{const dt=b.start_date?new Date(b.start_date).toLocaleDateString('en-GB',{day:'numeric',month:'short'}):'?';const o=document.createElement('option');o.value=b.id;o.textContent=`${b.name} (${dt})`;if(cfg.batch_id===b.id)o.selected=true;bSel.appendChild(o);});
+  _admArtStatus = cfg.status || 'active';
+  setAdmArtStatus(_admArtStatus);
   setAdmArtRare(_admArtRare);
 
   document.getElementById('adm-art-overlay').style.display = 'block';
@@ -1073,6 +1108,18 @@ function closeAdmArtModal() {
   document.getElementById('adm-art-overlay').style.display = 'none';
   document.getElementById('adm-art-modal').style.display = 'none';
   document.body.style.overflow = '';
+}
+
+function setAdmArtStatus(s) {
+  _admArtStatus = s;
+  const colors = { active: 'var(--green)', lost: 'rgba(255,150,0,.8)', stolen: '#e55' };
+  ['active','lost','stolen'].forEach(k => {
+    const btn = document.getElementById('adm-btn-'+k);
+    if (!btn) return;
+    btn.style.background  = k === s ? colors[k] : 'var(--surface)';
+    btn.style.color       = k === s ? '#fff' : 'var(--text-2)';
+    btn.style.borderColor = k === s ? colors[k] : 'var(--border)';
+  });
 }
 
 function setAdmArtRare(isRare) {
@@ -1100,12 +1147,12 @@ async function saveAdmArtConfig() {
   const res = await fetch(`${CFG.WORKER}/admin/save-artifact`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-Admin-Password': _admPwd },
-      body: JSON.stringify({ id: _admArtId, rare: _admArtRare, description: desc, maps_url: maps, batch_id })
+      body: JSON.stringify({ id: _admArtId, rare: _admArtRare, description: desc, maps_url: maps, batch_id, status: _admArtStatus })
     });
     const d = await res.json();
     if (!res.ok) throw new Error(d.error || 'Save failed');
     if (!ARTCFG.artifacts) ARTCFG.artifacts = {};
-    ADMCFG.artifacts[_admArtId]={rare:_admArtRare,description:desc,maps_url:maps,batch_id};
+    ADMCFG.artifacts[_admArtId]={rare:_admArtRare,description:desc,maps_url:maps,batch_id,status:_admArtStatus};
     if(_admArtRare)CFG.RARE_IDS.add(_admArtId);else CFG.RARE_IDS.delete(_admArtId);
     const bn=batch_id!=null?(EVCFG.batches||[]).find(b=>b.id===batch_id)?.name:null;
     showMsg(msg,'ok',bn?`Saved — assigned to "${bn}".`:'Saved — not assigned to any batch.');
@@ -1144,7 +1191,11 @@ function openArtModal(id) {
 
   // Status
   const statusEl = document.getElementById('art-modal-status');
-  if (isFound) {
+  const artStatus = artCfg.status || 'active';
+  if (artStatus !== 'active') {
+    const sLabel = artStatus === 'lost' ? '🔍 Reported as lost' : '🚨 Reported as stolen';
+    statusEl.innerHTML = `<div style="display:flex;align-items:center;gap:8px"><div style="width:8px;height:8px;border-radius:50%;background:rgba(255,150,0,.8);flex-shrink:0"></div><span style="font-size:.82rem;color:rgba(255,150,0,.9);font-weight:600">${sLabel} — no longer available for submission.</span></div>`;
+  } else if (isFound) {
     statusEl.innerHTML = `<div style="display:flex;align-items:center;gap:8px">
       <div style="width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0"></div>
       <span style="font-size:.82rem;color:var(--green);font-weight:600">Found by ${ad.found_count} team${ad.found_count>1?'s':''}</span>
