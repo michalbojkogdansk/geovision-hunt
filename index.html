@@ -1402,12 +1402,12 @@ function refreshAdminSession() {
 }
 
 function restoreTab() {
-  const tab = sessionStorage.getItem('ghunt_tab');
+  let tab = sessionStorage.getItem('ghunt_tab');
   if (!tab) return;
-  const btn = [...document.querySelectorAll('.tab')].find(t => {
-    const map = { lb:'Leaderboard', sub:'Submit Find', art:'Artifacts', rules:'Rules', adm:'Admin' };
-    return t.textContent === map[tab];
-  });
+  // If admin tab was stored but admin session is gone, fall back to leaderboard
+  if (tab === 'adm' && !adminOpen) tab = 'lb';
+  const map = { lb:'Leaderboard', sub:'Submit Find', art:'Artifacts', rules:'Rules', adm:'Admin', chan:'Channel' };
+  const btn = [...document.querySelectorAll('.tab')].find(t => t.textContent === map[tab]);
   if (btn) go(tab, btn);
 }
 
@@ -1505,6 +1505,8 @@ window.addEventListener('load',async()=>{
     renderAdmGrid(); renderAdmSubs();
   }
   restoreTab();
+  // Re-render leaderboard after session restore (auth state may affect display)
+  renderLB(); renderStats();
 });
 
 async function loadEventConfig() {
