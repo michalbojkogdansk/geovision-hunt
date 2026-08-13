@@ -758,7 +758,7 @@ tbody tr:hover { background: rgba(255,255,255,.02); }
             </div>
             <div id="adm-channel" style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px"><div class="empty"><span class="spin"></span></div></div>
             <div style="display:flex;gap:8px;margin-top:8px">
-              <input type="text" id="adm-chan-input" class="fi" placeholder="Reply as Organizer..." style="margin-bottom:0;flex:1">
+              <input type="text" id="adm-chan-input" class="fi" placeholder="Reply as Organizer..." style="margin-bottom:0;flex:1" onkeydown="if(event.key==='Enter')admChanPost();">
               <button class="btn" onclick="admChanPost()" style="width:auto;padding:10px 20px;flex-shrink:0">Send</button>
             </div>
             <div class="msg" id="adm-chan-msg"></div>
