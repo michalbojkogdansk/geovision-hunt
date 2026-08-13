@@ -951,7 +951,7 @@ function renderArtifacts() {
   }
   set('art-phrase',html);
   const found=Object.values(SC.artifacts||{}).filter(a=>a.found_count>0).length;
-  set('art-progress',`${found} of 55 found`);
+  const artProg = document.getElementById('art-progress'); if (artProg) artProg.textContent = `${found} of 55 found`;
   set('art-grid', ARTS.map(art=>{
     const ad=SC.artifacts?.[art.id], isFound=ad&&ad.found_count>0, isRare=CFG.RARE_IDS.has(art.id);
     const cls=['ac',isFound?'found':'',isRare?'rare':''].filter(Boolean).join(' ');
