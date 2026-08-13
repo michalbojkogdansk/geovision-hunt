@@ -1191,7 +1191,7 @@ function openArtModal(id) {
 
   // Status
   const statusEl = document.getElementById('art-modal-status');
-  const artStatus = artCfg.status || 'active';
+  const artStatus = ARTCFG.artifacts?.[id]?.status || 'active';
   if (artStatus !== 'active') {
     const sLabel = artStatus === 'lost' ? '🔍 Reported as lost' : '🚨 Reported as stolen';
     statusEl.innerHTML = `<div style="display:flex;align-items:center;gap:8px"><div style="width:8px;height:8px;border-radius:50%;background:rgba(255,150,0,.8);flex-shrink:0"></div><span style="font-size:.82rem;color:rgba(255,150,0,.9);font-weight:600">${sLabel} — no longer available for submission.</span></div>`;
