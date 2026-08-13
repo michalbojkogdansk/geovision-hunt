@@ -1414,6 +1414,15 @@ async function loadAdminArtifactsConfig(pwd) {
         <input type="url" id="adm-art-maps" class="fi" placeholder="https://maps.google.com/?q=...">
       </div>
       <div><label style="font-size:.68rem;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px">Batch</label><select id="adm-art-batch" class="fi" style="cursor:pointer"><option value="">— Not assigned (hidden) —</option></select><div style="font-size:.7rem;color:var(--text-2);margin-top:4px">Hint visible to players when batch start date is reached.</div></div>
+      <div>
+        <label style="font-size:.68rem;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:8px">Artifact status</label>
+        <div style="display:flex;gap:8px">
+          <button id="adm-btn-active" onclick="setAdmArtStatus('active')" style="flex:1;padding:9px;border-radius:6px;font-family:var(--font);font-size:.78rem;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text-2)">Active</button>
+          <button id="adm-btn-lost"   onclick="setAdmArtStatus('lost')"   style="flex:1;padding:9px;border-radius:6px;font-family:var(--font);font-size:.78rem;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text-2)">Lost</button>
+          <button id="adm-btn-stolen" onclick="setAdmArtStatus('stolen')" style="flex:1;padding:9px;border-radius:6px;font-family:var(--font);font-size:.78rem;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text-2)">Stolen</button>
+        </div>
+        <div style="font-size:.7rem;color:var(--text-2);margin-top:4px">Lost and stolen artifacts block new submissions and are excluded from the completion bonus.</div>
+      </div>
       <button class="btn" onclick="saveAdmArtConfig()">Save artifact</button>
       <div class="msg" id="adm-art-msg"></div>
     </div>
