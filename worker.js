@@ -358,8 +358,7 @@ async function handleAdminCorrectScore(request, env) {
   );
   if (!raw.ok) return err('Could not read scores.json', 502);
   const fileData = await raw.json();
-  const scores = JSON.parse(atob(fileData.content.replace(/
-/g, '')));
+  const scores = JSON.parse(atob(fileData.content.replace(/\n/g, '')));
 
   const norm = team_name.trim().toLowerCase();
   const team = (scores.teams || []).find(t => t.name.toLowerCase() === norm);
