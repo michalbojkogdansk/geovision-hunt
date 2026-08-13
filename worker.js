@@ -407,6 +407,73 @@ async function handleAdminCleanup(request, env) {
   return ok({ deleted, message: 'All teams, sessions, finds and rate limits cleared.' });
 }
 
+// ── Channel (shared team message board via GitHub Issue) ─────
+const CHANNEL_ISSUE = 2;
+
+async function handleChannelPost(request, env) {
+  // Verify session
+  const { token, text } = await request.json();
+  if (!text || !text.trim()) return err('Message cannot be empty.');
+  if (text.trim().length > 500) return err('Message too long (max 500 characters).');
+  const sessRaw = await env.GEOVISION_TEAMS.get(`session:${token}`);
+  if (!sessRaw) return err('Invalid or expired session.', 401);
+  const { team } = JSON.parse(sessRaw);
+
+  // Check event status — only post during active event
+  const eventCfg = await getEventCfg(env);
+  const { status } = getEventStatus(eventCfg);
+  if (status === 'ended') return err('The event has ended.', 403);
+
+  const body = `**[${team}]** ${text.trim()}\n\n*Posted via GeoVision Hunt app*`;
+  const res = await githubRequest(env.GITHUB_PAT, 'POST',
+    `/repos/${OWNER}/${REPO}/issues/${CHANNEL_ISSUE}/comments`,
+    { body }
+  );
+  if (!res.ok) { const e = await res.json(); return err(`Post failed: ${e.message}`, 502); }
+  const comment = await res.json();
+  return ok({ ok: true, id: comment.id, created_at: comment.created_at });
+}
+
+async function handleChannelGet(request, env) {
+  const url = new URL(request.url);
+  const page = url.searchParams.get('page') || 1;
+  const res = await fetch(
+    `https://api.github.com/repos/${OWNER}/${REPO}/issues/${CHANNEL_ISSUE}/comments?per_page=50&page=${page}&direction=asc`,
+    { headers: { Authorization: `token ${env.GITHUB_PAT}`, Accept: 'application/vnd.github+json', 'User-Agent': 'geovision-worker' } }
+  );
+  if (!res.ok) return err('Could not fetch messages.', 502);
+  const comments = await res.json();
+  const messages = comments.map(c => {
+    // Parse team name from bold prefix [TeamName]
+    const match = c.body.match(/^\*\*\[(.+?)\]\*\* ([\s\S]+?)
+
+\*Posted via/);
+    const adminMatch = c.body.match(/^\*\*\[ORGANIZER\]\*\* ([\s\S]+)/);
+    if (match) {
+      return { id: c.id, team: match[1], text: match[2], timestamp: c.created_at, type: 'team' };
+    } else if (adminMatch) {
+      return { id: c.id, team: 'Organizer', text: adminMatch[1], timestamp: c.created_at, type: 'admin' };
+    } else {
+      // Admin reply posted directly from GitHub
+      return { id: c.id, team: 'Organizer', text: c.body, timestamp: c.created_at, type: 'admin' };
+    }
+  });
+  return ok({ messages });
+}
+
+async function handleAdminChannelPost(request, env) {
+  if (!await verifyAdmin(request, env)) return err('Unauthorized.', 401);
+  const { text } = await request.json();
+  if (!text || !text.trim()) return err('Message cannot be empty.');
+  const body = `**[ORGANIZER]** ${text.trim()}`;
+  const res = await githubRequest(env.GITHUB_PAT, 'POST',
+    `/repos/${OWNER}/${REPO}/issues/${CHANNEL_ISSUE}/comments`,
+    { body }
+  );
+  if (!res.ok) { const e = await res.json(); return err(`Post failed: ${e.message}`, 502); }
+  return ok({ ok: true });
+}
+
 // ── Router ────────────────────────────────────────────────────
 export default {
   async fetch(request, env) {
@@ -428,6 +495,9 @@ export default {
       if (path === '/admin/teams'              && request.method === 'GET')  return handleAdminTeams(request, env);
       if (path === '/admin/reset-team-password'&& request.method === 'POST') return handleAdminResetPassword(request, env);
       if (path === '/admin/set-password'       && request.method === 'POST') return handleAdminSetPassword(request, env);
+      if (path === '/channel/messages'          && request.method === 'GET')  return handleChannelGet(request, env);
+      if (path === '/channel/post'              && request.method === 'POST') return handleChannelPost(request, env);
+      if (path === '/admin/channel/post'        && request.method === 'POST') return handleAdminChannelPost(request, env);
       if (path === '/admin/cleanup'            && request.method === 'POST') return handleAdminCleanup(request, env);
       if (path === '/admin/correct-score'      && request.method === 'POST') return handleAdminCorrectScore(request, env);
       return err('Not found.', 404);
