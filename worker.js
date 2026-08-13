@@ -336,6 +336,25 @@ async function handleAdminVerify(request, env) {
   return ok({ ok: true });
 }
 
+// ── Admin: wipe all test data from KV ───────────────────────
+async function handleAdminCleanup(request, env) {
+  if (!await verifyAdmin(request, env)) return err('Unauthorized.', 401);
+  const prefixes = ['team:', 'session:', 'find:', 'rate:'];
+  let deleted = 0;
+  for (const prefix of prefixes) {
+    let cursor = undefined;
+    do {
+      const list = await env.GEOVISION_TEAMS.list({ prefix, cursor, limit: 1000 });
+      for (const key of list.keys) {
+        await env.GEOVISION_TEAMS.delete(key.name);
+        deleted++;
+      }
+      cursor = list.list_complete ? undefined : list.cursor;
+    } while (cursor);
+  }
+  return ok({ deleted, message: 'All teams, sessions, finds and rate limits cleared.' });
+}
+
 // ── Router ────────────────────────────────────────────────────
 export default {
   async fetch(request, env) {
@@ -357,6 +376,7 @@ export default {
       if (path === '/admin/teams'              && request.method === 'GET')  return handleAdminTeams(request, env);
       if (path === '/admin/reset-team-password'&& request.method === 'POST') return handleAdminResetPassword(request, env);
       if (path === '/admin/set-password'       && request.method === 'POST') return handleAdminSetPassword(request, env);
+      if (path === '/admin/cleanup'            && request.method === 'POST') return handleAdminCleanup(request, env);
       return err('Not found.', 404);
     } catch(e) {
       return err(`Server error: ${e.message}`, 500);
