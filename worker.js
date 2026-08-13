@@ -424,7 +424,7 @@ async function handleChannelPost(request, env) {
   const { status } = getEventStatus(eventCfg);
   if (status === 'ended') return err('The event has ended.', 403);
 
-  const body = `**[${team}]** ${text.trim()}\n\n*Posted via GeoVision Hunt app*`;
+  const body = `TEAM:${team}\n${text.trim()}`;
   const res = await githubRequest(env.GITHUB_PAT, 'POST',
     `/repos/${OWNER}/${REPO}/issues/${CHANNEL_ISSUE}/comments`,
     { body }
@@ -444,18 +444,18 @@ async function handleChannelGet(request, env) {
   if (!res.ok) return err('Could not fetch messages.', 502);
   const comments = await res.json();
   const messages = comments.map(c => {
-    // Parse team name from bold prefix [TeamName]
-    const match = c.body.match(/^\*\*\[(.+?)\]\*\* ([\s\S]+?)
-
-\*Posted via/);
-    const adminMatch = c.body.match(/^\*\*\[ORGANIZER\]\*\* ([\s\S]+)/);
-    if (match) {
-      return { id: c.id, team: match[1], text: match[2], timestamp: c.created_at, type: 'team' };
-    } else if (adminMatch) {
-      return { id: c.id, team: 'Organizer', text: adminMatch[1], timestamp: c.created_at, type: 'admin' };
+    const body = c.body || '';
+    // Format: first line is "TEAM:TeamName" or "ADMIN", rest is message text
+    const lines = body.split('\n');
+    const header = lines[0] || '';
+    const text = lines.slice(1).join('\n').trim();
+    if (header.startsWith('TEAM:')) {
+      return { id: c.id, team: header.slice(5), text, timestamp: c.created_at, type: 'team' };
+    } else if (header === 'ADMIN') {
+      return { id: c.id, team: 'Organizer', text, timestamp: c.created_at, type: 'admin' };
     } else {
-      // Admin reply posted directly from GitHub
-      return { id: c.id, team: 'Organizer', text: c.body, timestamp: c.created_at, type: 'admin' };
+      // Legacy or direct GitHub reply
+      return { id: c.id, team: 'Organizer', text: body, timestamp: c.created_at, type: 'admin' };
     }
   });
   return ok({ messages });
@@ -465,7 +465,7 @@ async function handleAdminChannelPost(request, env) {
   if (!await verifyAdmin(request, env)) return err('Unauthorized.', 401);
   const { text } = await request.json();
   if (!text || !text.trim()) return err('Message cannot be empty.');
-  const body = `**[ORGANIZER]** ${text.trim()}`;
+  const body = `ADMIN\n${text.trim()}`;
   const res = await githubRequest(env.GITHUB_PAT, 'POST',
     `/repos/${OWNER}/${REPO}/issues/${CHANNEL_ISSUE}/comments`,
     { body }
