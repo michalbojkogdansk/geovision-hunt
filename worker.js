@@ -197,6 +197,12 @@ async function handleSubmit(request, env) {
   if (!num || num < 1 || num > 55) return err('Invalid artifact number.');
   if (!photo_b64) return err('Photo required.');
 
+  // Block submissions for lost or stolen artifacts
+  const artCfgCheck = await getArtCfg(env);
+  const artStatus = artCfgCheck.artifacts?.[num]?.status || 'active';
+  if (artStatus === 'lost') return err(`Artifact #${num} has been reported as lost and is no longer available.`, 410);
+  if (artStatus === 'stolen') return err(`Artifact #${num} has been reported as stolen and is no longer available.`, 410);
+
   if (!await checkRateLimit(env, token)) return err(`Too many submissions. Maximum ${RATE_MAX} per hour.`, 429);
   if (await isDuplicate(env, teamNorm, num)) return err(`Your team already submitted artifact #${num}.`, 409);
 
@@ -249,6 +255,7 @@ async function handlePublicArtifacts(env) {
     visible[id] = {
       rare: art.rare,
       batch_id: art.batch_id,
+      status: art.status || 'active',
       ...(hintsVisible ? { description: art.description, maps_url: art.maps_url } : {})
     };
   }
@@ -264,7 +271,7 @@ async function handleAdminGetArtifacts(request, env) {
 // ── Admin: save single artifact ───────────────────────────────
 async function handleAdminSaveArtifact(request, env) {
   if (!await verifyAdmin(request, env)) return err('Unauthorized.', 401);
-  const { id, rare, description, maps_url, batch_id } = await request.json();
+  const { id, rare, description, maps_url, batch_id, status } = await request.json();
   if (!id || id < 1 || id > 55) return err('Invalid artifact ID.');
   const cfg = await getArtCfg(env);
   if (!cfg.artifacts) cfg.artifacts = {};
@@ -273,6 +280,7 @@ async function handleAdminSaveArtifact(request, env) {
     description: (description || '').trim(),
     maps_url: (maps_url || '').trim(),
     batch_id: batch_id != null ? batch_id : null,
+    status: ['lost','stolen'].includes(status) ? status : 'active',
   };
   await saveArtCfg(env, cfg);
   return ok({ saved: true, id });
@@ -336,6 +344,51 @@ async function handleAdminVerify(request, env) {
   return ok({ ok: true });
 }
 
+// ── Admin: score correction ──────────────────────────────────
+async function handleAdminCorrectScore(request, env) {
+  if (!await verifyAdmin(request, env)) return err('Unauthorized.', 401);
+  const { team_name, delta, reason } = await request.json();
+  if (!team_name) return err('team_name required.');
+  if (typeof delta !== 'number' || delta === 0) return err('delta must be a non-zero number.');
+
+  // Read current scores.json from GitHub
+  const raw = await fetch(
+    `https://api.github.com/repos/${OWNER}/${REPO}/contents/data/scores.json`,
+    { headers: { Authorization: `token ${env.GITHUB_PAT}`, Accept: 'application/vnd.github+json', 'User-Agent': 'geovision-worker' } }
+  );
+  if (!raw.ok) return err('Could not read scores.json', 502);
+  const fileData = await raw.json();
+  const scores = JSON.parse(atob(fileData.content.replace(/
+/g, '')));
+
+  const norm = team_name.trim().toLowerCase();
+  const team = (scores.teams || []).find(t => t.name.toLowerCase() === norm);
+  if (!team) return err(`Team "${team_name}" not found in scores.`, 404);
+
+  const before = team.total_points;
+  team.total_points = Math.max(0, (team.total_points || 0) + delta);
+
+  // Record the correction
+  if (!scores.corrections) scores.corrections = [];
+  scores.corrections.push({
+    team: team.name, delta, reason: reason || '', before,
+    after: team.total_points, timestamp: new Date().toISOString()
+  });
+  scores.last_updated = new Date().toISOString();
+
+  // Re-sort teams by total_points desc
+  scores.teams.sort((a, b) => (b.total_points || 0) - (a.total_points || 0));
+
+  const content = btoa(unescape(encodeURIComponent(JSON.stringify(scores, null, 2))));
+  const saveRes = await fetch(
+    `https://api.github.com/repos/${OWNER}/${REPO}/contents/data/scores.json`,
+    { method: 'PUT', headers: { Authorization: `token ${env.GITHUB_PAT}`, Accept: 'application/vnd.github+json', 'Content-Type': 'application/json', 'User-Agent': 'geovision-worker' },
+      body: JSON.stringify({ message: `score correction: ${team.name} ${delta > 0 ? '+' : ''}${delta} pts (${reason || 'admin'})`, content, sha: fileData.sha, branch: 'main' }) }
+  );
+  if (!saveRes.ok) { const e = await saveRes.json(); return err(`Save failed: ${e.message}`, 502); }
+  return ok({ ok: true, team: team.name, before, after: team.total_points, delta });
+}
+
 // ── Admin: wipe all test data from KV ───────────────────────
 async function handleAdminCleanup(request, env) {
   if (!await verifyAdmin(request, env)) return err('Unauthorized.', 401);
@@ -377,6 +430,7 @@ export default {
       if (path === '/admin/reset-team-password'&& request.method === 'POST') return handleAdminResetPassword(request, env);
       if (path === '/admin/set-password'       && request.method === 'POST') return handleAdminSetPassword(request, env);
       if (path === '/admin/cleanup'            && request.method === 'POST') return handleAdminCleanup(request, env);
+      if (path === '/admin/correct-score'      && request.method === 'POST') return handleAdminCorrectScore(request, env);
       return err('Not found.', 404);
     } catch(e) {
       return err(`Server error: ${e.message}`, 500);
