@@ -1453,7 +1453,7 @@ async function chanPost() {
   const msg   = document.getElementById('chan-msg');
   const text  = input.value.trim();
   if (!text) return;
-  if (!SESSION.token) return showMsg(msg,'err','Please sign in first.');
+  if (!SESSION.token && !adminOpen) return showMsg(msg,'err','Please sign in first.');
   const btn = document.querySelector('#chan-compose .btn');
   btn.disabled = true;
   showMsg(msg,'run','<span class="spin"></span>Sending...');
