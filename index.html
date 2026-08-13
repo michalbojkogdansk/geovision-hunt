@@ -1028,7 +1028,7 @@ async function adminLogin(){
     const r=await fetch(`${CFG.WORKER}/admin/verify`,{headers:{'X-Admin-Password':pw}});
     if(!r.ok){showMsg(msg,'err','Incorrect password.');return;}
     _admPwd=pw;
-    localStorage.setItem('ghunt_admin_session', JSON.stringify({pwd:pw,expires:Date.now()+600000}));
+    localStorage.setItem('ghunt_admin_session', JSON.stringify({pwd:pw,expires:Date.now()+3600000}));
     const fullCfg=await loadAdminArtifactsConfig(pw);
     ADMCFG=fullCfg;
     CFG.RARE_IDS=new Set();
@@ -1381,7 +1381,7 @@ async function restoreAdminSession() {
   try {
     const r = await fetch(`${CFG.WORKER}/admin/verify`, {headers:{'X-Admin-Password':pwd}});
     if (!r.ok) { localStorage.removeItem('ghunt_admin_session'); return; }
-    localStorage.setItem('ghunt_admin_session', JSON.stringify({pwd,expires:Date.now()+600000}));
+    localStorage.setItem('ghunt_admin_session', JSON.stringify({pwd,expires:Date.now()+3600000}));
     _admPwd = pwd; adminOpen = true;
     const fullCfg = await loadAdminArtifactsConfig(pwd);
     ADMCFG = fullCfg;
@@ -1398,7 +1398,7 @@ async function restoreAdminSession() {
 
 function refreshAdminSession() {
   if (!_admPwd) return;
-  localStorage.setItem('ghunt_admin_session', JSON.stringify({pwd:_admPwd,expires:Date.now()+600000}));
+  localStorage.setItem('ghunt_admin_session', JSON.stringify({pwd:_admPwd,expires:Date.now()+3600000}));
 }
 
 function restoreTab() {
@@ -1487,6 +1487,9 @@ function startChanPoll() {
 function stopChanPoll() {
   if (_chanPollTimer) { clearInterval(_chanPollTimer); _chanPollTimer = null; }
 }
+
+// Heartbeat — refresh admin session every 5 min while page is open
+setInterval(() => { if (_admPwd) refreshAdminSession(); }, 5 * 60 * 1000);
 
 window.addEventListener('load',async()=>{
   await Promise.all([loadEventConfig(),loadArtifactsConfig()]);
