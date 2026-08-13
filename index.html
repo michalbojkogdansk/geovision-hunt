@@ -1113,7 +1113,7 @@ function closeAdmArtModal() {
 function setAdmArtStatus(s) {
   _admArtStatus = s;
   const colors = { active: 'var(--green)', lost: 'rgba(255,150,0,.8)', stolen: '#e55' };
-  ['active','lost','stolen'].forEach(k => {
+  ['active','stolen'].forEach(k => {
     const btn = document.getElementById('adm-btn-'+k);
     if (!btn) return;
     btn.style.background  = k === s ? colors[k] : 'var(--surface)';
@@ -1193,8 +1193,7 @@ function openArtModal(id) {
   const statusEl = document.getElementById('art-modal-status');
   const artStatus = ARTCFG.artifacts?.[id]?.status || 'active';
   if (artStatus !== 'active') {
-    const sLabel = artStatus === 'lost' ? '🔍 Reported as lost' : '🚨 Reported as stolen';
-    statusEl.innerHTML = `<div style="display:flex;align-items:center;gap:8px"><div style="width:8px;height:8px;border-radius:50%;background:rgba(255,150,0,.8);flex-shrink:0"></div><span style="font-size:.82rem;color:rgba(255,150,0,.9);font-weight:600">${sLabel} — no longer available for submission.</span></div>`;
+    statusEl.innerHTML = `<div style="display:flex;align-items:center;gap:8px"><div style="width:8px;height:8px;border-radius:50%;background:#e55;flex-shrink:0"></div><span style="font-size:.82rem;color:#e77;font-weight:600">🚨 This artifact has been stolen. Do not search for it.</span></div><div style="font-size:.73rem;color:var(--text-2);margin-top:4px">Teams that already found it keep their points.</div>`;
   } else if (isFound) {
     statusEl.innerHTML = `<div style="display:flex;align-items:center;gap:8px">
       <div style="width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0"></div>
@@ -1418,7 +1417,6 @@ async function loadAdminArtifactsConfig(pwd) {
         <label style="font-size:.68rem;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:8px">Artifact status</label>
         <div style="display:flex;gap:8px">
           <button id="adm-btn-active" onclick="setAdmArtStatus('active')" style="flex:1;padding:9px;border-radius:6px;font-family:var(--font);font-size:.78rem;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text-2)">Active</button>
-          <button id="adm-btn-lost"   onclick="setAdmArtStatus('lost')"   style="flex:1;padding:9px;border-radius:6px;font-family:var(--font);font-size:.78rem;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text-2)">Lost</button>
           <button id="adm-btn-stolen" onclick="setAdmArtStatus('stolen')" style="flex:1;padding:9px;border-radius:6px;font-family:var(--font);font-size:.78rem;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text-2)">Stolen</button>
         </div>
         <div style="font-size:.7rem;color:var(--text-2);margin-top:4px">Lost and stolen artifacts block new submissions and are excluded from the completion bonus.</div>
