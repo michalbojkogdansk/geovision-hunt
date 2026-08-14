@@ -6,9 +6,9 @@
       "type": "team",
       "total_points": 150,
       "artifacts_found": [
-        10,
         1,
-        4
+        4,
+        10
       ],
       "last_submission": "2026-08-14T17:05:43Z",
       "completion_bonus_awarded": false
@@ -20,23 +20,24 @@
       "artifacts_found": [
         1,
         2,
+        3,
+        4,
         5
       ],
       "last_submission": "2026-08-14T18:19:37Z",
-      "completion_bonus_awarded": false,
-      "found_count": 2
+      "completion_bonus_awarded": false
     },
     {
       "name": "testgroup3",
       "type": "team",
       "total_points": 105,
       "artifacts_found": [
+        1,
         2,
         5
       ],
       "last_submission": "2026-08-14T18:13:19Z",
-      "completion_bonus_awarded": false,
-      "found_count": 1
+      "completion_bonus_awarded": false
     },
     {
       "name": "testgroup2",
