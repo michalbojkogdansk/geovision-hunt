@@ -757,6 +757,7 @@ tbody tr:hover { background: rgba(255,255,255,.02); }
               <button onclick="loadAdmChannel()" style="font-size:.75rem;font-weight:600;padding:5px 12px;background:var(--surface);border:1px solid var(--border);border-radius:5px;color:var(--text-2);cursor:pointer;font-family:var(--font)">Refresh</button>
             </div>
             <div id="adm-channel" style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px"><div class="empty"><span class="spin"></span></div></div>
+            <div id="adm-reply-ind" style="display:none;font-size:.72rem;color:var(--blue);padding:3px 10px;background:rgba(20,150,255,.08);border-radius:4px;margin-bottom:4px;cursor:pointer" onclick="admClearReply()"></div>
             <div style="display:flex;gap:8px;margin-top:8px">
               <input type="text" id="adm-chan-input" class="fi" placeholder="Reply as Organizer..." style="margin-bottom:0;flex:1" onkeydown="if(event.key==='Enter')admChanPost();">
               <button class="btn" onclick="admChanPost()" style="width:auto;padding:10px 20px;flex-shrink:0">Send</button>
@@ -1066,12 +1067,27 @@ async function loadAdmChannel() {
     el.innerHTML = msgs.map(m => {
       const isAdmin = m.type === 'admin';
       const dt = new Date(m.timestamp).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+      const qHtml = m.quote_team ? `<div style="padding:5px 10px;background:rgba(255,255,255,.04);border-left:3px solid var(--border);border-radius:4px;margin-bottom:6px;font-size:.73rem;color:var(--text-2)"><b>${esc(m.quote_team)}</b>: ${esc((m.quote_text||'').slice(0,60))}</div>` : '';
+      const rBtn = !isAdmin ? `<button onclick='admSetReply(${JSON.stringify({id:m.id,team:m.team,text:m.text})})' style="font-size:.68rem;font-weight:600;padding:2px 8px;background:none;border:1px solid var(--border);border-radius:4px;color:var(--text-2);cursor:pointer;font-family:var(--font)">↩</button>` : '';
       return `<div class="chan-msg-wrap${isAdmin?' is-admin':''}" style="font-size:.82rem">
-        <div class="chan-meta"><span class="chan-team${isAdmin?' is-admin':''}">${isAdmin?'🎯 Organizer':esc(m.team)}</span><span class="chan-time">${dt}</span></div>
-        <div class="chan-text">${esc(m.text)}</div>
+        <div class="chan-meta" style="display:flex;align-items:center;gap:6px;width:100%"><span class="chan-team${isAdmin?' is-admin':''}">${isAdmin?'🎯 Organizer':esc(m.team)}</span><span class="chan-time">${dt}</span><span style="flex:1"></span>${rBtn}</div>
+        ${qHtml}<div class="chan-text">${esc(m.text)}</div>
       </div>`;
     }).join('');
   } catch(e) { el.innerHTML = `<div style="color:var(--red);font-size:.82rem">${e.message}</div>`; }
+}
+
+let _admReply = null;
+function admSetReply(msg) {
+  _admReply = msg;
+  const ind = document.getElementById('adm-reply-ind');
+  if (ind) { ind.textContent = '↩ ' + msg.team + ': "' + msg.text.slice(0,60) + (msg.text.length>60?'...':'"'); ind.style.display='block'; }
+  document.getElementById('adm-chan-input').focus();
+}
+function admClearReply() {
+  _admReply = null;
+  const ind = document.getElementById('adm-reply-ind');
+  if (ind) ind.style.display = 'none';
 }
 
 async function admChanPost() {
@@ -1080,9 +1096,10 @@ async function admChanPost() {
   if (!text) return;
   showMsg(msg,'run','<span class="spin"></span>Sending...');
   try {
-    const r = await fetch(`${CFG.WORKER}/admin/channel/post`,{method:'POST',headers:{'Content-Type':'application/json','X-Admin-Password':_admPwd},body:JSON.stringify({text})});
+    const r = await fetch(`${CFG.WORKER}/admin/channel/post`,{method:'POST',headers:{'Content-Type':'application/json','X-Admin-Password':_admPwd},body:JSON.stringify(_admReply ? {text, quote_team:_admReply.team, quote_text:_admReply.text.slice(0,80)} : {text})});
     const d = await r.json(); if(!r.ok) throw new Error(d.error);
     document.getElementById('adm-chan-input').value='';
+    admClearReply();
     showMsg(msg,'ok','Sent.');
     await loadAdmChannel();
   } catch(e){showMsg(msg,'err',e.message);}
@@ -1427,12 +1444,13 @@ async function loadChannel() {
       el.innerHTML = msgs.map(m => {
         const isAdmin = m.type === 'admin';
         const dt = new Date(m.timestamp).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+        const qHtml2 = m.quote_team ? `<div style="padding:5px 10px;background:rgba(255,255,255,.04);border-left:3px solid var(--border);border-radius:4px;margin-bottom:6px;font-size:.73rem;color:var(--text-2)"><b>${esc(m.quote_team)}</b>: ${esc((m.quote_text||'').slice(0,60))}</div>` : '';
         return `<div class="chan-msg-wrap${isAdmin?' is-admin':''}">
           <div class="chan-meta">
             <span class="chan-team${isAdmin?' is-admin':''}">${isAdmin?'🎯 Organizer':esc(m.team)}</span>
             <span class="chan-time">${dt}</span>
           </div>
-          <div class="chan-text">${esc(m.text)}</div>
+          ${qHtml2}<div class="chan-text">${esc(m.text)}</div>
         </div>`;
       }).join('');
       // Auto-scroll to bottom only on first load or new message
