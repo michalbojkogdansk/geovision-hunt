@@ -1,10 +1,10 @@
 {
-  "last_updated": "2026-08-14T16:47:38.649Z",
+  "last_updated": "2026-08-14T16:47:54.310Z",
   "teams": [
     {
       "name": "testgroup",
       "type": "team",
-      "total_points": 90,
+      "total_points": 150,
       "artifacts_found": [
         1
       ],
@@ -45,10 +45,18 @@
     {
       "team": "testgroup",
       "delta": 60,
-      "reason": "Rescore #1: 30→90 pts",
+      "reason": "Rescore #1: 30â90 pts",
       "before": 30,
       "after": 90,
       "timestamp": "2026-08-14T16:47:38.649Z"
+    },
+    {
+      "team": "testgroup",
+      "delta": 60,
+      "reason": "Rescore #1: 30→90 pts",
+      "before": 90,
+      "after": 150,
+      "timestamp": "2026-08-14T16:47:54.310Z"
     }
   ]
 }
