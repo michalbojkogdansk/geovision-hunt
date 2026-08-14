@@ -1064,7 +1064,8 @@ async function loadAdmChannel() {
     const d = await r.json();
     const msgs = d.messages || [];
     if (!msgs.length) { el.innerHTML='<div style="font-size:.8rem;color:var(--text-2)">No messages yet.</div>'; return; }
-    el.innerHTML = msgs.map(m => {
+    const threadedAdm = threadMessages(msgs);
+    el.innerHTML = threadedAdm.map(m => {
       const isAdmin = m.type === 'admin';
       const dt = new Date(m.timestamp).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
       const qHtml = m.quote_team ? `<div style="padding:5px 10px;background:rgba(255,255,255,.04);border-left:3px solid var(--border);border-radius:4px;margin-bottom:6px;font-size:.73rem;color:var(--text-2)"><b>${esc(m.quote_team)}</b>: ${esc((m.quote_text||'').slice(0,60))}</div>` : '';
