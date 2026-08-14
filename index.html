@@ -669,8 +669,8 @@ tbody tr:hover { background: rgba(255,255,255,.02); }
         </div>
         <div class="fg">
           <label class="fl" for="in-num">Artifact number</label>
-          <input type="number" id="in-num" class="fi" placeholder="1 – 55" min="1" max="55" inputmode="numeric">
-          <div class="fhint" id="art-hint">The number printed on the wooden board.</div>
+          <input type="text" id="in-num" class="fi" maxlength="3" placeholder="#01" oninput="validateArtNum(this)" autocomplete="off">
+          <div class="fhint" id="art-hint">Enter the number from the board, e.g. <b>#13</b></div>
         </div>
         <div class="fg">
           <label class="fl">Photo evidence</label>
@@ -997,11 +997,14 @@ document.getElementById('in-num').addEventListener('input',function(){
 
 async function submitFind() {
   const team=document.getElementById('in-team').value.trim();
-  const num=parseInt(document.getElementById('in-num').value);
+  const num=parseInt(document.getElementById('in-num').value.replace('#',''));
   const msg=document.getElementById('sub-msg'), btn=document.getElementById('sub-btn');
   if(!SESSION.token)      return showMsg(msg,'err','Please sign in first.');
   if(!team)               return showMsg(msg,'err','Team name required.');
-  if(!num||num<1||num>55) return showMsg(msg,'err','Artifact number must be 1–55.');
+  if(!num||num<1||num>55) return showMsg(msg,'err','Enter a valid artifact number, e.g. #13');
+  const _artEntry=ARTCFG.artifacts?.[num];
+  if(_artEntry?.batch_id){const _batch=(EVCFG.batches||[]).find(b=>b.id===_artEntry.batch_id);if(!_batch||new Date(_batch.start_date)>new Date())return showMsg(msg,'err',`Artifact #${String(num).padStart(2,'0')} has not been released yet.`);}
+  else if(!_artEntry){return showMsg(msg,'err',`Artifact #${String(num).padStart(2,'0')} has not been released yet.`);}
   if(!photoB64)           return showMsg(msg,'err','Photo required.');
   const norm=team.toLowerCase();
   const dup=(SC.submissions||[]).find(s=>s.team.toLowerCase()===norm&&s.artifact_id===num);
@@ -1694,6 +1697,33 @@ function initArtMap() {
 
   if (allCoords.length > 0) _artMap.fitBounds(allCoords.length === 1 ? [allCoords[0]] : allCoords, {padding:[60,60], maxZoom:16});
   setTimeout(() => _artMap.invalidateSize(), 100);
+}
+
+
+function validateArtNum(el) {
+  let v = el.value.replace(/[^0-9#]/g,'');
+  if (v && !v.startsWith('#')) v = '#' + v;
+  if (v.length > 3) v = v.slice(0, 3);
+  el.value = v;
+  const hint = document.getElementById('art-hint');
+  if (!v || v === '#') { hint.innerHTML = 'Enter the number from the board, e.g. <b>#13</b>'; hint.style.color=''; return; }
+  const num = parseInt(v.replace('#',''));
+  if (isNaN(num) || num < 1 || num > 55) { hint.textContent='Invalid. Must be #01 to #55.'; hint.style.color='var(--red,#e55)'; return; }
+  const art = ARTCFG.artifacts?.[num];
+  if (art?.batch_id) {
+    const batch=(EVCFG.batches||[]).find(b=>b.id===art.batch_id);
+    if (!batch || new Date(batch.start_date)>new Date()) {
+      const dt=batch?.start_date?new Date(batch.start_date).toLocaleDateString('en-GB',{day:'numeric',month:'long'}):'soon';
+      hint.textContent=`#${String(num).padStart(2,'0')} available from ${dt}.`;
+      hint.style.color='rgba(255,180,0,.9)'; return;
+    }
+  } else if (!art) {
+    hint.textContent=`#${String(num).padStart(2,'0')} not yet released.`;
+    hint.style.color='rgba(255,180,0,.9)'; return;
+  }
+  const letter=ARTS.find(a=>a.id===num)?.letter||'?';
+  hint.innerHTML=`#${String(num).padStart(2,'0')} &mdash; letter <b>${letter}</b> ✓`;
+  hint.style.color='var(--green)';
 }
 
 window.addEventListener('load',async()=>{
