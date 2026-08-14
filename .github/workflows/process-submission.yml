@@ -4,6 +4,10 @@ on:
   issues:
     types: [opened]
 
+concurrency:
+  group: scores-update
+  cancel-in-progress: false  # queue runs, never cancel — every submission must be scored
+
 jobs:
   process:
     # Only run on submissions, not bot commits
