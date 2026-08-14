@@ -1588,37 +1588,79 @@ function initArtMap() {
     _artMapHulls.forEach(h=>_artMap.removeLayer(h));
     _artMapMarkers=[];_artMapHulls=[];
   }
-  const allCoords=[];
-  const batchPoints={};
-  const batches=EVCFG.batches||[];
 
-  ARTS.forEach(art=>{
-    const cfg=ARTCFG.artifacts?.[art.id]||{};
-    if(!cfg.maps_url) return;
-    const coords=extractCoordsMap(cfg.maps_url);
-    if(!coords) return;
-    allCoords.push(coords);
-    const bIdx=batches.findIndex(b=>b.id===cfg.batch_id);
-    const color=bIdx>=0?BATCH_COLORS_MAP[bIdx%BATCH_COLORS_MAP.length]:'#64748b';
-    const isRare=CFG.RARE_IDS.has(art.id);
-    const bName=bIdx>=0?batches[bIdx].name:'No batch';
-    const sz=isRare?34:28;
-    const icon=L.divIcon({html:`<div style="background:${color};width:${sz}px;height:${sz}px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:${isRare?11:10}px;font-weight:800;color:#fff;border:2px solid ${isRare?'#fff':'rgba(255,255,255,.3)'};box-shadow:0 2px 8px rgba(0,0,0,.5)">${art.letter}</div>`,className:'',iconSize:[sz,sz],iconAnchor:[sz/2,sz/2],popupAnchor:[0,-sz/2-4]});
-    const marker=L.marker(coords,{icon}).bindPopup(`<b>#${String(art.id).padStart(2,'0')} ${art.letter}</b><br>${esc(bName)}${isRare?' · Rare':''}`).addTo(_artMap);
-    _artMapMarkers.push(marker);
-    if(cfg.batch_id!=null){if(!batchPoints[cfg.batch_id])batchPoints[cfg.batch_id]={pts:[],idx:bIdx};batchPoints[cfg.batch_id].pts.push(coords);}
+  // Group artifacts by location (round to 4 decimal places ~11m)
+  const locGroups = {};
+  const batches = EVCFG.batches || [];
+  const batchPoints = {};
+
+  ARTS.forEach(art => {
+    const cfg = ARTCFG.artifacts?.[art.id] || {};
+    if (!cfg.maps_url) return;
+    const coords = extractCoordsMap(cfg.maps_url);
+    if (!coords) return;
+    const key = coords[0].toFixed(4) + ',' + coords[1].toFixed(4);
+    if (!locGroups[key]) locGroups[key] = { coords, arts: [] };
+    locGroups[key].arts.push({ art, cfg });
   });
 
-  for(const[,{pts,idx}] of Object.entries(batchPoints)){
-    if(pts.length<2) continue;
-    const color=BATCH_COLORS_MAP[idx%BATCH_COLORS_MAP.length];
-    const hull=pts.length>=3?convexHullMap(pts):pts;
-    const poly=L.polygon(hull,{color,weight:2,fillColor:color,fillOpacity:.1,dashArray:pts.length<3?'6,4':null}).addTo(_artMap);
+  const allCoords = [];
+
+  for (const { coords, arts } of Object.values(locGroups)) {
+    allCoords.push(coords);
+    // Determine dominant batch (first one found)
+    const bIdx = (() => {
+      for (const { cfg } of arts) {
+        const i = batches.findIndex(b => b.id === cfg.batch_id);
+        if (i >= 0) return i;
+      }
+      return -1;
+    })();
+    const color = bIdx >= 0 ? BATCH_COLORS_MAP[bIdx % BATCH_COLORS_MAP.length] : '#64748b';
+    const bName = bIdx >= 0 ? batches[bIdx].name : 'No batch';
+    const hasRare = arts.some(({cfg}) => cfg.rare);
+    const letters = arts.map(({art}) => art.letter).join('');
+    const ids = arts.map(({art}) => '#' + String(art.id).padStart(2,'0')).join(', ');
+    const sz = arts.length > 1 ? 36 : 28;
+    const label = arts.length > 1 ? `<span style="font-size:9px">${letters}</span>` : arts[0].art.letter;
+
+    const icon = L.divIcon({
+      html: `<div style="background:${color};width:${sz}px;height:${sz}px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;border:2px solid ${hasRare?'#fff':'rgba(255,255,255,.3)'};box-shadow:0 2px 8px rgba(0,0,0,.5);letter-spacing:-1px">${label}</div>`,
+      className:'', iconSize:[sz,sz], iconAnchor:[sz/2,sz/2], popupAnchor:[0,-sz/2-4]
+    });
+
+    const popup = `<b>${ids}</b><br>${esc(bName)}${hasRare?' · 🌟 Rare':''}`;
+    const marker = L.marker(coords, {icon}).bindPopup(popup).addTo(_artMap);
+    _artMapMarkers.push(marker);
+
+    // Track batch hull points
+    arts.forEach(({cfg}) => {
+      if (cfg.batch_id != null) {
+        const i = batches.findIndex(b => b.id === cfg.batch_id);
+        if (!batchPoints[cfg.batch_id]) batchPoints[cfg.batch_id] = { pts:[], idx:i };
+        batchPoints[cfg.batch_id].pts.push(coords);
+      }
+    });
+  }
+
+  // Draw convex hull per batch (deduplicate points first)
+  for (const [,{pts, idx}] of Object.entries(batchPoints)) {
+    const unique = [...new Map(pts.map(p=>[p[0].toFixed(4)+','+p[1].toFixed(4),p])).values()];
+    if (unique.length < 2) {
+      // Single location — draw circle instead
+      const color = BATCH_COLORS_MAP[idx % BATCH_COLORS_MAP.length];
+      const circle = L.circle(unique[0], {radius:80, color, weight:2, fillColor:color, fillOpacity:.12}).addTo(_artMap);
+      _artMapHulls.push(circle);
+      continue;
+    }
+    const color = BATCH_COLORS_MAP[idx % BATCH_COLORS_MAP.length];
+    const hull = unique.length >= 3 ? convexHullMap(unique) : unique;
+    const poly = L.polygon(hull, {color, weight:2, fillColor:color, fillOpacity:.1}).addTo(_artMap);
     _artMapHulls.push(poly);
   }
 
-  if(allCoords.length>0) _artMap.fitBounds(allCoords,{padding:[40,40]});
-  setTimeout(()=>_artMap.invalidateSize(),100);
+  if (allCoords.length > 0) _artMap.fitBounds(allCoords.length === 1 ? [allCoords[0]] : allCoords, {padding:[60,60], maxZoom:16});
+  setTimeout(() => _artMap.invalidateSize(), 100);
 }
 
 window.addEventListener('load',async()=>{
