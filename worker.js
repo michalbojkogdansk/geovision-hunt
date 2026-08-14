@@ -283,7 +283,34 @@ async function handleAdminSaveArtifact(request, env) {
     status: ['lost','stolen'].includes(status) ? status : 'active',
   };
   await saveArtCfg(env, cfg);
+  // Sync rare_artifacts to config.json so the scoring Action stays accurate
+  await syncRareToConfig(env, cfg);
   return ok({ saved: true, id });
+}
+
+async function syncRareToConfig(env, cfg) {
+  try {
+    const rareIds = Object.entries(cfg.artifacts || {})
+      .filter(([, a]) => a.rare === true)
+      .map(([id]) => parseInt(id))
+      .sort((a, b) => a - b);
+
+    // Read current config.json
+    const res = await fetch(
+      `https://api.github.com/repos/${OWNER}/${REPO}/contents/data/config.json`,
+      { headers: { Authorization: `token ${env.GITHUB_PAT}`, Accept: 'application/vnd.github+json', 'User-Agent': 'geovision-worker' } }
+    );
+    if (!res.ok) return;
+    const file = await res.json();
+    const current = JSON.parse(atob(file.content.replace(/\n/g, '')));
+    current.rare_artifacts = rareIds;
+    const updated = btoa(unescape(encodeURIComponent(JSON.stringify(current, null, 2))));
+    await fetch(
+      `https://api.github.com/repos/${OWNER}/${REPO}/contents/data/config.json`,
+      { method: 'PUT', headers: { Authorization: `token ${env.GITHUB_PAT}`, Accept: 'application/vnd.github+json', 'Content-Type': 'application/json', 'User-Agent': 'geovision-worker' },
+        body: JSON.stringify({ message: 'sync: rare_artifacts from KV', content: updated, sha: file.sha, branch: 'main' }) }
+    );
+  } catch(_) {} // non-critical — log but don't fail the save
 }
 
 // ── Admin: get event config ───────────────────────────────────
