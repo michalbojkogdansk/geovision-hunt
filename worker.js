@@ -452,9 +452,16 @@ async function handleChannelGet(request, env) {
     if (header.startsWith('TEAM:')) {
       return { id: c.id, team: header.slice(5), text, timestamp: c.created_at, type: 'team' };
     } else if (header === 'ADMIN') {
-      return { id: c.id, team: 'Organizer', text, timestamp: c.created_at, type: 'admin' };
+      // Parse optional QUOTE_TEAM and QUOTE_TEXT lines
+      let quote_team = null, quote_text = null, msgText = text;
+      if (text.startsWith('QUOTE_TEAM:')) {
+        const textLines = text.split('\n');
+        quote_team = textLines[0].slice('QUOTE_TEAM:'.length);
+        quote_text = textLines[1]?.startsWith('QUOTE_TEXT:') ? textLines[1].slice('QUOTE_TEXT:'.length) : '';
+        msgText = textLines.slice(2).join('\n');
+      }
+      return { id: c.id, team: 'Organizer', text: msgText, quote_team, quote_text, timestamp: c.created_at, type: 'admin' };
     } else {
-      // Legacy or direct GitHub reply
       return { id: c.id, team: 'Organizer', text: body, timestamp: c.created_at, type: 'admin' };
     }
   });
@@ -463,9 +470,11 @@ async function handleChannelGet(request, env) {
 
 async function handleAdminChannelPost(request, env) {
   if (!await verifyAdmin(request, env)) return err('Unauthorized.', 401);
-  const { text } = await request.json();
+  const { text, quote_team, quote_text } = await request.json();
   if (!text || !text.trim()) return err('Message cannot be empty.');
-  const body = `ADMIN\n${text.trim()}`;
+  let body = 'ADMIN\n';
+  if (quote_team) body += `QUOTE_TEAM:${quote_team}\nQUOTE_TEXT:${(quote_text||'').slice(0,80)}\n`;
+  body += text.trim();
   const res = await githubRequest(env.GITHUB_PAT, 'POST',
     `/repos/${OWNER}/${REPO}/issues/${CHANNEL_ISSUE}/comments`,
     { body }
