@@ -304,7 +304,10 @@ async function syncRareToConfig(env, cfg) {
     const file = await res.json();
     const current = JSON.parse(atob(file.content.replace(/\n/g, '')));
     current.rare_artifacts = rareIds;
-    const updated = btoa(unescape(encodeURIComponent(JSON.stringify(current, null, 2))));
+    const syncJson = JSON.stringify(current, null, 2);
+    const syncBytes = new TextEncoder().encode(syncJson);
+    let syncBinary = ''; syncBytes.forEach(b => syncBinary += String.fromCharCode(b));
+    const updated = btoa(syncBinary);
     await fetch(
       `https://api.github.com/repos/${OWNER}/${REPO}/contents/data/config.json`,
       { method: 'PUT', headers: { Authorization: `token ${env.GITHUB_PAT}`, Accept: 'application/vnd.github+json', 'Content-Type': 'application/json', 'User-Agent': 'geovision-worker' },
@@ -413,7 +416,10 @@ async function handleAdminCorrectScore(request, env) {
   scores.last_updated = new Date().toISOString();
   scores.teams.sort((a, b) => (b.total_points || 0) - (a.total_points || 0));
 
-  const content = btoa(unescape(encodeURIComponent(JSON.stringify(scores, null, 2))));
+  const jsonStr = JSON.stringify(scores, null, 2);
+  const bytes = new TextEncoder().encode(jsonStr);
+  let binary = ''; bytes.forEach(b => binary += String.fromCharCode(b));
+  const content = btoa(binary);
   const saveRes = await fetch(
     `https://api.github.com/repos/${OWNER}/${REPO}/contents/data/scores.json`,
     { method: 'PUT', headers: { Authorization: `token ${env.GITHUB_PAT}`, Accept: 'application/vnd.github+json', 'Content-Type': 'application/json', 'User-Agent': 'geovision-worker' },
