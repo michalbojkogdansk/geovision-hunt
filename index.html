@@ -1729,15 +1729,15 @@ function validateArtNum(el) {
     const batch=(EVCFG.batches||[]).find(b=>b.id===art.batch_id);
     if (!batch || new Date(batch.start_date)>new Date()) {
       const dt=batch?.start_date?new Date(batch.start_date).toLocaleDateString('en-GB',{day:'numeric',month:'long'}):'soon';
-      hint.textContent=`#${String(num).padStart(2,'0')} available from ${dt}.`;
+      hint.textContent=`Number you entered is not yet active (available from ${dt}).`;
       hint.style.color='rgba(255,180,0,.9)'; return;
     }
   } else if (!art) {
-    hint.textContent=`#${String(num).padStart(2,'0')} not yet released.`;
+    hint.textContent='Number you entered is not yet active.';
     hint.style.color='rgba(255,180,0,.9)'; return;
   }
   const letter=ARTS.find(a=>a.id===num)?.letter||'?';
-  hint.innerHTML=`#${String(num).padStart(2,'0')} &mdash; letter <b>${letter}</b> ✓`;
+  hint.textContent='Number you entered is active and correct.';
   hint.style.color='var(--green)';
 }
 
