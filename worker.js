@@ -387,6 +387,7 @@ async function handleAdminCorrectScore(request, env) {
   const fileData = await raw.json();
   const scores = JSON.parse(atob(fileData.content.replace(/\n/g, '')));
 
+  const { artifact_id } = await request.clone().json().catch(()=>({}));
   const norm = team_name.trim().toLowerCase();
   const team = (scores.teams || []).find(t => t.name.toLowerCase() === norm);
   if (!team) return err(`Team "${team_name}" not found in scores.`, 404);
@@ -394,15 +395,23 @@ async function handleAdminCorrectScore(request, env) {
   const before = team.total_points;
   team.total_points = Math.max(0, (team.total_points || 0) + delta);
 
-  // Record the correction
+  // Also update the individual submission record if artifact_id provided
+  if (artifact_id) {
+    const sub = (scores.submissions || []).find(s =>
+      s.team.toLowerCase() === norm && s.artifact_id === artifact_id
+    );
+    if (sub) {
+      sub.points = Math.max(0, (sub.points || 0) + delta);
+      sub.rescored = true;
+    }
+  }
+
   if (!scores.corrections) scores.corrections = [];
   scores.corrections.push({
-    team: team.name, delta, reason: reason || '', before,
-    after: team.total_points, timestamp: new Date().toISOString()
+    team: team.name, artifact_id: artifact_id || null, delta, reason: reason || '',
+    before, after: team.total_points, timestamp: new Date().toISOString()
   });
   scores.last_updated = new Date().toISOString();
-
-  // Re-sort teams by total_points desc
   scores.teams.sort((a, b) => (b.total_points || 0) - (a.total_points || 0));
 
   const content = btoa(unescape(encodeURIComponent(JSON.stringify(scores, null, 2))));
