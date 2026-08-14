@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-08-14T18:06:36.936Z",
+  "last_updated": "2026-08-14T18:07:50.751110+00:00",
   "teams": [
     {
       "name": "testgroup",
@@ -12,6 +12,16 @@
       ],
       "last_submission": "2026-08-14T17:05:43Z",
       "completion_bonus_awarded": false
+    },
+    {
+      "name": "testgroup2",
+      "type": "team",
+      "total_points": 60,
+      "artifacts_found": [
+        1
+      ],
+      "last_submission": "2026-08-14T18:07:41Z",
+      "completion_bonus_awarded": false
     }
   ],
   "artifacts": {
@@ -19,13 +29,18 @@
       "id": 1,
       "letter": "I",
       "rare": false,
-      "found_count": 1,
+      "found_count": 2,
       "first_finder": "testgroup",
       "finders": [
         {
           "team": "testgroup",
           "timestamp": "2026-08-14T17:03:26Z",
           "rank": 1
+        },
+        {
+          "team": "testgroup2",
+          "timestamp": "2026-08-14T18:07:41Z",
+          "rank": 2
         }
       ]
     },
@@ -92,6 +107,17 @@
       "multiplier": 3,
       "points": 30,
       "rank_at_time": 1
+    },
+    {
+      "team": "testgroup2",
+      "artifact_id": 1,
+      "letter": "I",
+      "rare": true,
+      "timestamp": "2026-08-14T18:07:41Z",
+      "base_points": 30,
+      "multiplier": 2.0,
+      "points": 60,
+      "rank_at_time": 2
     }
   ],
   "corrections": [
@@ -99,7 +125,7 @@
       "team": "testgroup",
       "artifact_id": 1,
       "delta": 60,
-      "reason": "Rescore #1: 30→90 pts",
+      "reason": "Rescore #1: 30\u219290 pts",
       "before": 90,
       "after": 150,
       "timestamp": "2026-08-14T18:06:36.936Z"
