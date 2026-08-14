@@ -74,7 +74,11 @@
           "timestamp": "2026-08-14T18:18:46Z",
           "rank": 3
         },
-        "testgroup3"
+        {
+          "team": "testgroup3",
+          "timestamp": "2026-08-14T18:12:30Z",
+          "rank": 4
+        }
       ]
     },
     "4": {
@@ -89,7 +93,11 @@
           "timestamp": "2026-08-14T17:05:43Z",
           "rank": 1
         },
-        "testgroup4"
+        {
+          "team": "testgroup4",
+          "timestamp": "2026-08-14T18:19:30Z",
+          "rank": 2
+        }
       ]
     },
     "10": {
@@ -118,7 +126,11 @@
           "timestamp": "2026-08-14T18:07:53Z",
           "rank": 1
         },
-        "testgroup4"
+        {
+          "team": "testgroup4",
+          "timestamp": "2026-08-14T18:19:20Z",
+          "rank": 2
+        }
       ]
     },
     "2": {
