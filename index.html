@@ -1433,6 +1433,25 @@ function restoreTab() {
 let _chanLastCount = 0;
 let _chanPollTimer = null;
 
+function threadMessages(msgs) {
+  const result = [];
+  const adminReplies = msgs.filter(m => m.type === 'admin' && m.quote_team);
+  const others = msgs.filter(m => !(m.type === 'admin' && m.quote_team));
+  for (const msg of others) {
+    result.push(msg);
+    if (msg.type === 'team') {
+      const replies = adminReplies.filter(r =>
+        r.quote_team === msg.team &&
+        msg.text.slice(0, 80).startsWith((r.quote_text || '').slice(0, 40))
+      );
+      replies.forEach(r => result.push(r));
+    }
+  }
+  const placed = new Set(result.map(m => m.id));
+  msgs.filter(m => !placed.has(m.id)).forEach(m => result.push(m));
+  return result;
+}
+
 async function loadChannel() {
   try {
     const r = await fetch(`${CFG.WORKER}/channel/messages?_=${Date.now()}`);
