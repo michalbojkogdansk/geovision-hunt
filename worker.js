@@ -374,7 +374,7 @@ async function handleAdminVerify(request, env) {
 // ── Admin: score correction ──────────────────────────────────
 async function handleAdminCorrectScore(request, env) {
   if (!await verifyAdmin(request, env)) return err('Unauthorized.', 401);
-  const { team_name, delta, reason } = await request.json();
+  const { team_name, delta, reason, artifact_id } = await request.json();
   if (!team_name) return err('team_name required.');
   if (typeof delta !== 'number' || delta === 0) return err('delta must be a non-zero number.');
 
@@ -387,7 +387,6 @@ async function handleAdminCorrectScore(request, env) {
   const fileData = await raw.json();
   const scores = JSON.parse(atob(fileData.content.replace(/\n/g, '')));
 
-  const { artifact_id } = await request.clone().json().catch(()=>({}));
   const norm = team_name.trim().toLowerCase();
   const team = (scores.teams || []).find(t => t.name.toLowerCase() === norm);
   if (!team) return err(`Team "${team_name}" not found in scores.`, 404);
