@@ -795,7 +795,7 @@ tbody tr:hover { background: rgba(255,255,255,.02); }
         <div class="lb-wrap">
           <table>
             <thead>
-              <tr><th>Time</th><th>Team</th><th>Artifact</th><th>Letter</th><th>Points</th><th>Speed rank</th></tr>
+              <tr><th>Time</th><th>Team</th><th>Artifact</th><th>Letter</th><th>Points</th><th>Speed rank</th><th></th></tr>
             </thead>
             <tbody id="adm-subs"></tbody>
           </table>
@@ -1115,6 +1115,29 @@ async function admChanPost() {
   } catch(e){showMsg(msg,'err',e.message);}
 }
 
+
+function calcCorrectScore(s) {
+  const isRare = ADMCFG.artifacts?.[s.artifact_id]?.rare === true;
+  const base = isRare ? 30 : 10;
+  const rank = s.rank_at_time || s.speed_rank || 1;
+  const mult = rank===1?3.0:rank===2?2.0:rank<=5?1.5:1.0;
+  return Math.round(base * mult);
+}
+
+async function rescoreSubmission(team, artifactId, delta, was, shouldBe) {
+  if(!confirm(`Rescore #${String(artifactId).padStart(2,'0')} for "${team}"?\nCurrent: ${was} pts → Correct: ${shouldBe} pts (${delta>0?'+':''}${delta})`)) return;
+  const msg = document.getElementById('corr-msg');
+  showMsg(msg,'run','<span class="spin"></span>Rescoring...');
+  try {
+    const r = await fetch(`${CFG.WORKER}/admin/correct-score`,{method:'POST',headers:{'Content-Type':'application/json','X-Admin-Password':_admPwd},body:JSON.stringify({team_name:team,delta,reason:`Rescore #${artifactId}: ${was}→${shouldBe} pts`})});
+    const d = await r.json();
+    if(!r.ok) throw new Error(d.error);
+    showMsg(msg,'ok',`Done. ${team}: ${was} → ${shouldBe} pts. Leaderboard updates in ~60s.`);
+    loadScores();
+    setTimeout(renderAdmSubs, 3000);
+  } catch(e){showMsg(msg,'err',e.message);}
+}
+
 async function applyCorrection() {
   const msg   = document.getElementById('corr-msg');
   const team  = document.getElementById('corr-team').value.trim();
@@ -1166,13 +1189,19 @@ function renderAdmSubs(){
   if(!subs.length){set('adm-subs','<tr><td colspan="6"><div class="empty"><div class="empty-txt">No submissions yet.</div></div></td></tr>');return;}
   set('adm-subs',subs.map(s=>{
     const a=ARTS.find(x=>x.id===s.artifact_id);
-    return `<tr>
+    const correctPts = calcCorrectScore(s);
+      const diff = correctPts - (s.points || 0);
+      const rescoreBtn = diff !== 0
+        ? `<button onclick="rescoreSubmission('${esc(s.team)}',${s.artifact_id},${diff},${s.points},${correctPts})" style="font-size:.68rem;font-weight:600;padding:2px 8px;background:rgba(255,180,0,.15);border:1px solid rgba(255,180,0,.4);border-radius:4px;color:rgba(255,180,0,.9);cursor:pointer;font-family:var(--font)">Rescore ${diff>0?'+':''}${diff}</button>`
+        : `<span style="font-size:.68rem;color:var(--green)">✓</span>`;
+      return `<tr>
       <td class="ts">${new Date(s.timestamp).toLocaleString('pl-PL')}</td>
       <td class="tname">${esc(s.team)}</td>
       <td class="ts">#${String(s.artifact_id).padStart(2,'0')}</td>
       <td style="font-weight:700;color:${s.rare?'var(--teal)':'var(--text)'}">${a?.letter||'?'}</td>
       <td class="pts" style="font-size:.9rem">${s.points}</td>
       <td class="ts">#${s.rank_at_time||'—'}</td>
+      <td>${rescoreBtn}</td>
     </tr>`;
   }).join(''));
 }
