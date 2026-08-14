@@ -624,6 +624,7 @@ tbody tr:hover { background: rgba(255,255,255,.02); }
               <div class="ticker-inner" id="ticker-inner"></div>
             </div>
           </div>
+          <div id="recent-finds" style="margin-top:10px;display:none;flex-direction:column;gap:4px"></div>
         </div>
 
         <!-- Right: leaderboard -->
@@ -923,9 +924,23 @@ function renderTicker() {
   document.getElementById('ticker').style.display = 'block';
   const items = subs.map(s => {
     const a = ARTS.find(x=>x.id===s.artifact_id);
-    return `<span class="ti"><span class="tn">${esc(s.team)}</span> found <span class="tl">${a?a.letter:'?'} #${s.artifact_id}</span> <span class="tp">+${s.points} pts</span> · ${ago(s.timestamp)}</span>`;
+    return `<span class="ti"><span class="tn">${esc(s.team)}</span> found I <span class="ta">#${s.artifact_id} +${s.points}pts</span> · <span class="tt">${ago(s.timestamp)}</span></span>`;
   }).join('');
   set('ticker-inner', items+items);
+
+  // Also show vertical list of last 10
+  const recent = document.getElementById('recent-finds');
+  if (recent) {
+    recent.style.display = 'flex';
+    recent.innerHTML = subs.slice(0,10).map(s => {
+      const pts = s.points || 0;
+      const isRare = CFG.RARE_IDS.has(s.artifact_id);
+      return `<div style="display:flex;align-items:center;justify-content:space-between;padding:5px 10px;background:var(--card);border:1px solid var(--border);border-radius:5px;font-size:.75rem">
+        <span><span style="font-weight:600;color:var(--text)">${esc(s.team)}</span><span style="color:var(--text-2)"> found #${String(s.artifact_id).padStart(2,'0')}${isRare?' 🌟':''}</span></span>
+        <span style="display:flex;align-items:center;gap:8px"><span style="font-weight:700;color:var(--blue)">+${pts}pts</span><span style="color:var(--text-2);font-size:.68rem">${ago(s.timestamp)}</span></span>
+      </div>`;
+    }).join('');
+  }
 }
 
 function renderLB() {
