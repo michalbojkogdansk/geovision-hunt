@@ -696,6 +696,10 @@ tbody tr:hover { background: rgba(255,255,255,.02); }
   </div>
   <div class="s-dark">
     <div class="container">
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:10px">
+        <button id="btn-grid-view" onclick="setArtView('grid')" style="padding:6px 14px;border-radius:6px;font-family:var(--font);font-size:.78rem;font-weight:600;cursor:pointer;border:1px solid var(--blue);background:var(--blue);color:#fff">Grid</button>
+        <button id="btn-map-view"  onclick="setArtView('map')"  style="padding:6px 14px;border-radius:6px;font-family:var(--font);font-size:.78rem;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text-2)">Map</button>
+      </div>
       <div class="phrase-label" id="art-phrase"></div>
       <div class="ag" id="art-grid"></div>
       <div id="art-map-wrap" style="display:none;border-radius:var(--r);overflow:hidden;height:520px;margin-top:8px">
