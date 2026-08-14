@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-08-14T18:19:44.186706+00:00",
+  "last_updated": "2026-08-14T18:24:41.338216Z",
   "teams": [
     {
       "name": "testgroup",
@@ -14,6 +14,31 @@
       "completion_bonus_awarded": false
     },
     {
+      "name": "testgroup4",
+      "type": "team",
+      "total_points": 125,
+      "artifacts_found": [
+        1,
+        2,
+        5
+      ],
+      "last_submission": "2026-08-14T18:19:37Z",
+      "completion_bonus_awarded": false,
+      "found_count": 2
+    },
+    {
+      "name": "testgroup3",
+      "type": "team",
+      "total_points": 105,
+      "artifacts_found": [
+        2,
+        5
+      ],
+      "last_submission": "2026-08-14T18:13:19Z",
+      "completion_bonus_awarded": false,
+      "found_count": 1
+    },
+    {
       "name": "testgroup2",
       "type": "team",
       "total_points": 90,
@@ -23,29 +48,6 @@
       ],
       "last_submission": "2026-08-14T18:07:53Z",
       "completion_bonus_awarded": false
-    },
-    {
-      "name": "testgroup4",
-      "type": "team",
-      "total_points": 85,
-      "artifacts_found": [
-        1,
-        2,
-        5
-      ],
-      "last_submission": "2026-08-14T18:19:37Z",
-      "completion_bonus_awarded": false
-    },
-    {
-      "name": "testgroup3",
-      "type": "team",
-      "total_points": 60,
-      "artifacts_found": [
-        2,
-        5
-      ],
-      "last_submission": "2026-08-14T18:13:19Z",
-      "completion_bonus_awarded": false
     }
   ],
   "artifacts": {
@@ -53,7 +55,7 @@
       "id": 1,
       "letter": "I",
       "rare": false,
-      "found_count": 3,
+      "found_count": 4,
       "first_finder": "testgroup",
       "finders": [
         {
@@ -70,21 +72,23 @@
           "team": "testgroup4",
           "timestamp": "2026-08-14T18:18:46Z",
           "rank": 3
-        }
+        },
+        "testgroup3"
       ]
     },
     "4": {
       "id": 4,
       "letter": "O",
       "rare": false,
-      "found_count": 1,
+      "found_count": 2,
       "first_finder": "testgroup",
       "finders": [
         {
           "team": "testgroup",
           "timestamp": "2026-08-14T17:05:43Z",
           "rank": 1
-        }
+        },
+        "testgroup4"
       ]
     },
     "10": {
@@ -105,14 +109,15 @@
       "id": 3,
       "letter": "N",
       "rare": false,
-      "found_count": 1,
+      "found_count": 2,
       "first_finder": "testgroup2",
       "finders": [
         {
           "team": "testgroup2",
           "timestamp": "2026-08-14T18:07:53Z",
           "rank": 1
-        }
+        },
+        "testgroup4"
       ]
     },
     "2": {
@@ -265,6 +270,39 @@
       "multiplier": 2.0,
       "points": 20,
       "rank_at_time": 2
+    },
+    {
+      "team": "testgroup3",
+      "artifact_id": 1,
+      "letter": "I",
+      "timestamp": "2026-08-14T18:12:30Z",
+      "points": 45,
+      "rank_at_time": 4,
+      "rare": true,
+      "photo_url": "",
+      "manually_added": true
+    },
+    {
+      "team": "testgroup4",
+      "artifact_id": 3,
+      "letter": "N",
+      "timestamp": "2026-08-14T18:19:20Z",
+      "points": 20,
+      "rank_at_time": 2,
+      "rare": false,
+      "photo_url": "",
+      "manually_added": true
+    },
+    {
+      "team": "testgroup4",
+      "artifact_id": 4,
+      "letter": "O",
+      "timestamp": "2026-08-14T18:19:30Z",
+      "points": 20,
+      "rank_at_time": 2,
+      "rare": false,
+      "photo_url": "",
+      "manually_added": true
     }
   ],
   "corrections": [
