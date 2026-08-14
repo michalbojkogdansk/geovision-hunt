@@ -1124,18 +1124,22 @@ function calcCorrectScore(s) {
   return Math.round(base * mult);
 }
 
-async function rescoreSubmission(team, artifactId, delta, was, shouldBe) {
+async function rescoreSubmission(team, artifactId, delta, was, shouldBe, btn) {
   if(!confirm(`Rescore #${String(artifactId).padStart(2,'0')} for "${team}"?\nCurrent: ${was} pts → Correct: ${shouldBe} pts (${delta>0?'+':''}${delta})`)) return;
-  const msg = document.getElementById('corr-msg');
+  if(btn){btn.disabled=true;btn.textContent='…';}
+  const msg=document.getElementById('corr-msg');
   showMsg(msg,'run','<span class="spin"></span>Rescoring...');
   try {
-    const r = await fetch(`${CFG.WORKER}/admin/correct-score`,{method:'POST',headers:{'Content-Type':'application/json','X-Admin-Password':_admPwd},body:JSON.stringify({team_name:team,delta,reason:`Rescore #${artifactId}: ${was}→${shouldBe} pts`})});
-    const d = await r.json();
+    const r=await fetch(`${CFG.WORKER}/admin/correct-score`,{method:'POST',headers:{'Content-Type':'application/json','X-Admin-Password':_admPwd},body:JSON.stringify({team_name:team,artifact_id:artifactId,delta,reason:`Rescore #${artifactId}: ${was}→${shouldBe} pts`})});
+    const d=await r.json();
     if(!r.ok) throw new Error(d.error);
-    showMsg(msg,'ok',`Done. ${team}: ${was} → ${shouldBe} pts. Leaderboard updates in ~60s.`);
-    loadScores();
-    setTimeout(renderAdmSubs, 3000);
-  } catch(e){showMsg(msg,'err',e.message);}
+    showMsg(msg,'ok',`Done. ${team}: ${was}→${shouldBe} pts. Updates in ~60s.`);
+    const sub=(SC.submissions||[]).find(s=>s.team===team&&s.artifact_id===artifactId);
+    if(sub) sub.points=shouldBe;
+    const t=(SC.teams||[]).find(t=>t.name.toLowerCase()===team.toLowerCase());
+    if(t){t.total_points=(t.total_points||0)+delta;SC.teams.sort((a,b)=>(b.total_points||0)-(a.total_points||0));}
+    renderLB();renderTicker();renderAdmSubs();
+  } catch(e){showMsg(msg,'err',e.message);if(btn){btn.disabled=false;btn.textContent=`Rescore ${delta>0?'+':''}${delta}`;}}
 }
 
 async function applyCorrection() {
@@ -1192,7 +1196,7 @@ function renderAdmSubs(){
     const correctPts = calcCorrectScore(s);
       const diff = correctPts - (s.points || 0);
       const rescoreBtn = diff !== 0
-        ? `<button onclick="rescoreSubmission('${esc(s.team)}',${s.artifact_id},${diff},${s.points},${correctPts})" style="font-size:.68rem;font-weight:600;padding:2px 8px;background:rgba(255,180,0,.15);border:1px solid rgba(255,180,0,.4);border-radius:4px;color:rgba(255,180,0,.9);cursor:pointer;font-family:var(--font)">Rescore ${diff>0?'+':''}${diff}</button>`
+        ? `<button onclick="rescoreSubmission('${esc(s.team)}',${s.artifact_id},${diff},${s.points},${correctPts},this)" style="font-size:.68rem;font-weight:600;padding:2px 8px;background:rgba(255,180,0,.15);border:1px solid rgba(255,180,0,.4);border-radius:4px;color:rgba(255,180,0,.9);cursor:pointer;font-family:var(--font)">Rescore ${diff>0?'+':''}${diff}</button>`
         : `<span style="font-size:.68rem;color:var(--green)">✓</span>`;
       return `<tr>
       <td class="ts">${new Date(s.timestamp).toLocaleString('pl-PL')}</td>
