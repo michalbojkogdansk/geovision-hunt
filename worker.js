@@ -549,7 +549,7 @@ export default {
       if (path === '/channel/post'              && request.method === 'POST') return handleChannelPost(request, env);
       if (path === '/admin/channel/post'        && request.method === 'POST') return handleAdminChannelPost(request, env);
       if (path === '/admin/cleanup'            && request.method === 'POST') return handleAdminCleanup(request, env);
-      if (path === '/admin/correct-score'      && request.method === 'POST') return handleAdminCorrectScore(request, env);
+      if (path === '/admin/correct-score'      && request.method === 'POST') return await handleAdminCorrectScore(request, env);
       return err('Not found.', 404);
     } catch(e) {
       return err(`Server error: ${e.message}`, 500);
