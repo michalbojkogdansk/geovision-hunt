@@ -4,10 +4,6 @@ on:
   issues:
     types: [opened]
 
-concurrency:
-  group: scores-update
-  cancel-in-progress: false  # queue runs, never cancel — every submission must be scored
-
 jobs:
   process:
     # Only run on submissions, not bot commits
@@ -41,8 +37,20 @@ jobs:
           git config user.name "GeoVision Hunt Bot"
           git config user.email "hunt-bot@noreply.github.com"
           git add data/scores.json
-          git diff --staged --quiet || git commit -m "score: $(cat /tmp/commit_msg.txt) [skip ci]"
-          git push
+          git diff --staged --quiet && echo "No changes to commit" && exit 0
+          git commit -m "score: $(cat /tmp/commit_msg.txt) [skip ci]"
+          # Retry push with rebase on conflict (handles concurrent Action runs)
+          for i in 1 2 3 4 5; do
+            git push && break
+            echo "Push failed (attempt $i), rebasing..."
+            sleep $((i * 2))
+            git fetch origin main
+            git rebase origin/main
+            # Re-run scoring script on updated base so our changes are correct
+            python3 .github/scripts/process_submission.py
+            git add data/scores.json
+            git diff --staged --quiet || git commit -m "score: $(cat /tmp/commit_msg.txt) [skip ci]"
+          done
 
       - name: Comment on issue
         uses: actions/github-script@v7
