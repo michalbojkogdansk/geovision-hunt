@@ -39,17 +39,20 @@ jobs:
           git add data/scores.json
           git diff --staged --quiet && echo "No changes to commit" && exit 0
           git commit -m "score: $(cat /tmp/commit_msg.txt) [skip ci]"
-          # Retry push with rebase on conflict (handles concurrent Action runs)
+          # Retry with reset+reprocess on conflict (JSON can't be git-rebased safely)
           for i in 1 2 3 4 5; do
             git push && break
-            echo "Push failed (attempt $i), rebasing..."
+            echo "Push failed (attempt $i), resetting to latest and reprocessing..."
             sleep $((i * 2))
             git fetch origin main
-            git rebase origin/main
-            # Re-run scoring script on updated base so our changes are correct
+            git reset --hard origin/main
             python3 .github/scripts/process_submission.py
             git add data/scores.json
-            git diff --staged --quiet || git commit -m "score: $(cat /tmp/commit_msg.txt) [skip ci]"
+            if git diff --staged --quiet; then
+              echo "No changes after reprocess (already applied upstream) — done"
+              break
+            fi
+            git commit -m "score: $(cat /tmp/commit_msg.txt) [skip ci]"
           done
 
       - name: Comment on issue
