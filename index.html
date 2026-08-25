@@ -1097,7 +1097,7 @@ async function loadAdmChannel() {
       const isAdmin = m.type === 'admin';
       const dt = new Date(m.timestamp).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
       const qHtml = m.quote_team ? `<div style="padding:5px 10px;background:rgba(255,255,255,.04);border-left:3px solid var(--border);border-radius:4px;margin-bottom:6px;font-size:.73rem;color:var(--text-2)"><b>${esc(m.quote_team)}</b>: ${esc((m.quote_text||'').slice(0,60))}</div>` : '';
-      const rBtn = !isAdmin ? `<button onclick='admSetReply(${JSON.stringify({id:m.id,team:m.team,text:m.text})})' style="font-size:.68rem;font-weight:600;padding:2px 8px;background:none;border:1px solid var(--border);border-radius:4px;color:var(--text-2);cursor:pointer;font-family:var(--font)">↩</button>` : '';
+      const rBtn = !isAdmin ? `<button onclick='admSetReply(JSON.parse(this.dataset.msg))' data-msg="${esc(JSON.stringify({id:m.id,team:m.team,text:m.text}))}" style="font-size:.68rem;font-weight:600;padding:2px 8px;background:none;border:1px solid var(--border);border-radius:4px;color:var(--text-2);cursor:pointer;font-family:var(--font)">↩</button>` : '';
       return `<div class="chan-msg-wrap${isAdmin?' is-admin':''}" style="font-size:.82rem">
         <div class="chan-meta" style="display:flex;align-items:center;gap:6px;width:100%"><span class="chan-team${isAdmin?' is-admin':''}">${isAdmin?'🎯 Organizer':esc(m.team)}</span><span class="chan-time">${dt}</span><span style="flex:1"></span>${rBtn}</div>
         ${qHtml}<div class="chan-text">${esc(m.text)}</div>
