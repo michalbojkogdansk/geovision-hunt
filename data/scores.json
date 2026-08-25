@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-08-25T07:48:30.615544+00:00",
+  "last_updated": "2026-08-25T08:54:53.336201+00:00",
   "teams": [
     {
       "name": "testgroup",
@@ -81,11 +81,12 @@
     {
       "name": "OLOTEAM",
       "type": "team",
-      "total_points": 30,
+      "total_points": 60,
       "artifacts_found": [
-        1
+        1,
+        6
       ],
-      "last_submission": "2026-08-25T07:48:22Z",
+      "last_submission": "2026-08-25T08:54:42Z",
       "completion_bonus_awarded": false
     }
   ],
@@ -261,6 +262,20 @@
           "team": "team0",
           "timestamp": "2026-08-24T07:14:11Z",
           "rank": 4
+        }
+      ]
+    },
+    "6": {
+      "id": 6,
+      "letter": "A",
+      "rare": false,
+      "found_count": 1,
+      "first_finder": "OLOTEAM",
+      "finders": [
+        {
+          "team": "OLOTEAM",
+          "timestamp": "2026-08-25T08:54:42Z",
+          "rank": 1
         }
       ]
     }
@@ -530,6 +545,17 @@
       "multiplier": 1.0,
       "points": 30,
       "rank_at_time": 7
+    },
+    {
+      "team": "OLOTEAM",
+      "artifact_id": 6,
+      "letter": "A",
+      "rare": false,
+      "timestamp": "2026-08-25T08:54:42Z",
+      "base_points": 10,
+      "multiplier": 3.0,
+      "points": 30,
+      "rank_at_time": 1
     }
   ],
   "corrections": [
