@@ -316,22 +316,26 @@ tbody tr:hover { background: rgba(255,255,255,.02); }
 }
 .ac {
   aspect-ratio: 1;
-  border: 1px solid var(--border); background: var(--card);
+  border: 1px solid rgba(0,193,112,.35); background: var(--card);
   border-radius: 6px;
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
   position: relative; transition: border-color .15s; cursor: default;
 }
 .ac:hover { border-color: var(--text-2); }
-.ac.found { border-color: rgba(0,193,112,.5); background: rgba(0,193,112,.06); }
+.ac.found { background: rgba(0,193,112,.06); }
 .ac.rare  { border-color: rgba(0,180,230,.4); }
-.ac.rare.found { border-color: var(--teal); background: rgba(0,180,230,.07); }
+.ac.rare.found { background: rgba(0,180,230,.07); }
 .al { font-size: 1.3rem; font-weight: 800; line-height: 1; color: var(--text-2); letter-spacing: -.02em; }
 .ac.found .al { color: var(--green); }
 .ac.rare  .al { color: var(--teal); }
 .an { font-size: .48rem; color: var(--text-3); margin-top: 2px; font-weight: 500; }
-.rare-dot  { position: absolute; top: 4px; right: 4px; width: 5px; height: 5px; border-radius: 50%; background: var(--teal); }
+.ab { font-size: .42rem; color: var(--text-3); margin-top: 1px; font-weight: 600; letter-spacing: .03em; opacity: .75; }
 .found-dot { position: absolute; top: 4px; left:  4px; width: 5px; height: 5px; border-radius: 50%; background: var(--green); }
+.art-legend { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 14px; font-size: .74rem; color: var(--text-2); }
+.art-legend-item { display: flex; align-items: center; gap: 6px; }
+.art-legend-swatch { width: 13px; height: 13px; border-radius: 4px; border: 2px solid; background: var(--card); flex-shrink: 0; }
+.art-legend-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
 .phrase-label { font-size: .82rem; color: var(--text-2); margin-bottom: 10px; line-height: 2.2; }
 
 /* ── Admin grid ──────────────────────────────────────── */
@@ -694,7 +698,7 @@ tbody tr:hover { background: rgba(255,255,255,.02); }
     <div class="container">
       <div class="hero-label">GeoVision Hunt · Gdańsk 2026</div>
       <div class="hero-title" style="font-size:2.2rem">Artifact map</div>
-      <div class="hero-desc">Each letter of the vision statement is one artifact. Teal dots mark rare artifacts worth more points.</div>
+      <div class="hero-desc">Each letter of the vision statement is one artifact. Teal frame = rare, green frame = standard.</div>
     </div>
   </div>
   <div class="s-dark">
@@ -704,6 +708,11 @@ tbody tr:hover { background: rgba(255,255,255,.02); }
         <button id="btn-map-view"  onclick="setArtView('map')"  style="padding:6px 14px;border-radius:6px;font-family:var(--font);font-size:.78rem;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text-2)">Map</button>
       </div>
       <div class="phrase-label" id="art-phrase"></div>
+      <div class="art-legend">
+        <div class="art-legend-item"><span class="art-legend-swatch" style="border-color:rgba(0,180,230,.6)"></span>Rare</div>
+        <div class="art-legend-item"><span class="art-legend-swatch" style="border-color:rgba(0,193,112,.6)"></span>Standard</div>
+        <div class="art-legend-item"><span class="art-legend-dot"></span>Found</div>
+      </div>
       <div class="ag" id="art-grid"></div>
       <div id="art-map-wrap" style="display:none;border-radius:var(--r);overflow:hidden;height:520px;margin-top:8px">
         <div id="art-map" style="width:100%;height:100%"></div>
@@ -981,11 +990,14 @@ function renderArtifacts() {
   set('art-grid', ARTS.map(art=>{
     const ad=SC.artifacts?.[art.id], isFound=ad&&ad.found_count>0, isRare=CFG.RARE_IDS.has(art.id);
     const cls=['ac',isFound?'found':'',isRare?'rare':''].filter(Boolean).join(' ');
+    const artBatchId = ARTCFG.artifacts?.[art.id]?.batch_id;
+    const bIdx = artBatchId!=null ? (EVCFG.batches||[]).findIndex(b=>b.id===artBatchId) : -1;
+    const bLabel = bIdx>=0 ? `<div class="ab">B${bIdx+1}</div>` : '';
     return `<div class="${cls}" onclick="openArtModal(${art.id})" style="cursor:pointer">
-      ${isRare?'<div class="rare-dot"></div>':''}
       ${isFound?'<div class="found-dot"></div>':''}
       <div class="al">${art.letter}</div>
       <div class="an">#${String(art.id).padStart(2,'0')}</div>
+      ${bLabel}
     </div>`;
   }).join(''));
 }
