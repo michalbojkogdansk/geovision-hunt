@@ -1,10 +1,10 @@
 {
-  "last_updated": "2026-08-25T08:54:53.336201+00:00",
+  "last_updated": "2026-08-26T14:54:41.647Z",
   "teams": [
     {
       "name": "testgroup",
       "type": "team",
-      "total_points": 150,
+      "total_points": 210,
       "artifacts_found": [
         1,
         4,
@@ -135,46 +135,32 @@
         }
       ]
     },
-    "4": {
-      "id": 4,
-      "letter": "O",
+    "2": {
+      "id": 2,
+      "letter": "N",
       "rare": false,
       "found_count": 4,
-      "first_finder": "testgroup",
+      "first_finder": "testgroup3",
       "finders": [
         {
-          "team": "testgroup",
-          "timestamp": "2026-08-14T17:05:43Z",
+          "team": "testgroup3",
+          "timestamp": "2026-08-14T18:12:46Z",
           "rank": 1
         },
         {
           "team": "testgroup4",
-          "timestamp": "2026-08-14T18:19:30Z",
+          "timestamp": "2026-08-14T18:19:05Z",
           "rank": 2
         },
         {
           "team": "testgroup5",
-          "timestamp": "2026-08-15T08:13:20Z",
+          "timestamp": "2026-08-15T08:12:30Z",
           "rank": 3
         },
         {
           "team": "team0",
-          "timestamp": "2026-08-24T07:13:59.085Z",
+          "timestamp": "2026-08-24T07:13:38Z",
           "rank": 4
-        }
-      ]
-    },
-    "10": {
-      "id": 10,
-      "letter": "I",
-      "rare": false,
-      "found_count": 1,
-      "first_finder": "testgroup",
-      "finders": [
-        {
-          "team": "testgroup",
-          "timestamp": "2026-08-14T17:03:12Z",
-          "rank": 1
         }
       ]
     },
@@ -207,31 +193,31 @@
         }
       ]
     },
-    "2": {
-      "id": 2,
-      "letter": "N",
+    "4": {
+      "id": 4,
+      "letter": "O",
       "rare": false,
       "found_count": 4,
-      "first_finder": "testgroup3",
+      "first_finder": "testgroup",
       "finders": [
         {
-          "team": "testgroup3",
-          "timestamp": "2026-08-14T18:12:46Z",
+          "team": "testgroup",
+          "timestamp": "2026-08-14T17:05:43Z",
           "rank": 1
         },
         {
           "team": "testgroup4",
-          "timestamp": "2026-08-14T18:19:05Z",
+          "timestamp": "2026-08-14T18:19:30Z",
           "rank": 2
         },
         {
           "team": "testgroup5",
-          "timestamp": "2026-08-15T08:12:30Z",
+          "timestamp": "2026-08-15T08:13:20Z",
           "rank": 3
         },
         {
           "team": "team0",
-          "timestamp": "2026-08-24T07:13:38Z",
+          "timestamp": "2026-08-24T07:13:59.085Z",
           "rank": 4
         }
       ]
@@ -278,6 +264,20 @@
           "rank": 1
         }
       ]
+    },
+    "10": {
+      "id": 10,
+      "letter": "I",
+      "rare": false,
+      "found_count": 1,
+      "first_finder": "testgroup",
+      "finders": [
+        {
+          "team": "testgroup",
+          "timestamp": "2026-08-14T17:03:12Z",
+          "rank": 1
+        }
+      ]
     }
   },
   "submissions": [
@@ -289,8 +289,9 @@
       "timestamp": "2026-08-14T17:03:12Z",
       "base_points": 10,
       "multiplier": 3,
-      "points": 30,
-      "rank_at_time": 1
+      "points": 90,
+      "rank_at_time": 1,
+      "rescored": true
     },
     {
       "team": "testgroup",
@@ -322,7 +323,7 @@
       "rare": true,
       "timestamp": "2026-08-14T18:07:41Z",
       "base_points": 30,
-      "multiplier": 2.0,
+      "multiplier": 2,
       "points": 60,
       "rank_at_time": 2
     },
@@ -333,7 +334,7 @@
       "rare": false,
       "timestamp": "2026-08-14T18:07:53Z",
       "base_points": 10,
-      "multiplier": 3.0,
+      "multiplier": 3,
       "points": 30,
       "rank_at_time": 1
     },
@@ -344,7 +345,7 @@
       "rare": false,
       "timestamp": "2026-08-14T18:12:46Z",
       "base_points": 10,
-      "multiplier": 3.0,
+      "multiplier": 3,
       "points": 30,
       "rank_at_time": 1
     },
@@ -355,7 +356,7 @@
       "rare": false,
       "timestamp": "2026-08-14T18:13:19Z",
       "base_points": 10,
-      "multiplier": 3.0,
+      "multiplier": 3,
       "points": 30,
       "rank_at_time": 1
     },
@@ -377,7 +378,7 @@
       "rare": false,
       "timestamp": "2026-08-14T18:19:05Z",
       "base_points": 10,
-      "multiplier": 2.0,
+      "multiplier": 2,
       "points": 20,
       "rank_at_time": 2
     },
@@ -388,7 +389,7 @@
       "rare": false,
       "timestamp": "2026-08-14T18:19:37Z",
       "base_points": 10,
-      "multiplier": 2.0,
+      "multiplier": 2,
       "points": 20,
       "rank_at_time": 2
     },
@@ -487,7 +488,7 @@
       "rare": true,
       "timestamp": "2026-08-24T07:13:25Z",
       "base_points": 30,
-      "multiplier": 1.0,
+      "multiplier": 1,
       "points": 30,
       "rank_at_time": 6
     },
@@ -542,7 +543,7 @@
       "rare": true,
       "timestamp": "2026-08-25T07:48:22Z",
       "base_points": 30,
-      "multiplier": 1.0,
+      "multiplier": 1,
       "points": 30,
       "rank_at_time": 7
     },
@@ -553,7 +554,7 @@
       "rare": false,
       "timestamp": "2026-08-25T08:54:42Z",
       "base_points": 10,
-      "multiplier": 3.0,
+      "multiplier": 3,
       "points": 30,
       "rank_at_time": 1
     }
@@ -563,10 +564,19 @@
       "team": "testgroup",
       "artifact_id": 1,
       "delta": 60,
-      "reason": "Rescore #1: 30\u219290 pts",
+      "reason": "Rescore #1: 30→90 pts",
       "before": 90,
       "after": 150,
       "timestamp": "2026-08-14T18:06:36.936Z"
+    },
+    {
+      "team": "testgroup",
+      "artifact_id": 10,
+      "delta": 60,
+      "reason": "Rescore #10: 30→90 pts",
+      "before": 150,
+      "after": 210,
+      "timestamp": "2026-08-26T14:54:41.647Z"
     }
   ]
 }
