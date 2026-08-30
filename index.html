@@ -1646,7 +1646,7 @@ function convexHullMap(pts) {
 function initArtMap() {
   if (!_artMap) {
     _artMap = L.map('art-map').setView([54.352,18.646],13);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'© OpenStreetMap © CARTO',maxZoom:19}).addTo(_artMap);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap contributors',maxZoom:19,subdomains:'abc'}).addTo(_artMap);
   } else {
     _artMapMarkers.forEach(m=>_artMap.removeLayer(m));
     _artMapHulls.forEach(h=>_artMap.removeLayer(h));
