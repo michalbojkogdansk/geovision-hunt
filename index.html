@@ -1658,8 +1658,9 @@ function initArtMap() {
   const batches = EVCFG.batches || [];
   const batchPoints = {};
 
+  const _mapSrc = (_admPwd ? ADMCFG : ARTCFG);
   ARTS.forEach(art => {
-    const cfg = ARTCFG.artifacts?.[art.id] || {};
+    const cfg = _mapSrc.artifacts?.[art.id] || {};
     if (!cfg.maps_url) return;
     const coords = extractCoordsMap(cfg.maps_url);
     if (!coords) return;
