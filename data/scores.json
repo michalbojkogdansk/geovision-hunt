@@ -1,17 +1,18 @@
 {
-  "last_updated": "2026-08-31T07:39:21.327348+00:00",
+  "last_updated": "2026-08-31T07:40:23.452737+00:00",
   "teams": [
     {
       "name": "Wupeczki",
       "type": "team",
-      "total_points": 180,
+      "total_points": 210,
       "artifacts_found": [
         1,
         2,
         3,
-        4
+        4,
+        5
       ],
-      "last_submission": "2026-08-31T07:39:13Z",
+      "last_submission": "2026-08-31T07:40:14Z",
       "completion_bonus_awarded": false
     }
   ],
@@ -71,6 +72,20 @@
           "rank": 1
         }
       ]
+    },
+    "5": {
+      "id": 5,
+      "letter": "V",
+      "rare": false,
+      "found_count": 1,
+      "first_finder": "Wupeczki",
+      "finders": [
+        {
+          "team": "Wupeczki",
+          "timestamp": "2026-08-31T07:40:14Z",
+          "rank": 1
+        }
+      ]
     }
   },
   "submissions": [
@@ -113,6 +128,17 @@
       "letter": "O",
       "rare": false,
       "timestamp": "2026-08-31T07:39:13Z",
+      "base_points": 10,
+      "multiplier": 3.0,
+      "points": 30,
+      "rank_at_time": 1
+    },
+    {
+      "team": "Wupeczki",
+      "artifact_id": 5,
+      "letter": "V",
+      "rare": false,
+      "timestamp": "2026-08-31T07:40:14Z",
       "base_points": 10,
       "multiplier": 3.0,
       "points": 30,
