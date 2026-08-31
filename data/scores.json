@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-08-31T13:09:43.004337+00:00",
+  "last_updated": "2026-08-31T13:11:44.762695+00:00",
   "teams": [
     {
       "name": "Wupeczki",
@@ -86,11 +86,12 @@
     {
       "name": "Pomara\u0144czowy",
       "type": "team",
-      "total_points": 10,
+      "total_points": 20,
       "artifacts_found": [
-        3
+        3,
+        4
       ],
-      "last_submission": "2026-08-31T13:09:31Z",
+      "last_submission": "2026-08-31T13:11:36Z",
       "completion_bonus_awarded": false
     },
     {
@@ -224,7 +225,7 @@
       "id": 4,
       "letter": "O",
       "rare": false,
-      "found_count": 6,
+      "found_count": 7,
       "first_finder": "Wupeczki",
       "finders": [
         {
@@ -256,6 +257,11 @@
           "team": "b0bry",
           "timestamp": "2026-08-31T09:52:43Z",
           "rank": 6
+        },
+        {
+          "team": "Pomara\u0144czowy",
+          "timestamp": "2026-08-31T13:11:36Z",
+          "rank": 7
         }
       ]
     },
@@ -625,6 +631,17 @@
       "letter": "N",
       "rare": false,
       "timestamp": "2026-08-31T13:09:31Z",
+      "base_points": 10,
+      "multiplier": 1.0,
+      "points": 10,
+      "rank_at_time": 7
+    },
+    {
+      "team": "Pomara\u0144czowy",
+      "artifact_id": 4,
+      "letter": "O",
+      "rare": false,
+      "timestamp": "2026-08-31T13:11:36Z",
       "base_points": 10,
       "multiplier": 1.0,
       "points": 10,
