@@ -6,8 +6,11 @@ on:
 
 jobs:
   process:
-    # Only run on submissions, not bot commits
-    if: startsWith(github.event.issue.title, '[HUNT]')
+    # Only run on submissions, not bot commits — AND only if created by the
+    # Worker's own PAT-owning account. Without the author check, anyone on
+    # GitHub could open a [HUNT] issue directly and score points with no
+    # team auth, no photo, no rate limit. (Confirmed exploited live 2026-08-31.)
+    if: startsWith(github.event.issue.title, '[HUNT]') && github.event.issue.user.login == 'michalbojkogdansk'
     runs-on: ubuntu-latest
     permissions:
       issues: write
