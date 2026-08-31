@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-08-31T08:00:54.880406+00:00",
+  "last_updated": "2026-08-31T08:01:49.304749+00:00",
   "teams": [
     {
       "name": "Shodan",
@@ -71,11 +71,12 @@
     {
       "name": "Wydzial ds. Ludzi",
       "type": "team",
-      "total_points": 15,
+      "total_points": 30,
       "artifacts_found": [
-        4
+        4,
+        3
       ],
-      "last_submission": "2026-08-31T07:46:09Z",
+      "last_submission": "2026-08-31T08:01:35Z",
       "completion_bonus_awarded": false
     }
   ],
@@ -137,7 +138,7 @@
       "id": 3,
       "letter": "N",
       "rare": false,
-      "found_count": 4,
+      "found_count": 5,
       "first_finder": "Wupeczki",
       "finders": [
         {
@@ -159,6 +160,11 @@
           "team": "Twarde Bagietki",
           "timestamp": "2026-08-31T08:00:40Z",
           "rank": 4
+        },
+        {
+          "team": "Wydzial ds. Ludzi",
+          "timestamp": "2026-08-31T08:01:35Z",
+          "rank": 5
         }
       ]
     },
@@ -548,6 +554,17 @@
       "multiplier": 1.5,
       "points": 15,
       "rank_at_time": 4
+    },
+    {
+      "team": "Wydzial ds. Ludzi",
+      "artifact_id": 3,
+      "letter": "N",
+      "rare": false,
+      "timestamp": "2026-08-31T08:01:35Z",
+      "base_points": 10,
+      "multiplier": 1.5,
+      "points": 15,
+      "rank_at_time": 5
     }
   ]
 }
