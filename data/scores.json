@@ -2,22 +2,6 @@
   "last_updated": "2026-08-31T08:08:36.239873+00:00",
   "teams": [
     {
-      "name": "Shodan",
-      "type": "team",
-      "total_points": 260,
-      "artifacts_found": [
-        5,
-        9,
-        12,
-        22,
-        25,
-        34,
-        37
-      ],
-      "last_submission": "2026-08-31T07:59:35Z",
-      "completion_bonus_awarded": false
-    },
-    {
       "name": "Wupeczki",
       "type": "team",
       "total_points": 210,
@@ -80,6 +64,16 @@
         1
       ],
       "last_submission": "2026-08-31T08:04:44Z",
+      "completion_bonus_awarded": false
+    },
+    {
+      "name": "Shodan",
+      "type": "team",
+      "total_points": 20,
+      "artifacts_found": [
+        5
+      ],
+      "last_submission": "2026-08-31T07:57:23Z",
       "completion_bonus_awarded": false
     }
   ],
@@ -238,85 +232,17 @@
       "id": 9,
       "letter": "W",
       "rare": true,
-      "found_count": 1,
-      "first_finder": "Shodan",
-      "finders": [
-        {
-          "team": "Shodan",
-          "timestamp": "2026-08-31T07:57:39Z",
-          "rank": 1
-        }
-      ]
+      "found_count": 0,
+      "first_finder": null,
+      "finders": []
     },
     "12": {
       "id": 12,
       "letter": "H",
       "rare": false,
-      "found_count": 1,
-      "first_finder": "Shodan",
-      "finders": [
-        {
-          "team": "Shodan",
-          "timestamp": "2026-08-31T07:57:52Z",
-          "rank": 1
-        }
-      ]
-    },
-    "22": {
-      "id": 22,
-      "letter": "G",
-      "rare": false,
-      "found_count": 1,
-      "first_finder": "Shodan",
-      "finders": [
-        {
-          "team": "Shodan",
-          "timestamp": "2026-08-31T07:58:32Z",
-          "rank": 1
-        }
-      ]
-    },
-    "25": {
-      "id": 25,
-      "letter": "E",
-      "rare": false,
-      "found_count": 1,
-      "first_finder": "Shodan",
-      "finders": [
-        {
-          "team": "Shodan",
-          "timestamp": "2026-08-31T07:58:45Z",
-          "rank": 1
-        }
-      ]
-    },
-    "34": {
-      "id": 34,
-      "letter": "O",
-      "rare": false,
-      "found_count": 1,
-      "first_finder": "Shodan",
-      "finders": [
-        {
-          "team": "Shodan",
-          "timestamp": "2026-08-31T07:59:22Z",
-          "rank": 1
-        }
-      ]
-    },
-    "37": {
-      "id": 37,
-      "letter": "A",
-      "rare": false,
-      "found_count": 1,
-      "first_finder": "Shodan",
-      "finders": [
-        {
-          "team": "Shodan",
-          "timestamp": "2026-08-31T07:59:35Z",
-          "rank": 1
-        }
-      ]
+      "found_count": 0,
+      "first_finder": null,
+      "finders": []
     }
   },
   "submissions": [
@@ -464,28 +390,6 @@
       "rank_at_time": 2
     },
     {
-      "team": "Shodan",
-      "artifact_id": 9,
-      "letter": "W",
-      "rare": true,
-      "timestamp": "2026-08-31T07:57:39Z",
-      "base_points": 30,
-      "multiplier": 3.0,
-      "points": 90,
-      "rank_at_time": 1
-    },
-    {
-      "team": "Shodan",
-      "artifact_id": 12,
-      "letter": "H",
-      "rare": false,
-      "timestamp": "2026-08-31T07:57:52Z",
-      "base_points": 10,
-      "multiplier": 3.0,
-      "points": 30,
-      "rank_at_time": 1
-    },
-    {
       "team": "Twarde Bagietki",
       "artifact_id": 1,
       "letter": "I",
@@ -497,28 +401,6 @@
       "rank_at_time": 4
     },
     {
-      "team": "Shodan",
-      "artifact_id": 22,
-      "letter": "G",
-      "rare": false,
-      "timestamp": "2026-08-31T07:58:32Z",
-      "base_points": 10,
-      "multiplier": 3.0,
-      "points": 30,
-      "rank_at_time": 1
-    },
-    {
-      "team": "Shodan",
-      "artifact_id": 25,
-      "letter": "E",
-      "rare": false,
-      "timestamp": "2026-08-31T07:58:45Z",
-      "base_points": 10,
-      "multiplier": 3.0,
-      "points": 30,
-      "rank_at_time": 1
-    },
-    {
       "team": "Synthetic",
       "artifact_id": 2,
       "letter": "N",
@@ -528,28 +410,6 @@
       "multiplier": 1.5,
       "points": 15,
       "rank_at_time": 3
-    },
-    {
-      "team": "Shodan",
-      "artifact_id": 34,
-      "letter": "O",
-      "rare": false,
-      "timestamp": "2026-08-31T07:59:22Z",
-      "base_points": 10,
-      "multiplier": 3.0,
-      "points": 30,
-      "rank_at_time": 1
-    },
-    {
-      "team": "Shodan",
-      "artifact_id": 37,
-      "letter": "A",
-      "rare": false,
-      "timestamp": "2026-08-31T07:59:35Z",
-      "base_points": 10,
-      "multiplier": 3.0,
-      "points": 30,
-      "rank_at_time": 1
     },
     {
       "team": "Power Interns",
