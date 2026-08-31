@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-08-31T07:57:51.491934+00:00",
+  "last_updated": "2026-08-31T07:58:04.673725+00:00",
   "teams": [
     {
       "name": "Wupeczki",
@@ -18,12 +18,13 @@
     {
       "name": "Shodan",
       "type": "team",
-      "total_points": 110,
+      "total_points": 140,
       "artifacts_found": [
         5,
-        9
+        9,
+        12
       ],
-      "last_submission": "2026-08-31T07:57:39Z",
+      "last_submission": "2026-08-31T07:57:52Z",
       "completion_bonus_awarded": false
     },
     {
@@ -194,6 +195,20 @@
           "rank": 1
         }
       ]
+    },
+    "12": {
+      "id": 12,
+      "letter": "H",
+      "rare": false,
+      "found_count": 1,
+      "first_finder": "Shodan",
+      "finders": [
+        {
+          "team": "Shodan",
+          "timestamp": "2026-08-31T07:57:52Z",
+          "rank": 1
+        }
+      ]
     }
   },
   "submissions": [
@@ -349,6 +364,17 @@
       "base_points": 30,
       "multiplier": 3.0,
       "points": 90,
+      "rank_at_time": 1
+    },
+    {
+      "team": "Shodan",
+      "artifact_id": 12,
+      "letter": "H",
+      "rare": false,
+      "timestamp": "2026-08-31T07:57:52Z",
+      "base_points": 10,
+      "multiplier": 3.0,
+      "points": 30,
       "rank_at_time": 1
     }
   ]
