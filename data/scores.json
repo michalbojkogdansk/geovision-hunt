@@ -1,19 +1,20 @@
 {
-  "last_updated": "2026-08-31T07:59:34.356712+00:00",
+  "last_updated": "2026-08-31T07:59:49.864050+00:00",
   "teams": [
     {
       "name": "Shodan",
       "type": "team",
-      "total_points": 230,
+      "total_points": 260,
       "artifacts_found": [
         5,
         9,
         12,
         22,
         25,
-        34
+        34,
+        37
       ],
-      "last_submission": "2026-08-31T07:59:22Z",
+      "last_submission": "2026-08-31T07:59:35Z",
       "completion_bonus_awarded": false
     },
     {
@@ -266,6 +267,20 @@
           "rank": 1
         }
       ]
+    },
+    "37": {
+      "id": 37,
+      "letter": "A",
+      "rare": false,
+      "found_count": 1,
+      "first_finder": "Shodan",
+      "finders": [
+        {
+          "team": "Shodan",
+          "timestamp": "2026-08-31T07:59:35Z",
+          "rank": 1
+        }
+      ]
     }
   },
   "submissions": [
@@ -484,6 +499,17 @@
       "letter": "O",
       "rare": false,
       "timestamp": "2026-08-31T07:59:22Z",
+      "base_points": 10,
+      "multiplier": 3.0,
+      "points": 30,
+      "rank_at_time": 1
+    },
+    {
+      "team": "Shodan",
+      "artifact_id": 37,
+      "letter": "A",
+      "rare": false,
+      "timestamp": "2026-08-31T07:59:35Z",
       "base_points": 10,
       "multiplier": 3.0,
       "points": 30,
