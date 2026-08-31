@@ -32,7 +32,7 @@
     {
       "name": "Power Interns",
       "type": "team",
-      "total_points": 100,
+      "total_points": 105,
       "artifacts_found": [
         2,
         3,
@@ -69,11 +69,9 @@
     {
       "name": "Shodan",
       "type": "team",
-      "total_points": 20,
-      "artifacts_found": [
-        5
-      ],
-      "last_submission": "2026-08-31T07:57:23Z",
+      "total_points": 0,
+      "artifacts_found": [],
+      "last_submission": null,
       "completion_bonus_awarded": false
     }
   ],
@@ -203,7 +201,7 @@
       "id": 5,
       "letter": "V",
       "rare": false,
-      "found_count": 4,
+      "found_count": 3,
       "first_finder": "Wupeczki",
       "finders": [
         {
@@ -212,19 +210,14 @@
           "rank": 1
         },
         {
-          "team": "Shodan",
-          "timestamp": "2026-08-31T07:57:23Z",
-          "rank": 2
-        },
-        {
           "team": "Power Interns",
           "timestamp": "2026-08-31T08:00:08Z",
-          "rank": 3
+          "rank": 2
         },
         {
           "team": "Synthetic",
           "timestamp": "2026-08-31T08:02:07Z",
-          "rank": 4
+          "rank": 3
         }
       ]
     },
@@ -297,7 +290,7 @@
       "rare": false,
       "timestamp": "2026-08-31T07:40:14Z",
       "base_points": 10,
-      "multiplier": 3.0,
+      "multiplier": 3,
       "points": 30,
       "rank_at_time": 1
     },
@@ -379,17 +372,6 @@
       "rank_at_time": 3
     },
     {
-      "team": "Shodan",
-      "artifact_id": 5,
-      "letter": "V",
-      "rare": false,
-      "timestamp": "2026-08-31T07:57:23Z",
-      "base_points": 10,
-      "multiplier": 2.0,
-      "points": 20,
-      "rank_at_time": 2
-    },
-    {
       "team": "Twarde Bagietki",
       "artifact_id": 1,
       "letter": "I",
@@ -418,9 +400,9 @@
       "rare": false,
       "timestamp": "2026-08-31T08:00:08Z",
       "base_points": 10,
-      "multiplier": 1.5,
-      "points": 15,
-      "rank_at_time": 3
+      "multiplier": 2,
+      "points": 20,
+      "rank_at_time": 2
     },
     {
       "team": "Twarde Bagietki",
@@ -453,7 +435,7 @@
       "base_points": 10,
       "multiplier": 1.5,
       "points": 15,
-      "rank_at_time": 4
+      "rank_at_time": 3
     },
     {
       "team": "Wydzial ds. Ludzi",
