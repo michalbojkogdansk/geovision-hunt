@@ -841,7 +841,7 @@ let SC = { teams:[], artifacts:{}, submissions:[], last_updated:null };
 let ARTCFG = { artifacts: {} }; // public player data (released only)
 let ADMCFG = { artifacts: {} }; // full admin data (all artifacts)
 let EVCFG  = { start_date: null, end_date: null, batches: [], status: 'active' };
-let adminOpen = false, photoB64 = null;
+let adminOpen = false, photoB64 = null, _admPwd = '';
 let SESSION = { token: null, team: null };
 let authMode = 'login';
 
