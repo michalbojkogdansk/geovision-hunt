@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-08-31T13:26:06.439835+00:00",
+  "last_updated": "2026-09-01T07:52:33.695651+00:00",
   "teams": [
     {
       "name": "Wupeczki",
@@ -13,6 +13,21 @@
         5
       ],
       "last_submission": "2026-08-31T07:40:14Z",
+      "completion_bonus_awarded": false
+    },
+    {
+      "name": "Wydzial ds. Ludzi",
+      "type": "team",
+      "total_points": 135,
+      "artifacts_found": [
+        4,
+        3,
+        1,
+        5,
+        2,
+        15
+      ],
+      "last_submission": "2026-09-01T07:52:21Z",
       "completion_bonus_awarded": false
     },
     {
@@ -41,20 +56,6 @@
         4
       ],
       "last_submission": "2026-08-31T08:08:24Z",
-      "completion_bonus_awarded": false
-    },
-    {
-      "name": "Wydzial ds. Ludzi",
-      "type": "team",
-      "total_points": 105,
-      "artifacts_found": [
-        4,
-        3,
-        1,
-        5,
-        2
-      ],
-      "last_submission": "2026-08-31T08:39:12Z",
       "completion_bonus_awarded": false
     },
     {
@@ -326,6 +327,20 @@
       "found_count": 0,
       "first_finder": null,
       "finders": []
+    },
+    "15": {
+      "id": 15,
+      "letter": "S",
+      "rare": false,
+      "found_count": 1,
+      "first_finder": "Wydzial ds. Ludzi",
+      "finders": [
+        {
+          "team": "Wydzial ds. Ludzi",
+          "timestamp": "2026-09-01T07:52:21Z",
+          "rank": 1
+        }
+      ]
     }
   },
   "submissions": [
@@ -680,6 +695,17 @@
       "multiplier": 1.0,
       "points": 10,
       "rank_at_time": 6
+    },
+    {
+      "team": "Wydzial ds. Ludzi",
+      "artifact_id": 15,
+      "letter": "S",
+      "rare": false,
+      "timestamp": "2026-09-01T07:52:21Z",
+      "base_points": 10,
+      "multiplier": 3.0,
+      "points": 30,
+      "rank_at_time": 1
     }
   ]
 }
