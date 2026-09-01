@@ -1,10 +1,10 @@
 {
-  "last_updated": "2026-09-01T09:32:05.507092+00:00",
+  "last_updated": "2026-09-01T09:41:34.386521+00:00",
   "teams": [
     {
       "name": "Synthetic",
       "type": "team",
-      "total_points": 370,
+      "total_points": 390,
       "artifacts_found": [
         1,
         3,
@@ -16,9 +16,10 @@
         17,
         20,
         9,
-        12
+        12,
+        6
       ],
-      "last_submission": "2026-09-01T09:31:56Z",
+      "last_submission": "2026-09-01T09:41:25Z",
       "completion_bonus_awarded": false
     },
     {
@@ -395,13 +396,18 @@
       "id": 6,
       "letter": "A",
       "rare": false,
-      "found_count": 1,
+      "found_count": 2,
       "first_finder": "Wydzial ds. Ludzi",
       "finders": [
         {
           "team": "Wydzial ds. Ludzi",
           "timestamp": "2026-09-01T08:03:03Z",
           "rank": 1
+        },
+        {
+          "team": "Synthetic",
+          "timestamp": "2026-09-01T09:41:25Z",
+          "rank": 2
         }
       ]
     },
@@ -997,6 +1003,17 @@
       "letter": "H",
       "rare": false,
       "timestamp": "2026-09-01T09:31:56Z",
+      "base_points": 10,
+      "multiplier": 2.0,
+      "points": 20,
+      "rank_at_time": 2
+    },
+    {
+      "team": "Synthetic",
+      "artifact_id": 6,
+      "letter": "A",
+      "rare": false,
+      "timestamp": "2026-09-01T09:41:25Z",
       "base_points": 10,
       "multiplier": 2.0,
       "points": 20,
