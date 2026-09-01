@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-09-01T16:56:32.654711+00:00",
+  "last_updated": "2026-09-01T16:57:09.539204+00:00",
   "teams": [
     {
       "name": "Synthetic",
@@ -33,7 +33,7 @@
     {
       "name": "Wupeczki",
       "type": "team",
-      "total_points": 525,
+      "total_points": 540,
       "artifacts_found": [
         1,
         2,
@@ -51,9 +51,10 @@
         16,
         18,
         13,
-        7
+        7,
+        19
       ],
-      "last_submission": "2026-09-01T16:52:17Z",
+      "last_submission": "2026-09-01T16:56:51Z",
       "completion_bonus_awarded": false
     },
     {
@@ -757,7 +758,7 @@
       "id": 19,
       "letter": "N",
       "rare": false,
-      "found_count": 3,
+      "found_count": 4,
       "first_finder": "Synthetic",
       "finders": [
         {
@@ -774,6 +775,11 @@
           "team": "Power Interns",
           "timestamp": "2026-09-01T16:56:23Z",
           "rank": 3
+        },
+        {
+          "team": "Wupeczki",
+          "timestamp": "2026-09-01T16:56:51Z",
+          "rank": 4
         }
       ]
     },
@@ -1887,6 +1893,17 @@
       "multiplier": 1.5,
       "points": 15,
       "rank_at_time": 3
+    },
+    {
+      "team": "Wupeczki",
+      "artifact_id": 19,
+      "letter": "N",
+      "rare": false,
+      "timestamp": "2026-09-01T16:56:51Z",
+      "base_points": 10,
+      "multiplier": 1.5,
+      "points": 15,
+      "rank_at_time": 4
     }
   ]
 }
