@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-09-02T08:20:12.271225+00:00",
+  "last_updated": "2026-09-02T14:41:59.862290+00:00",
   "teams": [
     {
       "name": "Synthetic",
@@ -33,7 +33,7 @@
     {
       "name": "Wupeczki",
       "type": "team",
-      "total_points": 555,
+      "total_points": 570,
       "artifacts_found": [
         1,
         2,
@@ -53,9 +53,10 @@
         13,
         7,
         19,
-        20
+        20,
+        6
       ],
-      "last_submission": "2026-09-01T17:09:17Z",
+      "last_submission": "2026-09-02T14:41:47Z",
       "completion_bonus_awarded": false
     },
     {
@@ -525,7 +526,7 @@
       "id": 6,
       "letter": "A",
       "rare": false,
-      "found_count": 4,
+      "found_count": 5,
       "first_finder": "Wydzial ds. Ludzi",
       "finders": [
         {
@@ -547,6 +548,11 @@
           "team": "Twarde Bagietki",
           "timestamp": "2026-09-01T16:36:49Z",
           "rank": 4
+        },
+        {
+          "team": "Wupeczki",
+          "timestamp": "2026-09-02T14:41:47Z",
+          "rank": 5
         }
       ]
     },
@@ -2053,6 +2059,17 @@
       "letter": "N",
       "rare": false,
       "timestamp": "2026-09-01T16:45:56Z",
+      "base_points": 10,
+      "multiplier": 1.5,
+      "points": 15,
+      "rank_at_time": 5
+    },
+    {
+      "team": "Wupeczki",
+      "artifact_id": 6,
+      "letter": "A",
+      "rare": false,
+      "timestamp": "2026-09-02T14:41:47Z",
       "base_points": 10,
       "multiplier": 1.5,
       "points": 15,
