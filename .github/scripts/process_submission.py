@@ -7,6 +7,7 @@ import json
 import os
 import re
 import sys
+import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -84,10 +85,41 @@ def recalculate_leaderboard(data: dict):
     )
 
 
+def fetch_fresh_issue(number: str, token: str, repo_full: str) -> dict | None:
+    """Re-fetch the issue directly from the API instead of trusting the
+    webhook-delivered event payload. Two false 'title format not recognised'
+    skips were traced to titles that parsed correctly in isolation — the
+    payload GitHub dispatches to the workflow appears to occasionally be
+    stale under rapid successive issue creation, upstream of anything our
+    own concurrency control can affect. A direct API read is always current.
+    """
+    if not number or not token or not repo_full:
+        return None
+    req = urllib.request.Request(
+        f"https://api.github.com/repos/{repo_full}/issues/{number}",
+        headers={"Authorization": f"token {token}", "Accept": "application/vnd.github+json"},
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            return json.loads(resp.read())
+    except Exception as e:
+        print(f"[WARN] fresh issue fetch failed, falling back to webhook payload: {e}")
+        return None
+
+
 def main():
-    title     = os.environ.get("ISSUE_TITLE", "")
-    body      = os.environ.get("ISSUE_BODY", "")
+    title      = os.environ.get("ISSUE_TITLE", "")
+    body       = os.environ.get("ISSUE_BODY", "")
     created_at = os.environ.get("ISSUE_CREATED_AT", datetime.now(timezone.utc).isoformat())
+
+    fresh = fetch_fresh_issue(
+        os.environ.get("ISSUE_NUMBER", ""),
+        os.environ.get("GITHUB_TOKEN", ""),
+        os.environ.get("REPO_FULL", ""),
+    )
+    if fresh:
+        title = fresh.get("title", title)
+        body = fresh.get("body", body) or body
 
     parsed = parse_issue(title, body)
     if not parsed:
