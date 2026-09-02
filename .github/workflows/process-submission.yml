@@ -41,6 +41,8 @@ jobs:
           ISSUE_BODY: ${{ github.event.issue.body }}
           ISSUE_NUMBER: ${{ github.event.issue.number }}
           ISSUE_CREATED_AT: ${{ github.event.issue.created_at }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO_FULL: ${{ github.repository }}
         run: python3 .github/scripts/process_submission.py
 
       - name: Commit score update
