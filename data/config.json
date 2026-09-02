@@ -20,7 +20,8 @@
     9,
     18,
     24,
-    31
+    31,
+    37
   ],
   "_note": "rare_artifacts must match KV art-cfg. Update before event."
 }
