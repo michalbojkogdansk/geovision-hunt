@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-09-03T14:05:56.683691+00:00",
+  "last_updated": "2026-09-03T14:06:11.052030+00:00",
   "teams": [
     {
       "name": "Synthetic",
@@ -63,6 +63,39 @@
       "completion_bonus_awarded": false
     },
     {
+      "name": "Twarde Bagietki",
+      "type": "team",
+      "total_points": 495,
+      "artifacts_found": [
+        4,
+        1,
+        3,
+        2,
+        5,
+        8,
+        20,
+        13,
+        17,
+        18,
+        10,
+        9,
+        6,
+        11,
+        16,
+        15,
+        14,
+        19,
+        7,
+        12,
+        40,
+        26,
+        39,
+        38
+      ],
+      "last_submission": "2026-09-03T14:06:00Z",
+      "completion_bonus_awarded": false
+    },
+    {
       "name": "Power Interns",
       "type": "team",
       "total_points": 480,
@@ -120,38 +153,6 @@
         19
       ],
       "last_submission": "2026-09-01T16:45:56Z",
-      "completion_bonus_awarded": false
-    },
-    {
-      "name": "Twarde Bagietki",
-      "type": "team",
-      "total_points": 465,
-      "artifacts_found": [
-        4,
-        1,
-        3,
-        2,
-        5,
-        8,
-        20,
-        13,
-        17,
-        18,
-        10,
-        9,
-        6,
-        11,
-        16,
-        15,
-        14,
-        19,
-        7,
-        12,
-        40,
-        26,
-        39
-      ],
-      "last_submission": "2026-09-03T14:05:47Z",
       "completion_bonus_awarded": false
     },
     {
@@ -985,6 +986,20 @@
         {
           "team": "Power Interns",
           "timestamp": "2026-09-03T14:05:14Z",
+          "rank": 1
+        }
+      ]
+    },
+    "38": {
+      "id": 38,
+      "letter": "N",
+      "rare": false,
+      "found_count": 1,
+      "first_finder": "Twarde Bagietki",
+      "finders": [
+        {
+          "team": "Twarde Bagietki",
+          "timestamp": "2026-09-03T14:06:00Z",
           "rank": 1
         }
       ]
@@ -2255,6 +2270,17 @@
       "multiplier": 2.0,
       "points": 20,
       "rank_at_time": 2
+    },
+    {
+      "team": "Twarde Bagietki",
+      "artifact_id": 38,
+      "letter": "N",
+      "rare": false,
+      "timestamp": "2026-09-03T14:06:00Z",
+      "base_points": 10,
+      "multiplier": 3.0,
+      "points": 30,
+      "rank_at_time": 1
     }
   ]
 }
