@@ -109,6 +109,24 @@ def fetch_fresh_issue(number: str, token: str, repo_full: str) -> dict | None:
         return None
 
 
+def read_event_payload() -> dict | None:
+    """Read the original webhook payload straight from GITHUB_EVENT_PATH —
+    a JSON file GitHub writes to the runner's disk at job start. Evidence
+    from issue #210 showed BOTH ISSUE_TITLE and ISSUE_NUMBER arriving empty
+    from the ${{ github.event.issue.* }} expression substitution — meaning
+    that mechanism itself is not reliable here (likely doesn't survive the
+    concurrency-queue wait). This file read is independent of that."""
+    path = os.environ.get("GITHUB_EVENT_PATH")
+    if not path:
+        return None
+    try:
+        with open(path) as f:
+            return json.load(f)
+    except Exception as e:
+        print(f"[WARN] could not read GITHUB_EVENT_PATH: {e}")
+        return None
+
+
 def main():
     title      = os.environ.get("ISSUE_TITLE", "")
     body       = os.environ.get("ISSUE_BODY", "")
@@ -116,6 +134,18 @@ def main():
 
     webhook_title = title  # preserved for diagnostics regardless of what happens next
     fetch_number = os.environ.get("ISSUE_NUMBER", "")
+
+    # Primary source: the raw event payload file, immune to the expression-
+    # substitution issue that caused #210's ISSUE_TITLE/ISSUE_NUMBER to be empty.
+    event_payload = read_event_payload()
+    payload_issue = (event_payload or {}).get("issue") or {}
+    if payload_issue.get("title"):
+        title = payload_issue["title"]
+    if payload_issue.get("body") is not None:
+        body = payload_issue["body"] or body
+    if payload_issue.get("number") and not fetch_number:
+        fetch_number = str(payload_issue["number"])
+
     fetch_error = None
     fresh = fetch_fresh_issue(
         fetch_number,
@@ -137,12 +167,15 @@ def main():
         # announcing a skip, so the next occurrence is diagnosable from the
         # issue thread alone.
         diag_lines = [
-            f"- issue number (env): `{fetch_number!r}`",
-            f"- webhook-payload title: `{webhook_title!r}`",
+            f"- ISSUE_NUMBER env var: `{os.environ.get('ISSUE_NUMBER','')!r}`",
+            f"- ISSUE_TITLE env var (webhook expression): `{webhook_title!r}`",
+            f"- GITHUB_EVENT_PATH read succeeded: `{event_payload is not None}`",
+            f"- title from event payload file: `{payload_issue.get('title')!r}`",
+            f"- number resolved for API fetch: `{fetch_number!r}`",
             f"- fresh-fetch title: `{(fresh.get('title') if fresh else None)!r}`",
             f"- fresh-fetch succeeded: `{fresh is not None}`",
             f"- fresh-fetch error: `{fetch_error!r}`",
-            f"- title used for parsing: `{title!r}`",
+            f"- final title used for parsing: `{title!r}`",
             f"- regex re-tested against that title: `{bool(TITLE_RE.match(title.strip()))}`",
         ]
         diag = "\n\n<details><summary>Diagnostics</summary>\n\n" + "\n".join(diag_lines) + "\n\n</details>"
