@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-09-03T14:03:50.971424+00:00",
+  "last_updated": "2026-09-03T14:05:24.237842+00:00",
   "teams": [
     {
       "name": "Synthetic",
@@ -63,6 +63,37 @@
       "completion_bonus_awarded": false
     },
     {
+      "name": "Power Interns",
+      "type": "team",
+      "total_points": 480,
+      "artifacts_found": [
+        2,
+        3,
+        1,
+        5,
+        4,
+        8,
+        18,
+        10,
+        9,
+        12,
+        6,
+        11,
+        16,
+        15,
+        14,
+        19,
+        7,
+        13,
+        20,
+        17,
+        33,
+        28
+      ],
+      "last_submission": "2026-09-03T14:05:14Z",
+      "completion_bonus_awarded": false
+    },
+    {
       "name": "Wydzial ds. Ludzi",
       "type": "team",
       "total_points": 475,
@@ -89,36 +120,6 @@
         19
       ],
       "last_submission": "2026-09-01T16:45:56Z",
-      "completion_bonus_awarded": false
-    },
-    {
-      "name": "Power Interns",
-      "type": "team",
-      "total_points": 450,
-      "artifacts_found": [
-        2,
-        3,
-        1,
-        5,
-        4,
-        8,
-        18,
-        10,
-        9,
-        12,
-        6,
-        11,
-        16,
-        15,
-        14,
-        19,
-        7,
-        13,
-        20,
-        17,
-        33
-      ],
-      "last_submission": "2026-09-03T13:55:39Z",
       "completion_bonus_awarded": false
     },
     {
@@ -965,6 +966,20 @@
           "team": "Twarde Bagietki",
           "timestamp": "2026-09-03T14:03:37Z",
           "rank": 2
+        }
+      ]
+    },
+    "28": {
+      "id": 28,
+      "letter": "T",
+      "rare": false,
+      "found_count": 1,
+      "first_finder": "Power Interns",
+      "finders": [
+        {
+          "team": "Power Interns",
+          "timestamp": "2026-09-03T14:05:14Z",
+          "rank": 1
         }
       ]
     }
@@ -2212,6 +2227,17 @@
       "multiplier": 2.0,
       "points": 20,
       "rank_at_time": 2
+    },
+    {
+      "team": "Power Interns",
+      "artifact_id": 28,
+      "letter": "T",
+      "rare": false,
+      "timestamp": "2026-09-03T14:05:14Z",
+      "base_points": 10,
+      "multiplier": 3.0,
+      "points": 30,
+      "rank_at_time": 1
     }
   ]
 }
