@@ -55,10 +55,12 @@ def save_scores(data: dict):
         json.dump(data, f, indent=2)
 
 
+TITLE_RE = re.compile(r'\[HUNT\]\s*#(\d+)\s+\w+\s*\|\s*(.+)')
+
+
 def parse_issue(title: str, body: str) -> tuple[str, int] | None:
     """Parse '[HUNT] #23 E | Team Name' → (team_name, artifact_id)"""
-    # Title format: [HUNT] #NN L | Team Name
-    m = re.match(r'\[HUNT\]\s*#(\d+)\s+\w+\s*\|\s*(.+)', title.strip())
+    m = TITLE_RE.match(title.strip())
     if not m:
         return None
     artifact_id = int(m.group(1))
@@ -112,18 +114,39 @@ def main():
     body       = os.environ.get("ISSUE_BODY", "")
     created_at = os.environ.get("ISSUE_CREATED_AT", datetime.now(timezone.utc).isoformat())
 
+    webhook_title = title  # preserved for diagnostics regardless of what happens next
+    fetch_number = os.environ.get("ISSUE_NUMBER", "")
+    fetch_error = None
     fresh = fetch_fresh_issue(
-        os.environ.get("ISSUE_NUMBER", ""),
+        fetch_number,
         os.environ.get("GITHUB_TOKEN", ""),
         os.environ.get("REPO_FULL", ""),
     )
     if fresh:
         title = fresh.get("title", title)
         body = fresh.get("body", body) or body
+    else:
+        fetch_error = "fetch_fresh_issue returned None"
 
     parsed = parse_issue(title, body)
     if not parsed:
-        msg = "⚠️ Submission skipped — title format not recognised.\nExpected: `[HUNT] #NN L | Team Name`"
+        # Self-diagnosing skip: two prior fixes (concurrency lock, fresh-API
+        # refetch) both failed to stop this recurring, unexplained bug, and
+        # direct Action log access is blocked from where this gets debugged.
+        # Publish the actual evidence on the issue itself instead of just
+        # announcing a skip, so the next occurrence is diagnosable from the
+        # issue thread alone.
+        diag_lines = [
+            f"- issue number (env): `{fetch_number!r}`",
+            f"- webhook-payload title: `{webhook_title!r}`",
+            f"- fresh-fetch title: `{(fresh.get('title') if fresh else None)!r}`",
+            f"- fresh-fetch succeeded: `{fresh is not None}`",
+            f"- fresh-fetch error: `{fetch_error!r}`",
+            f"- title used for parsing: `{title!r}`",
+            f"- regex re-tested against that title: `{bool(TITLE_RE.match(title.strip()))}`",
+        ]
+        diag = "\n\n<details><summary>Diagnostics</summary>\n\n" + "\n".join(diag_lines) + "\n\n</details>"
+        msg = "⚠️ Submission skipped — title format not recognised.\nExpected: `[HUNT] #NN L | Team Name`" + diag
         write_outputs(msg, "skip")
         sys.exit(0)
 
