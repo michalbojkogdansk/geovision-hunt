@@ -1,10 +1,10 @@
 {
-  "last_updated": "2026-09-03T14:14:48.367785+00:00",
+  "last_updated": "2026-09-03T14:16:14.617661+00:00",
   "teams": [
     {
       "name": "Synthetic",
       "type": "team",
-      "total_points": 740,
+      "total_points": 770,
       "artifacts_found": [
         1,
         3,
@@ -30,9 +30,10 @@
         39,
         26,
         29,
-        32
+        32,
+        22
       ],
-      "last_submission": "2026-09-03T14:14:36Z",
+      "last_submission": "2026-09-03T14:16:04Z",
       "completion_bonus_awarded": false
     },
     {
@@ -1057,6 +1058,20 @@
         {
           "team": "Synthetic",
           "timestamp": "2026-09-03T14:14:36Z",
+          "rank": 1
+        }
+      ]
+    },
+    "22": {
+      "id": 22,
+      "letter": "G",
+      "rare": false,
+      "found_count": 1,
+      "first_finder": "Synthetic",
+      "finders": [
+        {
+          "team": "Synthetic",
+          "timestamp": "2026-09-03T14:16:04Z",
           "rank": 1
         }
       ]
@@ -2389,6 +2404,17 @@
       "letter": "R",
       "rare": false,
       "timestamp": "2026-09-03T14:14:36Z",
+      "base_points": 10,
+      "multiplier": 3.0,
+      "points": 30,
+      "rank_at_time": 1
+    },
+    {
+      "team": "Synthetic",
+      "artifact_id": 22,
+      "letter": "G",
+      "rare": false,
+      "timestamp": "2026-09-03T14:16:04Z",
       "base_points": 10,
       "multiplier": 3.0,
       "points": 30,
