@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-09-03T14:31:39.401619+00:00",
+  "last_updated": "2026-09-03T14:31:41.112365+00:00",
   "teams": [
     {
       "name": "Synthetic",
@@ -83,7 +83,7 @@
     {
       "name": "Twarde Bagietki",
       "type": "team",
-      "total_points": 610,
+      "total_points": 625,
       "artifacts_found": [
         4,
         1,
@@ -113,9 +113,10 @@
         23,
         32,
         27,
-        28
+        28,
+        25
       ],
-      "last_submission": "2026-09-03T14:31:19Z",
+      "last_submission": "2026-09-03T14:23:38Z",
       "completion_bonus_awarded": false
     },
     {
@@ -1131,7 +1132,7 @@
       "id": 25,
       "letter": "E",
       "rare": false,
-      "found_count": 2,
+      "found_count": 3,
       "first_finder": "Synthetic",
       "finders": [
         {
@@ -1143,6 +1144,11 @@
           "team": "Power Interns",
           "timestamp": "2026-09-03T14:24:28Z",
           "rank": 2
+        },
+        {
+          "team": "Twarde Bagietki",
+          "timestamp": "2026-09-03T14:23:38Z",
+          "rank": 3
         }
       ]
     },
@@ -2732,6 +2738,17 @@
       "letter": "T",
       "rare": false,
       "timestamp": "2026-09-03T14:23:27Z",
+      "base_points": 10,
+      "multiplier": 1.5,
+      "points": 15,
+      "rank_at_time": 3
+    },
+    {
+      "team": "Twarde Bagietki",
+      "artifact_id": 25,
+      "letter": "E",
+      "rare": false,
+      "timestamp": "2026-09-03T14:23:38Z",
       "base_points": 10,
       "multiplier": 1.5,
       "points": 15,
