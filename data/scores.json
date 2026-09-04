@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-09-04T16:25:49.045189+00:00",
+  "last_updated": "2026-09-04T16:34:54.308709+00:00",
   "teams": [
     {
       "name": "Synthetic",
@@ -196,7 +196,7 @@
     {
       "name": "Wydzial ds. Ludzi",
       "type": "team",
-      "total_points": 1045,
+      "total_points": 1060,
       "artifacts_found": [
         4,
         3,
@@ -240,9 +240,10 @@
         49,
         50,
         41,
-        42
+        42,
+        43
       ],
-      "last_submission": "2026-09-04T16:19:54Z",
+      "last_submission": "2026-09-04T16:34:46Z",
       "completion_bonus_awarded": false
     },
     {
@@ -1863,7 +1864,7 @@
       "id": 43,
       "letter": "W",
       "rare": false,
-      "found_count": 3,
+      "found_count": 4,
       "first_finder": "Twarde Bagietki",
       "finders": [
         {
@@ -1880,6 +1881,11 @@
           "team": "Synthetic",
           "timestamp": "2026-09-04T16:03:33Z",
           "rank": 3
+        },
+        {
+          "team": "Wydzial ds. Ludzi",
+          "timestamp": "2026-09-04T16:34:46Z",
+          "rank": 4
         }
       ]
     },
@@ -4561,6 +4567,17 @@
       "letter": "I",
       "rare": false,
       "timestamp": "2026-09-04T16:25:38Z",
+      "base_points": 10,
+      "multiplier": 1.5,
+      "points": 15,
+      "rank_at_time": 4
+    },
+    {
+      "team": "Wydzial ds. Ludzi",
+      "artifact_id": 43,
+      "letter": "W",
+      "rare": false,
+      "timestamp": "2026-09-04T16:34:46Z",
       "base_points": 10,
       "multiplier": 1.5,
       "points": 15,
