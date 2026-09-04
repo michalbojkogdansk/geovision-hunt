@@ -1,10 +1,10 @@
 {
-  "last_updated": "2026-09-04T14:45:49.743853+00:00",
+  "last_updated": "2026-09-04T14:46:45.443911+00:00",
   "teams": [
     {
       "name": "Synthetic",
       "type": "team",
-      "total_points": 1340,
+      "total_points": 1355,
       "artifacts_found": [
         1,
         3,
@@ -49,9 +49,10 @@
         55,
         36,
         54,
-        52
+        52,
+        51
       ],
-      "last_submission": "2026-09-04T14:38:36Z",
+      "last_submission": "2026-09-04T14:46:35Z",
       "completion_bonus_awarded": false
     },
     {
@@ -1656,7 +1657,7 @@
       "id": 51,
       "letter": "G",
       "rare": false,
-      "found_count": 3,
+      "found_count": 4,
       "first_finder": "Power Interns",
       "finders": [
         {
@@ -1673,6 +1674,11 @@
           "team": "Wydzial ds. Ludzi",
           "timestamp": "2026-09-04T14:43:06Z",
           "rank": 3
+        },
+        {
+          "team": "Synthetic",
+          "timestamp": "2026-09-04T14:46:35Z",
+          "rank": 4
         }
       ]
     },
@@ -4062,6 +4068,17 @@
       "multiplier": 3.0,
       "points": 30,
       "rank_at_time": 1
+    },
+    {
+      "team": "Synthetic",
+      "artifact_id": 51,
+      "letter": "G",
+      "rare": false,
+      "timestamp": "2026-09-04T14:46:35Z",
+      "base_points": 10,
+      "multiplier": 1.5,
+      "points": 15,
+      "rank_at_time": 4
     }
   ]
 }
