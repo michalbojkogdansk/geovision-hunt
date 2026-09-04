@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-09-04T14:28:26.564645+00:00",
+  "last_updated": "2026-09-04T14:29:07.407481+00:00",
   "teams": [
     {
       "name": "Power Interns",
@@ -59,7 +59,7 @@
     {
       "name": "Synthetic",
       "type": "team",
-      "total_points": 1230,
+      "total_points": 1250,
       "artifacts_found": [
         1,
         3,
@@ -101,9 +101,10 @@
         37,
         53,
         34,
-        55
+        55,
+        36
       ],
-      "last_submission": "2026-09-04T14:15:02Z",
+      "last_submission": "2026-09-04T14:28:56Z",
       "completion_bonus_awarded": false
     },
     {
@@ -1663,13 +1664,18 @@
       "id": 36,
       "letter": "E",
       "rare": false,
-      "found_count": 1,
+      "found_count": 2,
       "first_finder": "Power Interns",
       "finders": [
         {
           "team": "Power Interns",
           "timestamp": "2026-09-04T14:28:15Z",
           "rank": 1
+        },
+        {
+          "team": "Synthetic",
+          "timestamp": "2026-09-04T14:28:56Z",
+          "rank": 2
         }
       ]
     }
@@ -3830,6 +3836,17 @@
       "multiplier": 3.0,
       "points": 30,
       "rank_at_time": 1
+    },
+    {
+      "team": "Synthetic",
+      "artifact_id": 36,
+      "letter": "E",
+      "rare": false,
+      "timestamp": "2026-09-04T14:28:56Z",
+      "base_points": 10,
+      "multiplier": 2.0,
+      "points": 20,
+      "rank_at_time": 2
     }
   ]
 }
